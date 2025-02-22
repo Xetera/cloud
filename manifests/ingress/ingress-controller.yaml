@@ -1,0 +1,322 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: traefik
+  namespace: ingress
+spec:
+  controller: traefik.io/ingress-controller
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik
+  namespace: ingress
+  labels:
+    app: traefik
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: traefik-account
+      containers:
+        - name: traefik
+          image: traefik:v3.3.4
+          args:
+            - --api.insecure
+            - --providers.kubernetesingress
+            - --providers.kubernetescrd=true
+            - --providers.kubernetesingress.ingressclass=traefik
+            # needed for cloudflare rules
+            - --providers.kubernetescrd.allowCrossNamespace=true
+            - --entrypoints.web.address=:80
+            - --entrypoints.websecure.address=:443
+            # just for fun I guess, cloudflare doesn't support http3 between edge and origin yet
+            - --entrypoints.websecure.http3=true
+            - --entrypoints.websecure.http3.advertisedport=443
+            - --entrypoints.metrics.address=:8082
+            # needed to allow forwarding of forwarded headers
+            # this is okay because we already whitelist cloudflare ips
+            - --entrypoints.websecure.forwardedheaders.insecure=true
+            - --log.level=DEBUG
+            - --tracing=true
+            - --tracing.otlp.http.endpoint=http://alloy.monitoring.svc.cluster.local:4318
+            - --tracing.capturedRequestHeaders[0]=X-Forwarded-For
+            - --ping=true
+            - --ping.entrypoint=web
+            - --metrics.prometheus=true
+            - --metrics.prometheus.entrypoint=metrics
+            - --metrics.prometheus.addEntryPointsLabels=true
+            - --metrics.prometheus.addRoutersLabels=true
+            - --metrics.prometheus.headerlabels.useragent=User_Agent
+            - --metrics.prometheus.headerlabels.x_forwarded_for=x_forwarded_for
+          ports:
+            - name: web
+              containerPort: 80
+            - name: websecure
+              containerPort: 443
+            - name: dashboard
+              containerPort: 8080
+            - name: metrics
+              containerPort: 8082
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 80
+            periodSeconds: 10
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-dashboard-service
+  namespace: ingress
+spec:
+  type: ClusterIP
+  ports:
+    - name: dashboard
+      port: 8080
+      targetPort: dashboard
+    - name: metrics
+      port: 8082
+      targetPort: metrics
+  selector:
+    app: traefik
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: ingress-monitor
+  namespace: ingress
+spec:
+  selector:
+    matchLabels:
+      app: traefik
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: ingress
+  # annotations:
+  #   load-balancer.hetzner.cloud/location: fsn1
+  #   load-balancer.hetzner.cloud/name: kube-lb
+  #   load-balancer.hetzner.cloud/use-private-ip: "true"
+  #   load-balancer.hetzner.cloud/uses-proxyprotocol: "true"
+  #   load-balancer.hetzner.cloud/hostname: xetera.dev
+  #   load-balancer.hetzner.cloud/http-redirect-https: "false"
+  #   # we need http healthchecks because of stupid hetzner using RST and raising errors in traefik
+  #   load-balancer.hetzner.cloud/health-check-protocol: http
+  #   load-balancer.hetzner.cloud/health-check-http-path: /ping
+  #   load-balancer.hetzner.cloud/health-check-port: "80"
+  #   load-balancer.hetzner.cloud/health-check-interval: 15s
+  #   load-balancer.hetzner.cloud/health-check-timeout: 10s
+  #   load-balancer.hetzner.cloud/health-check-retries: "3"
+  #   load-balancer.hetzner.cloud/http-status-codes: "200"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
+      protocol: TCP
+    - name: quic
+      port: 443
+      targetPort: 443
+      protocol: UDP
+  selector:
+    app: traefik
+  externalTrafficPolicy: Local
+  externalIPs:
+    - 49.13.118.116
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-dashboard
+  namespace: ingress
+spec:
+  ports:
+    - port: 8080
+      targetPort: dashboard
+  selector:
+    app: traefik
+---
+# exposing dashboard to tailscale
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-tailscale
+  namespace: ingress
+spec:
+  defaultBackend:
+    service:
+      name: traefik-dashboard
+      port:
+        name: dashboard
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - traefik
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cloudflare-only
+  namespace: ingress
+spec:
+  ipAllowList:
+    sourceRange:
+      - 103.21.244.0/22
+      - 103.22.200.0/22
+      - 103.31.4.0/22
+      - 104.16.0.0/13
+      - 104.24.0.0/14
+      - 108.162.192.0/18
+      - 131.0.72.0/22
+      - 141.101.64.0/18
+      - 162.158.0.0/15
+      - 172.64.0.0/13
+      - 173.245.48.0/20
+      - 188.114.96.0/20
+      - 190.93.240.0/20
+      - 197.234.240.0/22
+      - 198.41.128.0/17
+      # ipv6
+      - 2400:cb00::/32
+      - 2606:4700::/32
+      - 2803:f800::/32
+      - 2405:b500::/32
+      - 2405:8100::/32
+      - 2a06:98c0::/29
+      - 2c0f:f248::/32
+      # internal
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+---
+# only allow traffic from cloudflare to traefik
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traefik-ingress-policy
+  namespace: ingress
+spec:
+  endpointSelector:
+    matchLabels:
+      app: traefik
+  ingress:
+    - fromCIDRSet:
+        - cidr: 103.21.244.0/22
+        - cidr: 103.22.200.0/22
+        - cidr: 103.31.4.0/22
+        - cidr: 104.16.0.0/13
+        - cidr: 104.24.0.0/14
+        - cidr: 108.162.192.0/18
+        - cidr: 131.0.72.0/22
+        - cidr: 141.101.64.0/18
+        - cidr: 162.158.0.0/15
+        - cidr: 172.64.0.0/13
+        - cidr: 173.245.48.0/20
+        - cidr: 188.114.96.0/20
+        - cidr: 190.93.240.0/20
+        - cidr: 197.234.240.0/22
+        - cidr: 198.41.128.0/17
+        # ipv6
+        - cidr: 2400:cb00::/32
+        - cidr: 2606:4700::/32
+        - cidr: 2803:f800::/32
+        - cidr: 2405:b500::/32
+        - cidr: 2405:8100::/32
+        - cidr: 2a06:98c0::/29
+        - cidr: 2c0f:f248::/32
+        - cidr: 10.0.0.0/8
+        - cidr: 172.16.0.0/12
+        # - cidr: 1
+    # allow traffic from monitoring namespace
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+      toPorts:
+        - ports:
+            - port: "8082"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+            - port: "443"
+              protocol: TCP
+    # expose dashboard
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: tailscale
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+      # otlp/http traces
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app: alloy
+      toPorts:
+        - ports:
+            - port: "4318"
+              protocol: TCP
+      # status page
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app: gatus
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+      # analytics
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: analytics
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    # allow traffic to projects
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: default
+    # to watch kubernetes events
+    - toEntities:
+        - kube-apiserver

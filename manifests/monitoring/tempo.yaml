@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+  namespace: monitoring
+data:
+  tempo.yaml: |-
+    server:
+      http_listen_port: 3200
+
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            http:
+              endpoint: "0.0.0.0:4318"
+            grpc:
+              endpoint: "0.0.0.0:4317"
+
+    storage:
+      trace:
+        backend: "local"
+        local:
+          path: /var/tempo/data
+        wal:
+          path: /var/tempo/wal
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tempo-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tempo
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3200"
+      labels:
+        app: tempo
+    spec:
+      initContainers:
+        - name: init-tempo
+          image: grafana/tempo:latest
+          securityContext:
+            runAsUser: 0
+          command:
+            - chown
+            - 10001:10001
+            - /var/tempo
+          volumeMounts:
+            - name: tempo-pvc
+              mountPath: /var/tempo
+      containers:
+        - name: tempo
+          image: grafana/tempo:latest
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            runAsNonRoot: true
+          ports:
+            - containerPort: 3200
+            # no grpc as of yet
+            - containerPort: 4318
+          args:
+            - -config.file=/etc/tempo.yaml
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: access_key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-credentials
+                  key: secret_key
+          volumeMounts:
+            - name: tempo-config
+              mountPath: /etc/tempo.yaml
+              subPath: tempo.yaml
+            - name: tempo-pvc
+              mountPath: /var/tempo
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: tempo-pvc
+          persistentVolumeClaim:
+            claimName: tempo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo
+  namespace: monitoring
+spec:
+  selector:
+    app: tempo
+  ports:
+    - name: otlp-http
+      protocol: TCP
+      port: 4318
+      targetPort: 4318
+    - name: http
+      protocol: TCP
+      port: 3200
+      targetPort: 3200
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: tempo-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: tempo
+  podMetricsEndpoints:
+    - port: http
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tempo-ingress-policy
+  namespace: monitoring
+spec:
+  endpointSelector:
+    matchLabels:
+      app: tempo
+  ingress:
+    # OTLP/HTTP traces from projects
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: default
+      toPorts:
+        - ports:
+            - port: "4318"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: default
+      toPorts:
+        - ports:
+            - port: "4318"
+              protocol: TCP
+    # OTLP/HTTP traces from ingress
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: ingress
+            app: traefik
+      toPorts:
+        - ports:
+            - port: "4318"
+              protocol: TCP
+    # API access from grafana/metrics
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+      toPorts:
+        - ports:
+            - port: "3200"
+              protocol: TCP
+            - port: "4318"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+    # healthchecks/metrics
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+      toPorts:
+        - ports:
+            - port: "3200"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY

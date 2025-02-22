@@ -1,0 +1,204 @@
+apiVersions:
+  # for whatever reason helm cannot infer this?
+  # it breaks prometheus rbac
+  - discovery.k8s.io/v1/EndpointSlice
+
+repositories:
+  - name: cnpg
+    url: https://cloudnative-pg.github.io/charts
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  - name: christianhuth
+    url: https://charts.christianhuth.de
+  - name: tailscale
+    url: https://pkgs.tailscale.com/helmcharts
+  - name: "1password"
+    url: https://1password.github.io/connect-helm-charts
+
+releases:
+  # - name: cilium
+  #   chart: cilium/cilium
+  #   namespace: kube-system
+  #   values:
+  #     - encryption:
+  #         enabled: false
+
+  #       hubble:
+  #         enabled: true
+  #         metrics:
+  #           enableOpenMetrics: true
+  #           # serviceMonitor:
+  #           #   enabled: true
+  #           dashboards:
+  #             enabled: true
+  #             namespace: monitoring
+  #           enabled:
+  #             - dns
+  #             - drop
+  #             - tcp
+  #             - flow
+  #             - port-distribution
+  #             - icmp
+  #             - http
+  #         peerService:
+  #           clusterDomain: "cluster.local"
+  #         relay:
+  #           enabled: true
+  #         ui:
+  #           enabled: true
+  #         export:
+  #           static:
+  #             enabled: true
+  #             name: traffic-blocking
+  #             excludeFilters: []
+  #             fieldMask: []
+  #             filePath: /dev/stdout
+  #             includeFilters:
+  #               - event_type:
+  #                   - type: 1
+  #                     sub_type: 181
+
+  #       ipam:
+  #         mode: kubernetes
+  #       k8sServiceHost: 127.0.0.1
+  #       k8sServicePort: 6444
+  #       kubeProxyReplacement: true
+  #       operator:
+  #         replicas: 1
+  #         prometheus:
+  #           enabled: true
+  #         resources:
+  #           requests:
+  #             memory: 128Mi
+  #       resources:
+  #         requests:
+  #           memory: 512Mi
+  #       routingMode: tunnel
+  #       tunnelProtocol: vxlan
+  # postgres
+  - name: postgres
+    namespace: cnpg-system
+    createNamespace: true
+    chart: cnpg/cloudnative-pg
+    values:
+      - config:
+          clusterWide: false
+        # needed for secrets access
+        serviceAccount:
+          create: true
+        webhook:
+          startupProbe:
+            failureThreshold: 4
+  # prometheus
+  - name: prometheus-stack
+    namespace: monitoring
+    disableValidation: true
+    createNamespace: true
+    disableValidationOnInstall: true
+    chart: prometheus-community/kube-prometheus-stack
+    hooks:
+      - events: ["postsync"]
+        command: "kubectl"
+        args:
+          - apply
+          - -f
+          - "./patches/grafana.yaml"
+        showlogs: true
+    values:
+      - grafana:
+          enabled: true
+          sidecar:
+            dashboards:
+              enabled: true
+              datasources:
+                enabled: true
+          additionalDataSources:
+            # data sources
+            - name: Loki
+              access: proxy
+              type: loki
+              url: http://loki.monitoring.svc.cluster.local:3100
+              editable: false
+            - name: Tempo
+              access: proxy
+              type: tempo
+              url: http://tempo.monitoring.svc.cluster.local:3200
+              editable: false
+        # prom
+        rbac:
+          create: false
+        prometheus:
+          enabled: true
+          prometheusSpec:
+            # allows monitoring all pod selectors
+            podMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorSelectorNilUsesHelmValues: false
+            probeSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 10Gi
+  - name: umami
+    chart: christianhuth/umami
+    namespace: analytics
+    createNamespace: true
+    disableValidationOnInstall: true
+    hooks:
+      - events: ["postsync"]
+        command: "kubectl"
+        args:
+          - apply
+          - -f
+          - "./patches/umami.yaml"
+        showlogs: true
+    values:
+      - database:
+          databaseUrlKey: url
+          existingSecret: umami-postgres-url
+        replicaCount: 1
+        nodeSelector:
+          app: umami
+        serviceAccount:
+          create: true
+        postgresql:
+          # use cnpg
+          enabled: false
+        umami:
+          appSecret:
+            existingSecret: umami-app-secret
+          trackerScriptName: selfhosted-umami
+        # ingress enabled in monitoring/umami
+  - name: tailscale
+    chart: tailscale/tailscale-operator
+    namespace: tailscale
+    createNamespace: true
+    set:
+      - name: k8sServiceHost
+        value: kubernetes.default.svc.cluster.local
+      - name: k8sServicePort
+        value: 6443
+  - name: connect
+    chart: 1password/connect
+    namespace: 1password
+    createNamespace: true
+    values:
+      - operator:
+          create: true
+          token:
+        connect:
+          credentialsKey: 1password-credentials.json
+          credentialsName: op-credentials
+          dataVolume:
+            type: local-path
+  # set:
+  #   - name: connect.credentials
+  #     file: 1password-credentials.json
+  #   - name: operator.create
+  #     value: true
+  #   - name: operator.token.value
+  #     value: connect-token

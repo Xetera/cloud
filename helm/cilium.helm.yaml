@@ -1,0 +1,55 @@
+encryption:
+  enabled: false
+
+hubble:
+  enabled: true
+  metrics:
+    enableOpenMetrics: true
+    # serviceMonitor:
+    #   enabled: true
+    dashboards:
+      enabled: true
+      namespace: monitoring
+    enabled:
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - http
+  peerService:
+    clusterDomain: "cluster.local"
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+  # export:
+  #   static:
+  #     enabled: true
+  #     name: traffic-blocking
+  #     excludeFilters: []
+  #     fieldMask: []
+  #     filePath: /dev/stdout
+  #     includeFilters:
+  #       - event_type:
+  #           - type: 1
+  #             sub_type: 181
+
+ipam:
+  mode: kubernetes
+k8sServiceHost: 127.0.0.1
+k8sServicePort: 6444
+kubeProxyReplacement: true
+operator:
+  replicas: 1
+  prometheus:
+    enabled: true
+  resources:
+    requests:
+      memory: 128Mi
+resources:
+  requests:
+    memory: 512Mi
+routingMode: native
+tunnelProtocol: vxlan

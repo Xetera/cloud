@@ -1,0 +1,103 @@
+---
+cluster_name: kube
+kubeconfig_path: "./kubeconfig"
+k3s_version: v1.32.1+k3s1
+
+networking:
+  ssh:
+    port: 22
+    use_agent: false # set to true if your key has a passphrase
+    public_key_path: "~/.ssh/kube.pub"
+    private_key_path: "~/.ssh/kube"
+  allowed_networks:
+    ssh:
+      - 0.0.0.0/0
+    api: # this will firewall port 6443 on the nodes
+      - 0.0.0.0/0
+  public_network:
+    ipv4: true
+    ipv6: true
+  private_network:
+    enabled: true
+    subnet: 10.0.0.0/16
+    existing_network_name: ""
+  cni:
+    enabled: true
+    encryption: false
+    mode: cilium
+
+  # cluster_cidr: 10.244.0.0/16 # optional: a custom IPv4/IPv6 network CIDR to use for pod IPs
+  # service_cidr: 10.43.0.0/16 # optional: a custom IPv4/IPv6 network CIDR to use for service IPs. Warning, if you change this, you should also change cluster_dns!
+  # cluster_dns: 10.43.0.10 # optional: IPv4 Cluster IP for coredns service. Needs to be an address from the service_cidr range
+
+# manifests:
+#   cloud_controller_manager_manifest_url: "https://github.com/hetznercloud/hcloud-cloud-controller-manager/releases/download/v1.23.0/ccm-networks.yaml"
+#   csi_driver_manifest_url: "https://raw.githubusercontent.com/hetznercloud/csi-driver/v2.12.0/deploy/kubernetes/hcloud-csi.yml"
+#   system_upgrade_controller_deployment_manifest_url: "https://github.com/rancher/system-upgrade-controller/releases/download/v0.14.2/system-upgrade-controller.yaml"
+#   system_upgrade_controller_crd_manifest_url: "https://github.com/rancher/system-upgrade-controller/releases/download/v0.14.2/crd.yaml"
+#   cluster_autoscaler_manifest_url: "https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/hetzner/examples/cluster-autoscaler-run-on-master.yaml"
+#   cluster_autoscaler_container_image_tag: "v1.32.0"
+
+datastore:
+  mode: etcd # etcd (default) or external
+  external_datastore_endpoint: postgres://....
+
+schedule_workloads_on_masters: false
+
+# image: rocky-9 # optional: default is ubuntu-24.04
+# autoscaling_image: 103908130 # optional, defaults to the `image` setting
+# snapshot_os: microos # optional: specified the os type when using a custom snapshot
+
+masters_pool:
+  instance_type: cax11
+  instance_count: 1 # for HA; you can also create a single master cluster for dev and testing (not recommended for production)
+  locations: # You can choose a single location for single master clusters or if you prefer to have all masters in the same location. For regional clusters (which are only available in the eu-central network zone), each master needs to be placed in a separate location.
+    - fsn1
+
+worker_node_pools:
+  - name: worker-medium
+    instance_type: cax21
+    instance_count: 1
+    location: fsn1
+    # image: debian-11
+    # labels:
+    #   - key: purpose
+    #     value: blah
+    # taints:
+    #   - key: something
+    #     value: value1:NoSchedule
+
+embedded_registry_mirror:
+  enabled: false # Enables fast p2p distribution of container images between nodes for faster pod startup. Check if your k3s version is compatible before enabling this option. You can find more information at https://docs.k3s.io/installation/registry-mirror
+
+protect_against_deletion: true
+
+create_load_balancer_for_the_kubernetes_api: false # Just a heads up: right now, we can’t limit access to the load balancer by IP through the firewall. This feature hasn’t been added by Hetzner yet.
+
+# additional_packages:
+# - somepackage
+
+# post_create_commands:
+# - apt update
+# - apt upgrade -y
+# - apt autoremove -y
+
+# kube_api_server_args:
+# - arg1
+# - ...
+# kube_scheduler_args:
+# - arg1
+# - ...
+# kube_controller_manager_args:
+# - arg1
+# - ...
+# kube_cloud_controller_manager_args:
+# - arg1
+# - ...
+# kubelet_args:
+# - arg1
+# - ...
+# kube_proxy_args:
+# - arg1
+# - ...
+# api_server_hostname: k8s.example.com # optional: DNS for the k8s API LoadBalancer. After the script has run, create a DNS record with the address of the API LoadBalancer.

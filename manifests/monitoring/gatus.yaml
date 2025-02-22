@@ -1,0 +1,415 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-config
+  namespace: monitoring
+data:
+  config.yaml: |
+    metrics: true
+    storage:
+      type: sqlite
+      path: "/data/gatus.db"
+
+    ui:
+      custom-css: |
+        body {
+          background-color: oklch(15.36% 0.017 252.81);
+          --sans: ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+        }
+
+        #global {
+          padding: 50px;
+        }
+
+        .dark #global {
+          background-color: oklch(18.36% 0.017 252.81);
+          border-color: rgba(28, 41, 55, 1);
+          
+        }
+
+        #global >  a {
+          padding: 13px 30px;
+          top: 0;
+          left: 0;
+          border-radius: 0;
+          border-bottom-right-radius: 10px;
+
+          font-size: 0.9rem;
+          border: none;
+        }
+
+        .dark #global > a {
+            background-color: oklch(22.36% 0.017 252.81);
+          color: oklch(88.36% 0.017 252.81);
+        }
+
+        #global > div:first-of-type > div > div > div {
+          font-weight: bold;
+        }
+
+        h1 {
+          font-weight: 500;
+          font-size: 1.4rem !important;
+          font-family: var(--sans) !important;
+          margin-top: 1rem;
+        }
+
+        .dark h1 {
+          color: oklch(84.87% 0.0058 264.53) !important;
+        }
+
+
+        h1 + hr {
+          /* border: 1px  oklch(21.36% 0.017 252.81) solid;*/
+          border: unset;
+        }
+
+        .endpoint {
+          border-bottom-width: 1px !important;
+          padding: 20px;
+          transition: all 0.25s !important;
+        }
+
+        .dark .endpoint {
+          background-color: oklch(20.36% 0.017 252.81) !important;
+          border: 1px solid oklch(25.36% 0.017 252.81) !important;
+        }
+
+        .dark .endpoint:hover {
+          background-color: oklch(22.36% 0.017 252.81) !important;
+        }
+
+        .status-time-ago {
+          margin-top: 10px !important;
+          opacity: 1 !important;
+          font-weight: 400 !important;
+          font-size: 14px !important;
+        }
+
+        .dark .status-time-ago {
+          color: oklch(62.45% 0.0108 252.86);
+          
+        }
+
+        .endpoint > div:first-of-type {
+          margin-bottom: 12px;
+        }
+
+        .endpoint + div button {
+          padding: 8px 30px;
+        
+          font-size: 0.9rem;
+          color: oklch(82.36% 0.017 252.81);
+          font-family: var(--sans) !important;
+        }
+
+        .dark .endpoint + div button {
+          background-color: oklch(20.36% 0.017 252.81);  
+            border: 1px solid oklch(25.36% 0.017 252.81);
+        }
+
+        #results + div button {
+
+
+          padding: 8px 30px;
+
+          font-size: 0.9rem;
+
+          font-family: var(--sans) !important;
+
+        }
+
+        .dark #results + div button {
+            color: oklch(82.36% 0.017 252.81);
+            background-color: oklch(20.36% 0.017 252.81);
+            border: 1px solid oklch(25.36% 0.017 252.81);
+        }
+
+        .endpoint [title="Average response time"] {
+
+          font-weight: 500;
+          font-size: 0.95rem;
+          font-family: var(--sans);
+        }
+
+        .dark .endpoint [title="Average response time"] {
+            color: oklch(72.45% 0.0108 252.86);
+        }
+
+        .status {
+          border-radius: 0 !important;
+          padding: 5px 0;
+          font-size: 0.7rem;  
+        }
+
+        .dark .status-success {
+          background: oklch(43.34% 0.1279 145.78);
+          color: oklch(89.34% 0.1279 145.78);
+        }
+
+        .dark [title="Partial Outage"] {
+          background: oklch(9% 0.6279 20.78);
+          color: oklch(98.34% 0.2279 20.78);
+        }
+
+        .dark .status-failure {
+          background: oklch(9% 0.6279 20.78);
+          color: oklch(98.34% 0.2279 20.78);
+        }
+
+        .status-over-time {
+          border-radius: 5px;
+        }
+
+        .status-over-time > span:not(:first-child) {
+          margin: 0 !important;
+        }
+        .status-over-time > .status-success:not(:first-child) {
+          border-left: 1px solid oklch(69.01% 0.1751 146.74);
+        }
+
+        .dark .status-over-time > .status-success:not(:first-child) {
+          border-left: 1px solid oklch(59.01% 0.1751 146.74);
+        }
+
+        .dark .router-link-active + * {
+          color: oklch(72.45% 0.0108 252.86);
+          font-weight: 400;
+        }
+
+        select {
+          padding: 10px 20px;
+        }
+        .dark select {
+          background-color: oklch(20.36% 0.017 252.81);
+          border: 1px solid oklch(25.36% 0.017 252.81);
+        }
+
+        .dark div:has(> ul) > h1 {
+          padding: 0 6rem;
+        }
+
+
+        li {
+          border: none;
+        }
+
+        .dark .endpoint-group {
+          font-family: var(--sans) !important;
+          background: oklch(20.36% 0.017 252.81) !important;
+          padding: 8px 5px 3px 15px;
+          align-items: center;
+          border: none;
+        }
+
+        .dark .endpoint-group:hover {
+          background-color: oklch(22.36% 0.017 252.81) !important;
+        }
+
+        .dark .endpoint-group * {
+          font-family: var(--sans) !important;
+        }
+
+        .dark .endpoint-group:hover h5 {
+          color: oklch(78.36% 0.017 252.81);
+        }
+
+        #settings {
+          display: flex;
+          align-items: center;
+        }
+
+        .dark #settings {
+          border-color: oklch(25.36% 0.017 252.81);
+        }
+
+        #refresh-rate {
+          border-color: oklch(30.36% 0.017 252.81);
+          border-left-width: 1px;
+          border-top: 0;
+          border-bottom: 0;
+        }
+
+    endpoints:
+      - name: "xetera.dev"
+        group: projects
+        url: "https://xetera.dev"
+        interval: 30m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: "placewaifu.com"
+        group: projects
+        url: "https://placewaifu.com"
+        interval: 30m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: "me.xetera.dev"
+        group: projects
+        url: "https://me.xetera.dev/health"
+        interval: 30m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: "plex"
+        group: projects
+        url: "https://tv.xetera.dev"
+        ui:
+          hide-hostname: true
+        interval: 5m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 401"
+
+      # k8s services
+      - name: loki
+        group: k8s
+        url: "http://loki.monitoring.svc.cluster.local:3100/ready"
+        interval: 5m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: prometheus
+        group: k8s
+        url: "http://prometheus-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090/-/healthy"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: grafana
+        group: k8s
+        url: "http://prometheus-stack-grafana.monitoring.svc.cluster.local/ready"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: alloy
+        group: k8s
+        url: "http://alloy.monitoring.svc.cluster.local:12345/-/healthy"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: postgres
+        group: k8s
+        url: "tcp://postgres-r.cnpg-system.svc.cluster.local:5432"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[CONNECTED] == true"
+      - name: umami
+        group: k8s
+        url: "http://umami.analytics.svc.cluster.local:3000"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: traefik
+        group: k8s
+        url: "http://traefik.ingress.svc.cluster.local/ping"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: tempo
+        group: k8s
+        url: "http://tempo.monitoring.svc.cluster.local:3200/ready"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gatus-pvc
+  namespace: monitoring
+spec:
+  resources:
+    requests:
+      storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatus
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: gatus
+  template:
+    metadata:
+      labels:
+        app: gatus
+    spec:
+      containers:
+        - name: gatus
+          image: twinproduction/gatus
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "256m"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: gatus-pvc
+              mountPath: /data
+            - name: gatus-config
+              mountPath: /config
+      volumes:
+        - name: gatus-pvc
+          persistentVolumeClaim:
+            claimName: gatus-pvc
+        - name: gatus-config
+          configMap:
+            name: gatus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatus
+  namespace: monitoring
+spec:
+  selector:
+    app: gatus
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gatus
+  namespace: monitoring
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`status.xetera.dev`)
+      priority: 10
+      services:
+        - name: gatus
+          port: 8080
+      middlewares:
+        - name: ingress-cloudflare-only@kubernetescrd
+  tls:
+    options:
+      name: ingress-cloudflare-mtls@kubernetescrd
+    secretName: xetera-dev-cloudflare
