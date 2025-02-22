@@ -1,0 +1,19 @@
+version: v0.171.0
+dependencies:
+- name: cloudnative-pg
+  repository: https://cloudnative-pg.github.io/charts
+  version: 0.23.2
+- name: connect
+  repository: https://1password.github.io/connect-helm-charts
+  version: 1.17.0
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 69.7.3
+- name: tailscale-operator
+  repository: https://pkgs.tailscale.com/helmcharts
+  version: 1.80.3
+- name: umami
+  repository: https://charts.christianhuth.de
+  version: 4.2.1
+digest: sha256:ea9cf5bce3ad11c59f5ab6e2a4d63e334fc99249841cf6da33ebdfb4ecf0c0a9
+generated: "2025-03-06T12:21:16.198885+03:00"

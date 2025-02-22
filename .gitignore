@@ -1,0 +1,10 @@
+**/access_key.txt
+**/secret_key.txt
+**/*.key
+**/*.pem
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.env
+kubeconfig
+1password-credentials.json

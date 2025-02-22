@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: umami
+  namespace: analytics
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`overtime-contingency.xetera.dev`)
+      priority: 10
+      services:
+        - name: "umami"
+          port: 3000
+      middlewares:
+        - name: ingress-cloudflare-only@kubernetescrd
+  tls:
+    options:
+      name: ingress-cloudflare-mtls@kubernetescrd
+    secretName: cloudflare-origin-xetera-dev

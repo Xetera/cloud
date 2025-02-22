@@ -1,0 +1,50 @@
+---
+# namespace: ingress
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-origin-xetera-dev
+  namespace: ingress
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-origin:xetera.dev"
+---
+# namespace: default
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-origin-xetera-dev
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-origin:xetera.dev"
+---
+# namespace: analytics
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-origin-xetera-dev
+  namespace: analytics
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-origin:xetera.dev"
+---
+#### MTLS
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-mtls
+  namespace: ingress
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-mtls"
+---
+apiVersion: traefik.io/v1alpha1
+kind: TLSOption
+metadata:
+  name: cloudflare-mtls
+  namespace: ingress
+spec:
+  clientAuth:
+    clientAuthType: RequireAndVerifyClientCert
+    secretNames:
+      - cloudflare-mtls
+  minVersion: VersionTLS12
