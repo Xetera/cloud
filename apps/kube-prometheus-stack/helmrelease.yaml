@@ -1,0 +1,62 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "69.7.3"
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: monitoring
+      interval: 10m
+  values:
+    grafana:
+      enabled: true
+      sidecar:
+        dashboards:
+          enabled: true
+          datasources:
+            enabled: true
+      additionalDataSources:
+        # data sources
+        - name: Loki
+          access: proxy
+          type: loki
+          url: http://loki.monitoring.svc.cluster.local:3100
+          editable: false
+        - name: Tempo
+          access: proxy
+          type: tempo
+          url: http://tempo.monitoring.svc.cluster.local:3200
+          jsonData:
+            tracesToLogsV2:
+              dataSourceUid: "loki"
+            tracesToMetrics:
+              dataSourceUid: "prometheus"
+            serviceMap:
+              dataSourceUid: "prometheus"
+          editable: false
+    # prom
+    rbac:
+      create: false
+    prometheus:
+      enabled: true
+      prometheusSpec:
+        # allows monitoring all pod selectors
+        podMonitorSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: local-path
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 10Gi
