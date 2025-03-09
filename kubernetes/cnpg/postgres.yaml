@@ -1,28 +1,3 @@
----
-apiVersion: onepassword.com/v1
-kind: OnePasswordItem
-metadata:
-  name: postgres-s3-backups
-  namespace: cnpg-system
-spec:
-  itemPath: "vaults/k8s-cloud/items/wasabi-s3-postgres-credentials"
----
-apiVersion: onepassword.com/v1
-kind: OnePasswordItem
-metadata:
-  name: postgres-user-umami
-  namespace: cnpg-system
-spec:
-  itemPath: "vaults/k8s-cloud/items/postgres-user-umami"
----
-apiVersion: onepassword.com/v1
-kind: OnePasswordItem
-metadata:
-  name: postgres-user-developer
-  namespace: cnpg-system
-spec:
-  itemPath: "vaults/k8s-cloud/items/postgres-user-developer"
----
 apiVersion: postgresql.cnpg.io/v1
 kind: ImageCatalog
 metadata:
@@ -38,6 +13,8 @@ kind: Cluster
 metadata:
   name: postgres
   namespace: cnpg-system
+  # annotations:
+  #   kustomize.toolkit.fluxcd.io/force: enabled
 spec:
   instances: 1
   imageCatalogRef:
@@ -46,12 +23,31 @@ spec:
     name: postgresql
     major: 17
   bootstrap:
-    initdb:
-      postInitTemplateSQL:
-        - CREATE EXTENSION timescaledb;
+    recovery:
+      backup:
+        name: postgres-20250304202332
+      # backupSource:
+      #   barmanObjectStore:
+      #     destinationPath: s3://kubernetes-postgres-backup/
+      #     endpointURL: https://s3.eu-central-2.wasabisys.com
+      #     s3Credentials:
+      #       accessKeyId:
+      #         name: postgres-s3-backups
+      #         key: access_key
+      #       secretAccessKey:
+      #         name: postgres-s3-backups
+      #         key: secret_key
+    # initdb:
+    #   postInitTemplateSQL:
+    #     - CREATE EXTENSION timescaledb;
   storage:
-    size: 10Gi
-    storageClass: local-path
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: hcloud-volumes
   managed:
     roles:
       - name: umami
@@ -60,7 +56,6 @@ spec:
         superuser: false
         passwordSecret:
           name: umami-user-postgres
-
       - name: developer
         ensure: present
         comment: "role for development only"
@@ -68,7 +63,6 @@ spec:
         superuser: false
         passwordSecret:
           name: developer-password
-
   backup:
     retentionPolicy: "7d"
     barmanObjectStore:

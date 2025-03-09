@@ -5,6 +5,7 @@
 *.tfstate
 *.tfstate.backup
 *.tfvars
+identity
 .env
 kubeconfig
 1password-credentials.json

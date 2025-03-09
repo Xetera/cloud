@@ -1,0 +1,123 @@
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: github-ssh-key
+  namespace: flux-system
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/github-ssh-key-flux"
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: github-app
+  namespace: flux-system
+spec:
+  itemPath: "vaults/k8s-cloud/items/github-app"
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: github-pat
+  namespace: flux-system
+spec:
+  itemPath: "vaults/k8s-cloud/items/github-pat"
+---
+# cloudflare origin for projects
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-origin-xetera-dev
+  namespace: default
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-origin:xetera.dev"
+---
+# cloudflare origin for webhook receiver
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-origin-xetera-dev
+  namespace: flux-system
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-origin:xetera.dev"
+---
+# webhook receiver
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: webhook-receiver
+  namespace: flux-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`deploy.xetera.dev`)
+      priority: 10
+      services:
+        - name: webhook-receiver
+          port: 80
+      middlewares:
+        - name: ingress-cloudflare-only@kubernetescrd
+  tls:
+    options:
+      name: ingress-cloudflare-mtls@kubernetescrd
+    secretName: cloudflare-origin-xetera-dev
+---
+# github webhook token
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: flux-webhook-token
+  namespace: flux-system
+spec:
+  itemPath: "vaults/k8s-cloud/items/flux-webhook-token"
+  # exposes a `token` field
+---
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: infrastructure
+  namespace: flux-system
+spec:
+  type: github
+  events:
+    - "ping"
+    - "push"
+    - "package"
+  secretRef:
+    name: flux-webhook-token
+  resources:
+    - kind: GitRepository
+      name: flux-system
+---
+# github commit statuses
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: infrastructure-repo
+  namespace: flux-system
+spec:
+  type: github
+  address: https://github.com/xetera/cloud
+  secretRef:
+    name: github-pat
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  providerRef:
+    name: infrastructure-repo
+  eventSeverity: info
+  eventSources:
+    - kind: GitRepository
+      name: "*"
+    - kind: Kustomization
+      name: "*"
+    - kind: HelmRelease
+      name: "*"

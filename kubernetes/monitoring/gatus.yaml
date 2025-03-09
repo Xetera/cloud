@@ -278,7 +278,7 @@ data:
           - "[STATUS] == 200"
       - name: prometheus
         group: k8s
-        url: "http://prometheus-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090/-/healthy"
+        url: "http://kube-prometheus-stack-kube-prometheus.monitoring.svc.cluster.local:9090/-/healthy"
         interval: 1m
         timeout: 10s
         method: GET
@@ -286,7 +286,7 @@ data:
           - "[STATUS] == 200"
       - name: grafana
         group: k8s
-        url: "http://prometheus-stack-grafana.monitoring.svc.cluster.local/ready"
+        url: "http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local/ready"
         interval: 1m
         timeout: 10s
         method: GET
