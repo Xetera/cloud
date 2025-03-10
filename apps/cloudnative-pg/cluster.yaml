@@ -1,0 +1,76 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  namespace: cnpg-system
+  # annotations:
+  #   kustomize.toolkit.fluxcd.io/force: enabled
+spec:
+  instances: 1
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ImageCatalog
+    name: postgresql
+    major: 17
+  bootstrap:
+    recovery:
+      backup:
+        name: postgres-20250304202332
+      # backupSource:
+      #   barmanObjectStore:
+      #     destinationPath: s3://kubernetes-postgres-backup/
+      #     endpointURL: https://s3.eu-central-2.wasabisys.com
+      #     s3Credentials:
+      #       accessKeyId:
+      #         name: postgres-s3-backups
+      #         key: access_key
+      #       secretAccessKey:
+      #         name: postgres-s3-backups
+      #         key: secret_key
+    # initdb:
+    #   postInitTemplateSQL:
+    #     - CREATE EXTENSION timescaledb;
+  storage:
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: hcloud-volumes
+  managed:
+    roles:
+      - name: umami
+        comment: "plausible analytics role"
+        login: true
+        superuser: false
+        passwordSecret:
+          name: umami-user-postgres
+      - name: developer
+        ensure: present
+        comment: "role for development only"
+        login: true
+        superuser: false
+        passwordSecret:
+          name: developer-password
+  # backup:
+  #   retentionPolicy: "7d"
+  #   barmanObjectStore:
+  #     destinationPath: s3://kubernetes-postgres-backup/
+  #     endpointURL: https://s3.eu-central-2.wasabisys.com
+  #     s3Credentials:
+  #       accessKeyId:
+  #         name: postgres-s3-backups
+  #         key: access_key
+  #       secretAccessKey:
+  #         name: postgres-s3-backups
+  #         key: secret_key
+  postgresql:
+    parameters:
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+    shared_preload_libraries:
+      - timescaledb
+      - pg_stat_statements
+  monitoring:
+    enablePodMonitor: true

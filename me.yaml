@@ -74,7 +74,7 @@ spec:
   tls:
     options:
       name: ingress-cloudflare-mtls@kubernetescrd
-    secretName: xetera-dev-cloudflare
+    secretName: cloudflare-origin-xetera-dev
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor

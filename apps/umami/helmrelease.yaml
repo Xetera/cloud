@@ -19,9 +19,9 @@ spec:
       databaseUrlKey: url
       existingSecret: umami-postgres-url
     replicaCount: 1
-    nodeSelector:
+    podLabels:
       app: umami
-    revisionHistoryLimit: 3
+    revisionHistoryLimit: 2
     serviceAccount:
       create: true
     postgresql:

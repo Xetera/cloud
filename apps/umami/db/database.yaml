@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: umami-db
+  namespace: cnpg-system
+spec:
+  name: umami
+  owner: umami
+  cluster:
+    name: postgres

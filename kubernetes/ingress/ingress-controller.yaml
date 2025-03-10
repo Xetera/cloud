@@ -163,7 +163,8 @@ metadata:
   namespace: ingress
 spec:
   ports:
-    - port: 8080
+    - name: dashboard
+      port: 8080
       targetPort: dashboard
   selector:
     app: traefik
