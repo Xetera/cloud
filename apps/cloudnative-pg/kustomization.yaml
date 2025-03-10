@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cnpg-system
+resources:
+  - ./secrets.yaml
+  - ./imagecatalog.yaml
+  - ./cluster.yaml
+  - ./podmonitor.yaml
+  - ./prometheusrule.yaml
+  - ./scheduledbackup.yaml
+  - ./helmrepository.yaml
+  - ./helmrelease.yaml

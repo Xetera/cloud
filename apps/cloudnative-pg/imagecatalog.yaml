@@ -1,0 +1,9 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ImageCatalog
+metadata:
+  name: postgresql
+  namespace: cnpg-system
+spec:
+  images:
+    - major: 17
+      image: ghcr.io/clevyr/cloudnativepg-timescale:17.4
