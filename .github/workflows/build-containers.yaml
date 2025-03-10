@@ -1,0 +1,41 @@
+name: Build Containers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  tls-client-api-version: 1.8.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push tls-client-api
+        uses: docker/build-push-action@v6
+        with:
+          context: docker/tls-client-api
+          file: docker/tls-client-api/Dockerfile
+          build-args: version=${{env.tls-client-api-version}}
+          # my cluster runs on arm64 nodes exclusively
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }}
+            ghcr.io/xetera/tls-client-api:latest
+          cache-from: |
+            type=registry,ref=ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }}
+            type=registry,ref=ghcr.io/xetera/tls-client-api:latest
+          cache-to: type=registry,ref=ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }},mode=max
