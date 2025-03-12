@@ -1,14 +1,40 @@
-FROM debian:12.9-slim
+# rqeuired in .tool-versions
+FROM golang:1.22.3-bookworm AS base
 
-ARG version
-ENV VERSION=${version}
+ARG hash
 
-RUN apt-get update && apt-get install -y curl software-properties-common 
+ENV hash=${hash}
+
+RUN apt-get update && apt-get install -y git
+
+FROM base AS deps
 
 WORKDIR /app
 
-RUN curl -fsSL https://github.com/bogdanfinn/tls-client-api/releases/download/v${VERSION}/tls-client-api-darwin-arm64-${VERSION} -o tls-client-api
+# the history on this repo is MASSIVE
+RUN git clone --depth 1 https://github.com/bogdanfinn/tls-client-api.git tls-client-api \
+  && cd tls-client-api && git checkout ${hash}
 
-RUN chmod +x tls-client-api
+# RUN git clone https://github.com/Solem8s/gosoline gasoline \
+#   && cd gasoline && git branch tls-client-api
+
+WORKDIR /app/tls-client-api
+
+# only needed for windows
+RUN sed -i '/replace github.com\/justtrackio\/gosoline/d' /app/tls-client-api/go.mod
+
+RUN go mod tidy && go mod download
+
+FROM deps AS builder
+
+RUN GOOS=linux GOARCH=arm64 go build -o out ./cmd/tls-client-api/main.go
+
+FROM debian:12.9-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/tls-client-api/out /app/tls-client-api
+
+RUN chmod +x /app/tls-client-api
 
 CMD ["/app/tls-client-api"]

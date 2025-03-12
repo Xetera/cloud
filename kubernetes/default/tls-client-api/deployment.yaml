@@ -4,6 +4,7 @@ metadata:
   name: tls-client-api
   namespace: default
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: tls-client-api
@@ -34,7 +35,10 @@ spec:
           volumeMounts:
             - name: tls-client-api-config
               subPath: config.yaml
-              mountPath: /app/config.yaml
+              mountPath: /app/config.dist.yaml
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
       volumes:
         - name: tls-client-api-config
           secret:
