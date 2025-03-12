@@ -4,7 +4,6 @@ kind: OnePasswordItem
 metadata:
   name: github-ssh-key
   namespace: flux-system
-type: kubernetes.io/tls
 spec:
   itemPath: "vaults/k8s-cloud/items/github-ssh-key-flux"
 ---
@@ -43,6 +42,16 @@ metadata:
 type: kubernetes.io/tls
 spec:
   itemPath: "vaults/k8s-cloud/items/cloudflare-origin:xetera.dev"
+---
+# ghcr container registry credentials
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: ghcr-credentials
+  namespace: default
+type: kubernetes.io/dockerconfigjson
+spec:
+  itemPath: "vaults/k8s-cloud/items/ghcr-credentials"
 ---
 # webhook receiver
 apiVersion: traefik.io/v1alpha1
