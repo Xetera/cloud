@@ -12,6 +12,8 @@ spec:
       labels:
         app: tls-client-api
     spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
       containers:
         - name: tls-client-api
           image: ghcr.io/xetera/tls-client-api:1.8.0
@@ -32,7 +34,7 @@ spec:
           volumeMounts:
             - name: tls-client-api-config
               subPath: config.yaml
-              mountPath: /app
+              mountPath: /app/config.yaml
       volumes:
         - name: tls-client-api-config
           secret:

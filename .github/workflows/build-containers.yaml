@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - docker/tls-client-api/**
+      - .github/workflows/build-containers.yaml
 env:
   tls-client-api-version: 1.8.0
 
@@ -33,10 +34,11 @@ jobs:
           # my cluster runs on arm64 nodes exclusively
           platforms: linux/arm64
           push: true
+          outputs: type=docker
           tags: |
             ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }}
             ghcr.io/xetera/tls-client-api:latest
-          cache-from: |
-            type=registry,ref=ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }}
-            type=registry,ref=ghcr.io/xetera/tls-client-api:latest
-          cache-to: type=registry,ref=ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }},mode=max
+          # cache-from: |
+          #   type=registry,ref=ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }}
+          #   type=registry,ref=ghcr.io/xetera/tls-client-api:latest
+          # cache-to: type=registry,ref=ghcr.io/xetera/tls-client-api:${{ env.tls-client-api-version }},mode=max
