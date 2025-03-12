@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tls-client-api
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: tls-client-api
+  template:
+    metadata:
+      labels:
+        app: tls-client-api
+    spec:
+      containers:
+        - name: tls-client-api
+          image: ghcr.io/xetera/tls-client-api:1.8.0
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "256m"
+          ports:
+            - containerPort: 8080
+              name: proxy
+            - containerPort: 8090
+              name: health
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            periodSeconds: 10
+          volumeMounts:
+            - name: tls-client-api-config
+              subPath: config.yaml
+              mountPath: /app
+      volumes:
+        - name: tls-client-api-config
+          secret:
+            secretName: tls-client-api-config

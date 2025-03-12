@@ -5,7 +5,8 @@ on:
   push:
     branches:
       - main
-
+    paths:
+      - docker/tls-client-api/**
 env:
   tls-client-api-version: 1.8.0
 
