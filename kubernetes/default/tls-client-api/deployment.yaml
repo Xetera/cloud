@@ -26,12 +26,12 @@ spec:
           ports:
             - containerPort: 8080
               name: proxy
-            - containerPort: 8090
+            - containerPort: 8081
               name: health
           livenessProbe:
             httpGet:
               path: /health
-              port: 8090
+              port: 8081
             periodSeconds: 10
           volumeMounts:
             - name: tls-client-api-config

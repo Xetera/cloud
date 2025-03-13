@@ -334,7 +334,7 @@ data:
           - "[STATUS] == 200"
       - name: tls-client-api
         group: k8s
-        url: "http://tls-client-api.default.svc.cluster.local:8090/health"
+        url: "http://tls-client-api.default.svc.cluster.local:8081/health"
         interval: 1m
         timeout: 10s
         method: GET
