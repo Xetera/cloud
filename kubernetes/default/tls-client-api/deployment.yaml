@@ -28,6 +28,8 @@ spec:
               name: proxy
             - containerPort: 8081
               name: health
+            - containerPort: 8082
+              name: metrics
           livenessProbe:
             httpGet:
               path: /health
