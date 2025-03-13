@@ -1,0 +1,16 @@
+# exposing dashboard to tailscale
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tls-client-api-tailscale
+  namespace: default
+spec:
+  defaultBackend:
+    service:
+      name: tls-client-api
+      port:
+        name: proxy
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - tls
