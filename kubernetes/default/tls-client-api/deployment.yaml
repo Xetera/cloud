@@ -18,6 +18,7 @@ spec:
       containers:
         - name: tls-client-api
           image: ghcr.io/xetera/tls-client-api:1.8.0
+          imagePullPolicy: Always
           resources:
             limits:
               memory: "128Mi"
