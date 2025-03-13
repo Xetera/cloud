@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: tls-client-api
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: tls-client-api
+  podMetricsEndpoints:
+    - port: metrics

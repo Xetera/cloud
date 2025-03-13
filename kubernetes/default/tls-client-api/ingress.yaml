@@ -1,4 +1,3 @@
-# exposing dashboard to tailscale
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
