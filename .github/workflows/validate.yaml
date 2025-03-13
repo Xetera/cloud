@@ -1,4 +1,4 @@
-name: test
+name: Validate Manifests
 
 on:
   workflow_dispatch:
