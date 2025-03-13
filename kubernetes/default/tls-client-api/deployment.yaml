@@ -36,7 +36,7 @@ spec:
           volumeMounts:
             - name: tls-client-api-config
               subPath: config.yaml
-              mountPath: /app/config.dist.yaml
+              mountPath: /app/config.dist.yml
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
