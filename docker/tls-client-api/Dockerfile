@@ -33,6 +33,8 @@ FROM debian:12.9-slim
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y ca-certificates
+
 COPY --from=builder /app/tls-client-api/out /app/tls-client-api
 
 RUN chmod +x /app/tls-client-api
