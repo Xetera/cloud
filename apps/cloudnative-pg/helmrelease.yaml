@@ -16,7 +16,7 @@ spec:
       interval: 60m
   values:
     config:
-      clusterWide: false
+      clusterWide: true
     # needed for secrets access
     serviceAccount:
       create: true
