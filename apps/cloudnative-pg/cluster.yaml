@@ -45,7 +45,13 @@ spec:
         login: true
         superuser: false
         passwordSecret:
-          name: umami-user-postgres
+          name: postgres-user-umaim
+      - name: me
+        comment: "me service role"
+        login: true
+        superuser: false
+        passwordSecret:
+          name: postgres-user-me
       - name: developer
         ensure: present
         comment: "role for development only"
