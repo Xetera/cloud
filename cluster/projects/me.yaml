@@ -6,9 +6,11 @@ metadata:
 spec:
   # controlled by webhooks
   interval: 60m
-  url: https://github.com/xetera/me
+  url: ssh://git@github.com/Xetera/me
   ref:
     branch: main
+  secretRef:
+    name: flux-system
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -62,8 +64,8 @@ spec:
   eventSeverity: info
   eventSources:
     - kind: GitRepository
-      name: "*"
+      name: "me"
+      namespace: "flux-system"
     - kind: Kustomization
-      name: "*"
-    - kind: HelmRelease
-      name: "*"
+      name: "me"
+      namespace: "flux-system"
