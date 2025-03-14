@@ -13,23 +13,23 @@ spec:
     name: postgresql
     major: 17
   bootstrap:
-    recovery:
-      backup:
-        name: postgres-20250304202332
-      # backupSource:
-      #   barmanObjectStore:
-      #     destinationPath: s3://kubernetes-postgres-backup/
-      #     endpointURL: https://s3.eu-central-2.wasabisys.com
-      #     s3Credentials:
-      #       accessKeyId:
-      #         name: postgres-s3-backups
-      #         key: access_key
-      #       secretAccessKey:
-      #         name: postgres-s3-backups
-      #         key: secret_key
-    # initdb:
-    #   postInitTemplateSQL:
-    #     - CREATE EXTENSION timescaledb;
+    # recovery:
+    #   backup:
+    #     name: postgres-20250304202332
+    # backupSource:
+    #   barmanObjectStore:
+    #     destinationPath: s3://kubernetes-postgres-backup/
+    #     endpointURL: https://s3.eu-central-2.wasabisys.com
+    #     s3Credentials:
+    #       accessKeyId:
+    #         name: postgres-s3-backups
+    #         key: access_key
+    #       secretAccessKey:
+    #         name: postgres-s3-backups
+    #         key: secret_key
+    initdb:
+      postInitTemplateSQL:
+        - CREATE EXTENSION timescaledb;
   storage:
     pvcTemplate:
       accessModes:
@@ -45,7 +45,7 @@ spec:
         login: true
         superuser: false
         passwordSecret:
-          name: postgres-user-umaim
+          name: postgres-user-umami
       - name: me
         comment: "me service role"
         login: true
