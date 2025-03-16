@@ -59,18 +59,20 @@ spec:
         superuser: false
         passwordSecret:
           name: developer-password
-  # backup:
-  #   retentionPolicy: "7d"
-  #   barmanObjectStore:
-  #     destinationPath: s3://kubernetes-postgres-backup/
-  #     endpointURL: https://s3.eu-central-2.wasabisys.com
-  #     s3Credentials:
-  #       accessKeyId:
-  #         name: postgres-s3-backups
-  #         key: access_key
-  #       secretAccessKey:
-  #         name: postgres-s3-backups
-  #         key: secret_key
+  backup:
+    retentionPolicy: "7d"
+    barmanObjectStore:
+      destinationPath: s3://kubernetes-postgres-backup/
+      endpointURL: https://s3.eu-central-2.wasabisys.com
+      s3Credentials:
+        accessKeyId:
+          name: postgres-s3-backups
+          key: access_key
+        secretAccessKey:
+          name: postgres-s3-backups
+          key: secret_key
+      wal:
+        maxParallel: 8
   postgresql:
     parameters:
       pg_stat_statements.max: "10000"
