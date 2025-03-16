@@ -73,6 +73,7 @@ spec:
           key: secret_key
       wal:
         maxParallel: 8
+        compression: gzip
   postgresql:
     parameters:
       pg_stat_statements.max: "10000"
