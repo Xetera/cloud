@@ -1,0 +1,2317 @@
+--
+-- PostgreSQL database cluster dump
+--
+
+SET default_transaction_read_only = off;
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+
+--
+-- Roles
+--
+
+CREATE ROLE app;
+ALTER ROLE app WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:zj1kkrei/YpFEtje47kvsQ==$K2534LLn2wt6PNM2DEsQdZgPNDRXID7vNPDygVahycc=:VRbSpXyxNKG3LRlIMr4AdrIQ/Sd4EZkP1s4Wgk0y89Y=';
+CREATE ROLE developer;
+ALTER ROLE developer WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:Of5GkwS0GeKkW12nqiCf/Q==$kg9TL8P+ku4kcSQI94bYmRx23In/QLfX6ovUsaBPLh4=:3GkTODIsgwHt9u56kFHk4GQM8Q7vDJKgAlvYOwwpqQE=';
+COMMENT ON ROLE developer IS 'role for development only';
+CREATE ROLE me;
+ALTER ROLE me WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:SssETLbAcIZlF+6792iiiA==$cXebbcqRQdCl/b2rgSwQxrDIWQS6GDO1BLs8/sLeNLY=:ZLfeqocItIBzTZiemqDLwh9+hZPWcVJ3HItHmqhsr4Y=';
+COMMENT ON ROLE me IS 'me service role';
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS;
+CREATE ROLE streaming_replica;
+ALTER ROLE streaming_replica WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN REPLICATION NOBYPASSRLS;
+COMMENT ON ROLE streaming_replica IS 'Special user for streaming replication created by CloudNativePG';
+CREATE ROLE umami;
+ALTER ROLE umami WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS;
+COMMENT ON ROLE umami IS 'plausible analytics role';
+
+--
+-- User Configurations
+--
+
+
+
+
+
+
+
+
+--
+-- Databases
+--
+
+--
+-- Database "template1" dump
+--
+
+\connect template1
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.4 (Debian 17.4-1.pgdg110+2)
+-- Dumped by pg_dump version 17.4 (Debian 17.4-1.pgdg110+2)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: timescaledb; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS timescaledb WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION timescaledb; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION timescaledb IS 'Enables scalable inserts and complex queries for time-series data (Community Edition)';
+
+
+--
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+--
+-- Data for Name: hypertable; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.hypertable (id, schema_name, table_name, associated_schema_name, associated_table_prefix, num_dimensions, chunk_sizing_func_schema, chunk_sizing_func_name, chunk_target_size, compression_state, compressed_hypertable_id, status) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk (id, hypertable_id, schema_name, table_name, compressed_chunk_id, dropped, status, osm_chunk, creation_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_column_stats; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_column_stats (id, hypertable_id, chunk_id, column_name, range_start, range_end, valid) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dimension; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.dimension (id, hypertable_id, column_name, column_type, aligned, num_slices, partitioning_func_schema, partitioning_func, interval_length, compress_interval_length, integer_now_func_schema, integer_now_func) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dimension_slice; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.dimension_slice (id, dimension_id, range_start, range_end) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_constraint; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_constraint (chunk_id, dimension_slice_id, constraint_name, hypertable_constraint_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_index; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_index (chunk_id, index_name, hypertable_id, hypertable_index_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: compression_chunk_size; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.compression_chunk_size (chunk_id, compressed_chunk_id, uncompressed_heap_size, uncompressed_toast_size, uncompressed_index_size, compressed_heap_size, compressed_toast_size, compressed_index_size, numrows_pre_compression, numrows_post_compression, numrows_frozen_immediately) FROM stdin;
+\.
+
+
+--
+-- Data for Name: compression_settings; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.compression_settings (relid, segmentby, orderby, orderby_desc, orderby_nullsfirst) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg (mat_hypertable_id, raw_hypertable_id, parent_mat_hypertable_id, user_view_schema, user_view_name, partial_view_schema, partial_view_name, direct_view_schema, direct_view_name, materialized_only, finalized) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg_migrate_plan; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg_migrate_plan (mat_hypertable_id, start_ts, end_ts, user_view_definition) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg_migrate_plan_step; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg_migrate_plan_step (mat_hypertable_id, step_id, status, start_ts, end_ts, type, config) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_bucket_function; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_bucket_function (mat_hypertable_id, bucket_func, bucket_width, bucket_origin, bucket_offset, bucket_timezone, bucket_fixed_width) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_hypertable_invalidation_log; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_hypertable_invalidation_log (hypertable_id, lowest_modified_value, greatest_modified_value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_invalidation_threshold; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_invalidation_threshold (hypertable_id, watermark) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_materialization_invalidation_log; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_materialization_invalidation_log (materialization_id, lowest_modified_value, greatest_modified_value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_watermark; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_watermark (mat_hypertable_id, watermark) FROM stdin;
+\.
+
+
+--
+-- Data for Name: metadata; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.metadata (key, value, include_in_telemetry) FROM stdin;
+install_timestamp	2025-03-04 13:07:04.947735+00	t
+timescaledb_version	2.18.2	f
+\.
+
+
+--
+-- Data for Name: tablespace; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.tablespace (id, hypertable_id, tablespace_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: bgw_job; Type: TABLE DATA; Schema: _timescaledb_config; Owner: postgres
+--
+
+COPY _timescaledb_config.bgw_job (id, application_name, schedule_interval, max_runtime, max_retries, retry_period, proc_schema, proc_name, owner, scheduled, fixed_schedule, initial_start, hypertable_id, config, check_schema, check_name, timezone) FROM stdin;
+\.
+
+
+--
+-- Name: chunk_column_stats_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_column_stats_id_seq', 1, false);
+
+
+--
+-- Name: chunk_constraint_name; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_constraint_name', 1, false);
+
+
+--
+-- Name: chunk_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_id_seq', 1, false);
+
+
+--
+-- Name: continuous_agg_migrate_plan_step_step_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.continuous_agg_migrate_plan_step_step_id_seq', 1, false);
+
+
+--
+-- Name: dimension_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.dimension_id_seq', 1, false);
+
+
+--
+-- Name: dimension_slice_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.dimension_slice_id_seq', 1, false);
+
+
+--
+-- Name: hypertable_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.hypertable_id_seq', 1, false);
+
+
+--
+-- Name: bgw_job_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_config; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_config.bgw_job_id_seq', 1000, false);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "app" dump
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.4 (Debian 17.4-1.pgdg110+2)
+-- Dumped by pg_dump version 17.4 (Debian 17.4-1.pgdg110+2)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: app; Type: DATABASE; Schema: -; Owner: app
+--
+
+CREATE DATABASE app WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'C';
+
+
+ALTER DATABASE app OWNER TO app;
+
+\connect app
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: timescaledb; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS timescaledb WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION timescaledb; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION timescaledb IS 'Enables scalable inserts and complex queries for time-series data (Community Edition)';
+
+
+--
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+--
+-- Data for Name: hypertable; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.hypertable (id, schema_name, table_name, associated_schema_name, associated_table_prefix, num_dimensions, chunk_sizing_func_schema, chunk_sizing_func_name, chunk_target_size, compression_state, compressed_hypertable_id, status) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk (id, hypertable_id, schema_name, table_name, compressed_chunk_id, dropped, status, osm_chunk, creation_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_column_stats; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_column_stats (id, hypertable_id, chunk_id, column_name, range_start, range_end, valid) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dimension; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.dimension (id, hypertable_id, column_name, column_type, aligned, num_slices, partitioning_func_schema, partitioning_func, interval_length, compress_interval_length, integer_now_func_schema, integer_now_func) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dimension_slice; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.dimension_slice (id, dimension_id, range_start, range_end) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_constraint; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_constraint (chunk_id, dimension_slice_id, constraint_name, hypertable_constraint_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_index; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_index (chunk_id, index_name, hypertable_id, hypertable_index_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: compression_chunk_size; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.compression_chunk_size (chunk_id, compressed_chunk_id, uncompressed_heap_size, uncompressed_toast_size, uncompressed_index_size, compressed_heap_size, compressed_toast_size, compressed_index_size, numrows_pre_compression, numrows_post_compression, numrows_frozen_immediately) FROM stdin;
+\.
+
+
+--
+-- Data for Name: compression_settings; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.compression_settings (relid, segmentby, orderby, orderby_desc, orderby_nullsfirst) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg (mat_hypertable_id, raw_hypertable_id, parent_mat_hypertable_id, user_view_schema, user_view_name, partial_view_schema, partial_view_name, direct_view_schema, direct_view_name, materialized_only, finalized) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg_migrate_plan; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg_migrate_plan (mat_hypertable_id, start_ts, end_ts, user_view_definition) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg_migrate_plan_step; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg_migrate_plan_step (mat_hypertable_id, step_id, status, start_ts, end_ts, type, config) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_bucket_function; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_bucket_function (mat_hypertable_id, bucket_func, bucket_width, bucket_origin, bucket_offset, bucket_timezone, bucket_fixed_width) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_hypertable_invalidation_log; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_hypertable_invalidation_log (hypertable_id, lowest_modified_value, greatest_modified_value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_invalidation_threshold; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_invalidation_threshold (hypertable_id, watermark) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_materialization_invalidation_log; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_materialization_invalidation_log (materialization_id, lowest_modified_value, greatest_modified_value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_watermark; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_watermark (mat_hypertable_id, watermark) FROM stdin;
+\.
+
+
+--
+-- Data for Name: metadata; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.metadata (key, value, include_in_telemetry) FROM stdin;
+install_timestamp	2025-03-04 13:07:04.947735+00	t
+timescaledb_version	2.18.2	f
+exported_uuid	41c01353-5479-4706-a412-9190fed0621b	t
+\.
+
+
+--
+-- Data for Name: tablespace; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.tablespace (id, hypertable_id, tablespace_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: bgw_job; Type: TABLE DATA; Schema: _timescaledb_config; Owner: postgres
+--
+
+COPY _timescaledb_config.bgw_job (id, application_name, schedule_interval, max_runtime, max_retries, retry_period, proc_schema, proc_name, owner, scheduled, fixed_schedule, initial_start, hypertable_id, config, check_schema, check_name, timezone) FROM stdin;
+\.
+
+
+--
+-- Name: chunk_column_stats_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_column_stats_id_seq', 1, false);
+
+
+--
+-- Name: chunk_constraint_name; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_constraint_name', 1, false);
+
+
+--
+-- Name: chunk_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_id_seq', 1, false);
+
+
+--
+-- Name: continuous_agg_migrate_plan_step_step_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.continuous_agg_migrate_plan_step_step_id_seq', 1, false);
+
+
+--
+-- Name: dimension_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.dimension_id_seq', 1, false);
+
+
+--
+-- Name: dimension_slice_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.dimension_slice_id_seq', 1, false);
+
+
+--
+-- Name: hypertable_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.hypertable_id_seq', 1, false);
+
+
+--
+-- Name: bgw_job_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_config; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_config.bgw_job_id_seq', 1000, false);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "postgres" dump
+--
+
+\connect postgres
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.4 (Debian 17.4-1.pgdg110+2)
+-- Dumped by pg_dump version 17.4 (Debian 17.4-1.pgdg110+2)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+--
+-- Name: FUNCTION pg_ls_dir(text, boolean, boolean); Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_ls_dir(text, boolean, boolean) TO streaming_replica;
+
+
+--
+-- Name: FUNCTION pg_read_binary_file(text); Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_read_binary_file(text) TO streaming_replica;
+
+
+--
+-- Name: FUNCTION pg_read_binary_file(text, bigint, bigint, boolean); Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_read_binary_file(text, bigint, bigint, boolean) TO streaming_replica;
+
+
+--
+-- Name: FUNCTION pg_stat_file(filename text, missing_ok boolean, OUT size bigint, OUT access timestamp with time zone, OUT modification timestamp with time zone, OUT change timestamp with time zone, OUT creation timestamp with time zone, OUT isdir boolean); Type: ACL; Schema: pg_catalog; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION pg_catalog.pg_stat_file(filename text, missing_ok boolean, OUT size bigint, OUT access timestamp with time zone, OUT modification timestamp with time zone, OUT change timestamp with time zone, OUT creation timestamp with time zone, OUT isdir boolean) TO streaming_replica;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "umami" dump
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.4 (Debian 17.4-1.pgdg110+2)
+-- Dumped by pg_dump version 17.4 (Debian 17.4-1.pgdg110+2)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: umami; Type: DATABASE; Schema: -; Owner: umami
+--
+
+CREATE DATABASE umami WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'C';
+
+
+ALTER DATABASE umami OWNER TO umami;
+
+\connect umami
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: timescaledb; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS timescaledb WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION timescaledb; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION timescaledb IS 'Enables scalable inserts and complex queries for time-series data (Community Edition)';
+
+
+--
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: _prisma_migrations; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public._prisma_migrations (
+    id character varying(36) NOT NULL,
+    checksum character varying(64) NOT NULL,
+    finished_at timestamp with time zone,
+    migration_name character varying(255) NOT NULL,
+    logs text,
+    rolled_back_at timestamp with time zone,
+    started_at timestamp with time zone DEFAULT now() NOT NULL,
+    applied_steps_count integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public._prisma_migrations OWNER TO umami;
+
+--
+-- Name: event_data; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.event_data (
+    event_data_id uuid NOT NULL,
+    website_id uuid NOT NULL,
+    website_event_id uuid NOT NULL,
+    data_key character varying(500) NOT NULL,
+    string_value character varying(500),
+    number_value numeric(19,4),
+    date_value timestamp(6) with time zone,
+    data_type integer NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.event_data OWNER TO umami;
+
+--
+-- Name: report; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.report (
+    report_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    website_id uuid NOT NULL,
+    type character varying(200) NOT NULL,
+    name character varying(200) NOT NULL,
+    description character varying(500) NOT NULL,
+    parameters character varying(6000) NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp(6) with time zone
+);
+
+
+ALTER TABLE public.report OWNER TO umami;
+
+--
+-- Name: session; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.session (
+    session_id uuid NOT NULL,
+    website_id uuid NOT NULL,
+    hostname character varying(100),
+    browser character varying(20),
+    os character varying(20),
+    device character varying(20),
+    screen character varying(11),
+    language character varying(35),
+    country character(2),
+    subdivision1 character varying(20),
+    subdivision2 character varying(50),
+    city character varying(50),
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.session OWNER TO umami;
+
+--
+-- Name: session_data; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.session_data (
+    session_data_id uuid NOT NULL,
+    website_id uuid NOT NULL,
+    session_id uuid NOT NULL,
+    data_key character varying(500) NOT NULL,
+    string_value character varying(500),
+    number_value numeric(19,4),
+    date_value timestamp(6) with time zone,
+    data_type integer NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.session_data OWNER TO umami;
+
+--
+-- Name: team; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.team (
+    team_id uuid NOT NULL,
+    name character varying(50) NOT NULL,
+    access_code character varying(50),
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp(6) with time zone,
+    deleted_at timestamp(6) with time zone,
+    logo_url character varying(2183)
+);
+
+
+ALTER TABLE public.team OWNER TO umami;
+
+--
+-- Name: team_user; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.team_user (
+    team_user_id uuid NOT NULL,
+    team_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    role character varying(50) NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp(6) with time zone
+);
+
+
+ALTER TABLE public.team_user OWNER TO umami;
+
+--
+-- Name: user; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public."user" (
+    user_id uuid NOT NULL,
+    username character varying(255) NOT NULL,
+    password character varying(60) NOT NULL,
+    role character varying(50) NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp(6) with time zone,
+    deleted_at timestamp(6) with time zone,
+    display_name character varying(255),
+    logo_url character varying(2183)
+);
+
+
+ALTER TABLE public."user" OWNER TO umami;
+
+--
+-- Name: website; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.website (
+    website_id uuid NOT NULL,
+    name character varying(100) NOT NULL,
+    domain character varying(500),
+    share_id character varying(50),
+    reset_at timestamp(6) with time zone,
+    user_id uuid,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp(6) with time zone,
+    deleted_at timestamp(6) with time zone,
+    created_by uuid,
+    team_id uuid
+);
+
+
+ALTER TABLE public.website OWNER TO umami;
+
+--
+-- Name: website_event; Type: TABLE; Schema: public; Owner: umami
+--
+
+CREATE TABLE public.website_event (
+    event_id uuid NOT NULL,
+    website_id uuid NOT NULL,
+    session_id uuid NOT NULL,
+    created_at timestamp(6) with time zone DEFAULT CURRENT_TIMESTAMP,
+    url_path character varying(500) NOT NULL,
+    url_query character varying(500),
+    referrer_path character varying(500),
+    referrer_query character varying(500),
+    referrer_domain character varying(500),
+    page_title character varying(500),
+    event_type integer DEFAULT 1 NOT NULL,
+    event_name character varying(50),
+    visit_id uuid NOT NULL,
+    tag character varying(50)
+);
+
+
+ALTER TABLE public.website_event OWNER TO umami;
+
+--
+-- Data for Name: hypertable; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.hypertable (id, schema_name, table_name, associated_schema_name, associated_table_prefix, num_dimensions, chunk_sizing_func_schema, chunk_sizing_func_name, chunk_target_size, compression_state, compressed_hypertable_id, status) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk (id, hypertable_id, schema_name, table_name, compressed_chunk_id, dropped, status, osm_chunk, creation_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_column_stats; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_column_stats (id, hypertable_id, chunk_id, column_name, range_start, range_end, valid) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dimension; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.dimension (id, hypertable_id, column_name, column_type, aligned, num_slices, partitioning_func_schema, partitioning_func, interval_length, compress_interval_length, integer_now_func_schema, integer_now_func) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dimension_slice; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.dimension_slice (id, dimension_id, range_start, range_end) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_constraint; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_constraint (chunk_id, dimension_slice_id, constraint_name, hypertable_constraint_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: chunk_index; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.chunk_index (chunk_id, index_name, hypertable_id, hypertable_index_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: compression_chunk_size; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.compression_chunk_size (chunk_id, compressed_chunk_id, uncompressed_heap_size, uncompressed_toast_size, uncompressed_index_size, compressed_heap_size, compressed_toast_size, compressed_index_size, numrows_pre_compression, numrows_post_compression, numrows_frozen_immediately) FROM stdin;
+\.
+
+
+--
+-- Data for Name: compression_settings; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.compression_settings (relid, segmentby, orderby, orderby_desc, orderby_nullsfirst) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg (mat_hypertable_id, raw_hypertable_id, parent_mat_hypertable_id, user_view_schema, user_view_name, partial_view_schema, partial_view_name, direct_view_schema, direct_view_name, materialized_only, finalized) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg_migrate_plan; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg_migrate_plan (mat_hypertable_id, start_ts, end_ts, user_view_definition) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_agg_migrate_plan_step; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_agg_migrate_plan_step (mat_hypertable_id, step_id, status, start_ts, end_ts, type, config) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_bucket_function; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_bucket_function (mat_hypertable_id, bucket_func, bucket_width, bucket_origin, bucket_offset, bucket_timezone, bucket_fixed_width) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_hypertable_invalidation_log; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_hypertable_invalidation_log (hypertable_id, lowest_modified_value, greatest_modified_value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_invalidation_threshold; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_invalidation_threshold (hypertable_id, watermark) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_materialization_invalidation_log; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_materialization_invalidation_log (materialization_id, lowest_modified_value, greatest_modified_value) FROM stdin;
+\.
+
+
+--
+-- Data for Name: continuous_aggs_watermark; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.continuous_aggs_watermark (mat_hypertable_id, watermark) FROM stdin;
+\.
+
+
+--
+-- Data for Name: metadata; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.metadata (key, value, include_in_telemetry) FROM stdin;
+install_timestamp	2025-03-04 13:07:04.947735+00	t
+timescaledb_version	2.18.2	f
+exported_uuid	0ac702e4-6f97-409a-904c-3644212500bd	t
+\.
+
+
+--
+-- Data for Name: tablespace; Type: TABLE DATA; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+COPY _timescaledb_catalog.tablespace (id, hypertable_id, tablespace_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: bgw_job; Type: TABLE DATA; Schema: _timescaledb_config; Owner: postgres
+--
+
+COPY _timescaledb_config.bgw_job (id, application_name, schedule_interval, max_runtime, max_retries, retry_period, proc_schema, proc_name, owner, scheduled, fixed_schedule, initial_start, hypertable_id, config, check_schema, check_name, timezone) FROM stdin;
+\.
+
+
+--
+-- Data for Name: _prisma_migrations; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public._prisma_migrations (id, checksum, finished_at, migration_name, logs, rolled_back_at, started_at, applied_steps_count) FROM stdin;
+480078e2-51df-4d4e-8d9c-eac33052ae06	65f0f9ee4a3b432e7fa917795033254887497a849d95acf7d9cb4ff24b45f98f	2025-03-04 21:20:14.434089+00	01_init	\N	\N	2025-03-04 21:20:14.403114+00	1
+1aabc50f-13e0-4504-88d7-8549444d0f0b	4cc3c14482cb8700574cbdbdb478a93ccd1cabb0aeed37dfffb77a80278ce575	2025-03-04 21:20:14.451879+00	02_report_schema_session_data	\N	\N	2025-03-04 21:20:14.436637+00	1
+bd8c4a5a-c881-42b3-9902-948c3d62db0e	baf86a7adc077bc46ea646d86aabc5f613aeb311e63894366979a18f6a9ca48c	2025-03-04 21:20:14.468832+00	03_metric_performance_index	\N	\N	2025-03-04 21:20:14.454252+00	1
+20d60bfc-8983-41ac-b124-17aec38627c4	eb0e4ae2ef5204bc67ddb248358a402cd3bd88567d710f808f16c5124e5fd9cb	2025-03-04 21:20:14.482108+00	04_team_redesign	\N	\N	2025-03-04 21:20:14.471324+00	1
+2bd4090c-044f-4fa7-ad8c-6d093f22139f	12e5b277e41da871b0768118937cef221c4d4f9c3206b719fffba86324df7a11	2025-03-04 21:20:14.492069+00	05_add_visit_id	\N	\N	2025-03-04 21:20:14.484719+00	1
+0538f9e0-d657-4f03-8b99-ff92d2629c2c	fcd8585d077229bb2a16ae4705a79a5bc31cf6cbca089de99f4b1c19cb0a0a17	2025-03-04 21:20:14.50212+00	06_session_data	\N	\N	2025-03-04 21:20:14.493791+00	1
+80ea2a45-fdff-42a4-ae59-ab53d1933e4f	c38c9605d759b3b00f94076c929b6081d7dbd01a25d2955909fc8d1a6e3276b4	2025-03-04 21:20:14.509089+00	07_add_tag	\N	\N	2025-03-04 21:20:14.504331+00	1
+\.
+
+
+--
+-- Data for Name: event_data; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.event_data (event_data_id, website_id, website_event_id, data_key, string_value, number_value, date_value, data_type, created_at) FROM stdin;
+d6d80714-1922-4021-929e-e8b39c902f5e	fb997c11-6572-43df-bddf-9a64b1f2812d	5c4849ff-fd67-431f-ac9a-9034aa2c653c	title	Seinfeld	\N	\N	1	2025-03-05 02:25:49.251+00
+7200ab78-fc58-4941-a929-3c2318a09231	fb997c11-6572-43df-bddf-9a64b1f2812d	e90ec461-76fe-4ba7-8062-d510e027fdc1	title	Seinfeld	\N	\N	1	2025-03-05 10:05:32.887+00
+4866881c-67e8-424a-99a5-dfd81419a53a	fb997c11-6572-43df-bddf-9a64b1f2812d	6ac6ee04-311a-48e2-9bab-c28edfe9d9d8	title	Seinfeld	\N	\N	1	2025-03-05 10:05:33.441+00
+82284813-d017-457d-b175-ae024c39b56b	fb997c11-6572-43df-bddf-9a64b1f2812d	5c8a64cb-73e8-4dbc-b119-9acf2e5bea1e	title	Invincible	\N	\N	1	2025-03-05 10:05:33.526+00
+30fc93a0-a27c-49d6-b223-9a4d65a2d141	fb997c11-6572-43df-bddf-9a64b1f2812d	b49dec62-8ab4-4c83-834c-0e378e99b9a7	title	Invincible	\N	\N	1	2025-03-05 10:05:34.398+00
+974ba35f-0ffb-4bcb-9db9-eb0bec0acbb3	fb997c11-6572-43df-bddf-9a64b1f2812d	12adae0b-cd3a-4716-b613-0225125adb4f	title	Severance	\N	\N	1	2025-03-05 10:05:34.461+00
+0002a02b-3017-44ee-bdae-0d199311450c	fb997c11-6572-43df-bddf-9a64b1f2812d	fb8566c4-1d8f-4999-89b9-957bf26a7cd6	book	Project Hail Mary: A Novel	\N	\N	1	2025-03-05 12:50:53.224+00
+95fa6922-1eff-4d2e-83a0-e1a5619e542f	fb997c11-6572-43df-bddf-9a64b1f2812d	a66526a3-2454-4518-b02e-2e177b7fc4c3	book	The God Delusion	\N	\N	1	2025-03-10 17:22:37.786+00
+a842903c-d384-4415-873d-6537c1c8e8b7	fb997c11-6572-43df-bddf-9a64b1f2812d	67f16a1c-67f7-4c21-9102-5bdd3613b542	song	El Choclo	\N	\N	1	2025-03-12 02:46:18.392+00
+3ab5aa50-de0d-4d0f-8358-34978cf049f4	fb997c11-6572-43df-bddf-9a64b1f2812d	13e798ee-4d65-43da-b87b-96c0da2346d7	book	A Many-Threaded Tapestry (Destiny's Crucible Book 9)	\N	\N	1	2025-03-13 00:42:48.474+00
+3cf7c12f-6126-4a1a-beb9-47083b13e744	fb997c11-6572-43df-bddf-9a64b1f2812d	80ae47e7-4389-49f3-b1e9-6e72fa38953a	title	Invincible	\N	\N	1	2025-03-13 00:42:50.511+00
+bcbfe3f4-3fed-4b69-987b-62a604b8beed	fb997c11-6572-43df-bddf-9a64b1f2812d	af30ef65-24d0-4bef-a4ec-3b19c172af39	title	Invincible	\N	\N	1	2025-03-13 00:42:51.161+00
+\.
+
+
+--
+-- Data for Name: report; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.report (report_id, user_id, website_id, type, name, description, parameters, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: session; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.session (session_id, website_id, hostname, browser, os, device, screen, language, country, subdivision1, subdivision2, city, created_at) FROM stdin;
+0a923817-f2ef-5f53-bf07-74d2c30492ff	fb997c11-6572-43df-bddf-9a64b1f2812d	localhost	firefox	Mac OS	desktop	3440x1440	en-US	DE	\N	\N	\N	2025-03-04 22:17:50.988+00
+0b8efbfd-58e7-5a34-9bc5-a09d708fb23f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	desktop	3440x1440	en-US	DE	\N	\N	\N	2025-03-04 23:54:45.446+00
+b6ca4931-f072-5566-a2ee-860f984243e8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	laptop	1821x1012	en-US	SG	\N	\N	\N	2025-03-05 00:23:10.394+00
+4f2d05e3-c1d9-5f61-b6f5-4bf54c8e4644	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	393x852	ru	RU	\N	\N	\N	2025-03-05 01:20:00.421+00
+3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	laptop	1728x1117	en-US	DE	\N	\N	\N	2025-03-05 02:25:47.273+00
+155040ea-d290-5e40-ae83-2f10c24f0363	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-US	ZA	\N	\N	\N	2025-03-05 03:45:57.832+00
+d33fd328-d507-58ee-8981-92d3b37e9e52	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1680x1050	en-US	ID	\N	\N	\N	2025-03-05 04:03:16.534+00
+e01a6034-858f-5ead-8097-58b2ff01c6bc	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-US	PH	\N	\N	\N	2025-03-05 06:10:20.98+00
+2107fa4e-7e47-5ddc-9952-d18f850ef841	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	393x851	es-ES	ES	\N	\N	\N	2025-03-05 07:27:14.975+00
+50b43e21-4482-5831-8319-65141bab8b19	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	desktop	3440x1440	en-US	CH	\N	\N	\N	2025-03-05 07:57:50.082+00
+bfa47413-2b9b-5459-8356-2169b542238c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	fxios	iOS	mobile	393x852	en-CA	CA	\N	\N	\N	2025-03-05 09:09:10.651+00
+eb0bbaff-cc57-5281-a77f-b72fa396217d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	384x824	en-US	DE	\N	\N	\N	2025-03-05 10:00:12.053+00
+1f6fea1e-a433-5f45-933f-11c8be9123c8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	360x800	en-US	EG	\N	\N	\N	2025-03-05 10:04:22.839+00
+c3989510-5cfd-5ad5-9d42-32a70a846c7c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	opera	Windows 10	laptop	1707x1067	en-US	MY	\N	\N	\N	2025-03-05 10:08:48.842+00
+68afa423-2b99-530c-b198-71e5a23b3d2d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	320x872	en-US	DE	\N	\N	\N	2025-03-05 10:11:26.806+00
+6a46a71d-d4cc-52ab-81c4-db0c9e0eb544	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1505x1004	en-US	DE	\N	\N	\N	2025-03-05 10:19:40.745+00
+dfe6afdb-88db-544e-bc99-d2a0234cfc28	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1512x982	en-GB	TH	\N	\N	\N	2025-03-05 10:22:13.704+00
+e2a56cff-68b0-500a-97dc-aa793a487b5c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	800x600	en-US	US	\N	\N	\N	2025-03-05 10:40:24.907+00
+20a12844-6145-5a72-811f-e63fc0e59932	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1536x864	en-US	IL	\N	\N	\N	2025-03-05 12:47:44.592+00
+9c8dd916-29ad-5e1c-b45c-bd86afc211e5	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	384x832	en-US	SG	\N	\N	\N	2025-03-05 15:41:08.418+00
+c816b927-ba76-58e3-a11a-5ce8ecfe5383	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1707x960	en-US	US	\N	\N	\N	2025-03-05 15:48:58.272+00
+82d5e362-1063-5c86-bb0d-d4666c2b703d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	385x833	th-TH	TH	\N	\N	\N	2025-03-05 17:39:22.29+00
+7ad3c58e-c8a8-5697-8728-3f24601c55fd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	laptop	1536x864	en-US	IQ	\N	\N	\N	2025-03-05 17:55:16.977+00
+32777c64-dac0-57ed-af62-ed5f52bca811	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	2048x1280	en-US	US	\N	\N	\N	2025-03-05 19:12:20.072+00
+ae688268-6966-5b9d-a967-de012a07a165	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1560x912	en-US	NL	\N	\N	\N	2025-03-05 19:29:53.25+00
+1ace5514-36d2-5cc4-a8a2-698ef6b2c8bd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1280x720	en-US	US	\N	\N	\N	2025-03-05 19:40:59.51+00
+962b9276-fbe2-5e5a-9977-5263c6d85513	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	desktop	1920x1080	en-US	CA	\N	\N	\N	2025-03-05 20:18:06.312+00
+5a640f17-3f96-507c-800c-896f93420891	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	1920x1080	en-GB	HU	\N	\N	\N	2025-03-05 22:31:32.125+00
+440e5cf9-b1bf-56b2-b8d3-c5716251363d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	390x844	en-GB	GB	\N	\N	\N	2025-03-05 22:39:09.218+00
+0cb68907-3812-5fb3-af94-61f2c3e4ab34	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	375x812	en-GB	GB	\N	\N	\N	2025-03-05 23:04:13.597+00
+ef72015b-f271-506b-b6f0-5e80c38e311f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	800x600	en-US	US	\N	\N	\N	2025-03-06 01:40:35.981+00
+59ba3212-b5fc-532f-9fc2-a016e7ae7503	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	432x960	en-US	BR	\N	\N	\N	2025-03-06 02:39:28.752+00
+dcec5eae-13eb-5bc4-aa51-bc4f0bb5aa4e	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	2560x1440	en-US	SG	\N	\N	\N	2025-03-06 03:56:57.566+00
+91ebec83-cc61-59e9-82c9-a3e719066d96	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1280x720	en-US	IN	\N	\N	\N	2025-03-06 07:28:41.779+00
+22161d35-582a-5a51-9e7b-6ef7a363ecf9	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	2560x1440	de	CH	\N	\N	\N	2025-03-06 12:23:05.772+00
+f1186d27-f9d5-5318-847c-41cd948ac8f8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	desktop	3008x1692	en-US	ID	\N	\N	\N	2025-03-06 13:36:12.042+00
+bffaf913-7fc8-5dc9-96f1-7b71c43895b7	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	320x658	en-US	US	\N	\N	\N	2025-03-06 16:44:04.478+00
+a6d33432-47ac-5536-8b41-d1c0ce829fd0	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Android OS	mobile	360x800	en-GB	IN	\N	\N	\N	2025-03-06 16:53:19.135+00
+286f30fd-aad4-51e9-8d31-948d33fc6a36	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	ru-RU	AZ	\N	\N	\N	2025-03-06 19:09:55.836+00
+5ad16851-9b5a-560a-9307-8432df8953e0	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	1920x1080	en-US	CA	\N	\N	\N	2025-03-06 19:28:59.48+00
+128e41bd-1fe6-5430-8878-5c01446925cd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Android OS	mobile	360x760	es-ES	ES	\N	\N	\N	2025-03-06 20:28:33.998+00
+09eccd8f-6ada-507c-ae3b-c89b5d2add3f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Android OS	mobile	396x880	en-US	GR	\N	\N	\N	2025-03-06 20:43:21.857+00
+b47d0cb1-22cd-58d6-a6f9-5ed0dcfb2d05	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	959x925	es-ES	VE	\N	\N	\N	2025-03-06 21:28:41.158+00
+6b72b384-0313-5d61-aa6f-12551102b4bd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	laptop	1366x768	en-US	PH	\N	\N	\N	2025-03-07 01:06:08.918+00
+bdd8e6e1-b19d-5b2e-8d59-0b4cdab2d9a9	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 01:24:14.642+00
+453e9586-0ea6-5fe4-94b0-2fc9a58f6032	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 01:24:25.604+00
+997a81bd-7b78-51cd-8a91-a96821e43e07	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1397x786	en-US	US	\N	\N	\N	2025-03-07 05:00:18.023+00
+08583225-7c5f-596d-923c-ffc70cae36e7	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	428x926	en-US	US	\N	\N	\N	2025-03-07 05:01:00.067+00
+76dd3e67-ebc2-5634-a867-88669d449fdc	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	412x915	en-US	US	\N	\N	\N	2025-03-07 05:01:00.223+00
+e83e1f9c-ffac-5bdb-a8e1-5874a45b10af	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	1920x1080	en-US	US	\N	\N	\N	2025-03-07 05:01:46.274+00
+375be79c-e5b9-5939-8632-2630f77362e4	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1512x982	en-US	JP	\N	\N	\N	2025-03-07 05:05:13.682+00
+d2805869-8a9a-5a5b-969e-6510e9e2a0cd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1800x1169	en-US	JP	\N	\N	\N	2025-03-07 05:06:18.106+00
+b3615e08-2730-5a0a-8021-cf625e366040	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	412x915	en	JP	\N	\N	\N	2025-03-07 05:06:58.013+00
+0e098366-2f5f-5997-b6fa-c866aafbfd6f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	laptop	1536x864	en-US	US	\N	\N	\N	2025-03-07 06:03:54.802+00
+a95224c1-871e-5170-8f6b-8ec8189d78b4	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	360x800	fr-FR	FR	\N	\N	\N	2025-03-07 06:20:35.63+00
+52d872a6-5776-56c9-b809-78c9a9973532	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	desktop	1920x1080	en-US	UA	\N	\N	\N	2025-03-07 10:09:34.274+00
+cdff224e-0a63-5f1d-ae0f-5dd24af643a3	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1440x900	en-US	TR	\N	\N	\N	2025-03-07 11:45:46.51+00
+4270c2a8-b582-5fb8-9e5a-e5c218c09875	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	432x960	en-GB	IN	\N	\N	\N	2025-03-07 12:03:48.605+00
+404b92b4-d10f-5f0f-a6a4-79af633ef4b9	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 13:30:23.824+00
+de640221-4a70-5bc0-bad0-0a1065c148b8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 13:33:55.606+00
+1520daab-676b-58be-955f-6f1cea9ded39	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 13:48:10.587+00
+dc0d435c-dd22-5a80-ac1f-05f1f6cb1ce5	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 14:07:36.128+00
+b02093a3-005e-5189-98ec-43d12c888501	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 14:11:35.409+00
+8d2fd932-967e-5fa3-ba49-7d07798d0b15	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1512x982	en-US	US	\N	\N	\N	2025-03-07 14:16:40.896+00
+4a082c52-dab6-5788-b7ef-866018cfa47c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 14:18:13.616+00
+68b70dd5-c347-5a29-92ad-d4b54a84cf5e	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-07 14:33:06.936+00
+d6854d42-f986-5ee4-861a-9fe7c6e414a6	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	desktop	1920x1243	en-CA	CA	\N	\N	\N	2025-03-07 15:06:16.691+00
+ace5b963-08c8-5d80-91f0-f8f012fdccac	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	800x600	en-US	US	\N	\N	\N	2025-03-07 17:48:52.116+00
+c4b662f0-9fd2-5a2f-a05a-e5f831139dbd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios-webview	iOS	mobile	375x812	en-US	US	\N	\N	\N	2025-03-07 19:23:47.138+00
+1352d1cb-53cd-56ee-b9b5-12a5ee494095	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	360x806	en-US	NG	\N	\N	\N	2025-03-08 01:22:32.679+00
+5895fca8-05ea-59a3-ba85-274ba55cf608	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	2560x1440	en-US	US	\N	\N	\N	2025-03-08 01:58:14.15+00
+668fe595-dd05-5439-81a2-23e52b01e0e7	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1200	en-US	US	\N	\N	\N	2025-03-08 04:33:05.326+00
+127ae6e0-0d1d-51d0-a3cb-7a69d019ea9a	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	\N	tablet	800x600	en-US	RU	\N	\N	\N	2025-03-08 09:23:30.852+00
+3d97bbfc-5526-5faa-b37c-d331950d7062	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Android OS	mobile	378x642	en-US	DE	\N	\N	\N	2025-03-08 11:07:11.177+00
+e4e64504-f4cc-5d64-b63a-d377b8a4159d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Android OS	tablet	522x1276	en-US	NL	\N	\N	\N	2025-03-08 11:29:04.197+00
+7b4fad88-e031-5372-b196-17cc53e0de4f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1228x751	en-GB	IN	\N	\N	\N	2025-03-08 12:39:20.474+00
+d0f92b42-6d84-5e18-a3d7-728bbce3addd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1536x864	en-US	IN	\N	\N	\N	2025-03-08 13:03:17.553+00
+6b9ebe98-6548-5dab-ab63-91d166bf0c9d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	laptop	800x600	en-US	US	\N	\N	\N	2025-03-08 14:30:55.337+00
+43444120-3725-5b6a-8f29-847f24c1861d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	412x915	en	PL	\N	\N	\N	2025-03-08 15:12:07.01+00
+0b4bfba4-da4f-5f6f-9a93-83738bad2e31	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	440x956	en-US	US	\N	\N	\N	2025-03-08 15:52:59.408+00
+4f6d685f-4153-5fe7-8b59-d4015d5840b5	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	360x800	en-US	AT	\N	\N	\N	2025-03-08 18:03:49.144+00
+3223762d-dd47-5a52-829d-b8aa2a1aa496	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-US	IL	\N	\N	\N	2025-03-08 18:23:36.884+00
+c5f57993-5f47-5a07-8932-3a725ff4a71d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	1920x1080	en-US	MA	\N	\N	\N	2025-03-08 19:22:35.624+00
+0f7a9646-6dfb-55e2-9f15-a96207c5d1f6	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	402x874	en-US	US	\N	\N	\N	2025-03-09 07:26:56.768+00
+c35fe1ee-a39d-5eb2-ba85-07188e7842ce	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	edge-chromium	Windows 10	laptop	1280x720	en-GB	IN	\N	\N	\N	2025-03-09 08:12:10.899+00
+fec5a631-d99e-5d87-943a-ca67f1d9216b	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1707x834	en-US	ES	\N	\N	\N	2025-03-09 11:11:37.809+00
+05f0b952-1a38-58b4-b682-c4e83cfa7a97	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-GB	ES	\N	\N	\N	2025-03-09 12:41:37.905+00
+48018618-a985-5387-acd0-55169ef111ac	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	1920x1080	en-US	ES	\N	\N	\N	2025-03-09 13:07:38.773+00
+08f12d10-3ef7-57b2-ab08-0c853e4793ac	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	2560x3413	en-US	NO	\N	\N	\N	2025-03-09 13:34:05.721+00
+c84dfc69-d994-5d8a-bee4-f38fd3ca8073	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1707x1067	en-AU	AU	\N	\N	\N	2025-03-10 13:03:06.498+00
+65fda6ca-2a47-5741-a30f-e4619b911e74	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	edge-chromium	Mac OS	desktop	2560x1440	en-US	PL	\N	\N	\N	2025-03-10 13:18:59.513+00
+3cc79547-5e6f-530c-acd2-6d3e24bb1a3d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1512x982	en-US	US	\N	\N	\N	2025-03-10 14:37:57.597+00
+ecf30039-3208-5b81-b455-8e8a317bc750	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1536x960	en-US	NL	\N	\N	\N	2025-03-10 14:47:16.617+00
+f06faf80-58dc-55eb-ad7d-c715e680f261	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	\N	\N	laptop	1080x1920	en-US	PT	\N	\N	\N	2025-03-10 15:51:17.321+00
+0222c406-3d50-51c3-a15e-910eee0f4150	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	laptop	1680x1050	en-US	HU	\N	\N	\N	2025-03-10 16:42:38.132+00
+5a4a71a8-67e1-5c72-b767-10f42c999c39	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	3440x1279	en-US	AX	\N	\N	\N	2025-03-10 17:17:10.758+00
+214f0ed1-0247-5ffc-ada8-7f94701d3988	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	2560x1440	en-US	IN	\N	\N	\N	2025-03-10 17:17:58.728+00
+c18335fd-441f-57e6-b57d-9cc1e98f55ba	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	428x926	tr-TR	TR	\N	\N	\N	2025-03-10 17:34:53.637+00
+4bc4e2f8-bb7b-5563-b7b9-6aad3e465a6c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	2880x1800	en-US	DE	\N	\N	\N	2025-03-10 18:19:18.667+00
+fb7d886e-1936-58bf-9f81-5bce0e8f293f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	448x998	en-US	US	\N	\N	\N	2025-03-10 18:46:56.96+00
+8c45b6c5-a16a-5e58-b334-d387a0cfcbf5	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1710x1107	en-US	PA	\N	\N	\N	2025-03-10 19:56:37.874+00
+59aef117-de69-56ef-b14d-dcf7eb29c6d3	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1536x864	en-US	AE	\N	\N	\N	2025-03-10 20:48:24.665+00
+3a71865e-0cd1-575c-b8ce-c4dccc2bfa49	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1728x1117	en-US	US	\N	\N	\N	2025-03-10 23:46:27.646+00
+2db83f48-b720-5a49-b71c-6f651d8c2461	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	crios	iOS	mobile	402x874	en-US	US	\N	\N	\N	2025-03-11 00:09:45.616+00
+9398ef6e-2c59-51ae-a211-74a838e9b41d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	fxios	iOS	mobile	393x852	en-CA	CA	\N	\N	\N	2025-03-11 03:34:17.558+00
+8afefb7d-487f-5b3b-831a-421ce32eedac	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	laptop	800x600	en-US	US	\N	\N	\N	2025-03-11 03:54:01.429+00
+2cdc08f7-0771-5d39-985a-eccfd537fb09	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1024x1024	en-US	US	\N	\N	\N	2025-03-11 03:54:11.696+00
+5ecb7e56-cabb-5dee-a150-aa3f9c169b39	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1800x1169	en-GB	JP	\N	\N	\N	2025-03-11 05:34:46.771+00
+8b93786c-1e74-5856-9b84-420203af8e29	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1719x942	fr-FR	BE	\N	\N	\N	2025-03-11 06:01:25.114+00
+f68e40ef-5ed0-50ec-847f-623067fba613	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	800x600	en-US	US	\N	\N	\N	2025-03-11 06:09:39.851+00
+240b7fc2-e72d-5c71-9019-204637b7202a	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1200	de-DE	AT	\N	\N	\N	2025-03-11 10:07:41.325+00
+29f2a4dc-0fed-5888-baed-b7213a5c2fd7	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1707x1067	en-AU	AU	\N	\N	\N	2025-03-11 10:46:35.407+00
+1c5374af-0ed3-5edf-bc0a-449bf1bb33a9	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	1920x1080	en-US	DE	\N	\N	\N	2025-03-11 11:51:55.908+00
+62c4aaa2-67eb-5548-8824-c4ba2d21e735	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	1920x1080	en-CA	CA	\N	\N	\N	2025-03-11 13:29:33.431+00
+dbc1cd08-a44c-5321-8af7-898c4b6493e6	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1536x864	pt-PT	PT	\N	\N	\N	2025-03-11 13:35:12.595+00
+8b25fffe-1169-56e1-836c-e119915a5e8d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	384x832	en-US	SA	\N	\N	\N	2025-03-11 13:51:45.255+00
+68330322-1faa-54a3-ab6b-60c2be8afa75	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1470x920	en-US	US	\N	\N	\N	2025-03-11 15:19:52.079+00
+5c4b49aa-ccaf-51b9-910d-67f66684dd5b	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	desktop	3440x1440	en-US	US	\N	\N	\N	2025-03-11 15:21:03.246+00
+034b20c0-5116-5a2c-ae75-b2d2ae2ff1df	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	384x857	en-US	ET	\N	\N	\N	2025-03-11 16:22:32.051+00
+5cfc2e21-5ca1-58e0-8237-26c715222995	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	yandexbrowser	Linux	desktop	1920x1080	ru	RU	\N	\N	\N	2025-03-11 17:55:10.189+00
+98733a9e-fce3-5d87-9ad8-9ae136ae2634	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1536x864	en-US	VN	\N	\N	\N	2025-03-11 18:18:09.327+00
+4485c9e4-68ea-5026-8555-7d3d057e7107	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	440x956	en-US	TR	\N	\N	\N	2025-03-11 18:29:37.613+00
+41d81167-6cb2-5ece-9766-d921fa3128fd	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	opera	Windows 10	desktop	2048x1152	nl-NL	NL	\N	\N	\N	2025-03-11 21:31:21.07+00
+37cefeac-f9d9-5c96-af21-b23cc3cb7419	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1470x956	en-GB	GB	\N	\N	\N	2025-03-11 22:59:26.159+00
+cb5aaf70-1fd1-5a51-b50f-ea2bf7f76dd9	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	\N	\N	laptop	1080x1920	en-US	PT	\N	\N	\N	2025-03-11 23:23:39.765+00
+0617eef1-d4a4-51b2-8a28-6390ac5b6b2d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	tablet	486x1052	en-US	US	\N	\N	\N	2025-03-12 02:45:45.195+00
+0af633eb-8807-516c-bcdd-63503f571fb6	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1227x757	en-GB	IN	\N	\N	\N	2025-03-12 05:20:38.775+00
+83706d28-ba00-59fd-bf61-0f78c32d567d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	laptop	1440x900	en-US	US	\N	\N	\N	2025-03-12 06:05:33.043+00
+c40ea653-3421-5f7c-a6b1-b8c3a9ac9995	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	opera	Linux	desktop	1920x1080	en-US	ID	\N	\N	\N	2025-03-12 06:19:57.091+00
+7880d9c8-d897-535d-94d0-a1b0975351d5	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1200	en-US	DE	\N	\N	\N	2025-03-12 07:18:19.221+00
+8e25cbc6-24fe-5476-a412-028c2dee2ef8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	390x844	en-US	US	\N	\N	\N	2025-03-12 07:42:36.487+00
+0cca2be5-38fc-52b4-b466-b1dc88311c20	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	390x844	en-US	EE	\N	\N	\N	2025-03-12 07:50:45.154+00
+90354438-c6af-5af8-b2a5-628e7ed110d2	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	1920x1080	en-US	ES	\N	\N	\N	2025-03-12 10:35:36.663+00
+255ba978-c3b5-5b88-a373-d7dec49d5177	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	\N	\N	tablet	634x773	en-GB	T1	\N	\N	\N	2025-03-12 10:55:47.694+00
+27e5bca1-c59a-5a2e-95fe-2dd2e1606ccf	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1447x776	en-GB	GB	\N	\N	\N	2025-03-12 10:56:22.042+00
+bac58fe6-7b0f-56b4-9f54-d8922013e627	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	laptop	1280x720	en-US@posix	US	\N	\N	\N	2025-03-12 11:11:49.515+00
+5189105f-5fd5-530d-9bf9-77d2375ec114	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	desktop	3440x1440	en-US	CH	\N	\N	\N	2025-03-12 13:09:54.009+00
+baf0c6d7-9896-59bc-9e1c-5cb6c8f33bf3	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Linux	desktop	3440x1440	en-US	SK	\N	\N	\N	2025-03-12 13:49:28.303+00
+11941581-89ac-5471-9743-9628a023933d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1440x900	pt	BR	\N	\N	\N	2025-03-12 16:25:48.785+00
+da8b7337-2faf-5af9-9274-6ac4e306737b	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	961x1054	en-US	US	\N	\N	\N	2025-03-12 16:48:46.368+00
+2833c459-12d5-5e9b-8703-448fa0188801	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	es-419	CO	\N	\N	\N	2025-03-12 16:56:27.152+00
+5c2eeb09-8706-51e4-99a8-1dd42ed04832	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	desktop	1920x1080	es-ES	PE	\N	\N	\N	2025-03-12 17:21:36.508+00
+9739ae60-cf8e-5ddf-a2d1-9470ba15e240	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-US	TR	\N	\N	\N	2025-03-12 19:38:11.207+00
+ee7d37f6-37fd-5524-9ebe-25eb556d61da	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	opera	Windows 10	laptop	1536x960	nl-NL	NL	\N	\N	\N	2025-03-12 22:11:29.452+00
+46d84faf-9470-59af-81ba-41c3361a8f1f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	2560x1440	en-US	AT	\N	\N	\N	2025-03-12 22:16:48.666+00
+9f2275d6-2777-5ab2-aa59-605936be7a5f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	393x873	ru-RU	UA	\N	\N	\N	2025-03-12 22:27:21.088+00
+eb0340f3-21d6-5992-bc60-1183ef651e09	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1366x768	en-US	IN	\N	\N	\N	2025-03-13 00:42:35.039+00
+3ae25413-1099-5c6f-92a4-423ac3503953	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	laptop	1600x900	en-US	IN	\N	\N	\N	2025-03-13 02:41:51.207+00
+e260397f-3ace-56ec-8066-4160b83a69d8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1512x982	en-US	PH	\N	\N	\N	2025-03-13 03:34:44.368+00
+16b94c4d-7520-514c-9a19-a1b97ef93005	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	desktop	1920x1080	en-US	IR	\N	\N	\N	2025-03-13 08:48:01.701+00
+e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	desktop	1920x1080	en	MY	\N	\N	\N	2025-03-13 08:59:16.515+00
+8f92a698-cc42-505d-a73b-822dbdf1a3be	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	edge-chromium	Windows 10	laptop	1536x960	en	DK	\N	\N	\N	2025-03-13 09:52:39.435+00
+5968d805-71a5-5651-8668-6b008518515a	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	tablet	1024x1024	en-US	US	\N	\N	\N	2025-03-13 09:52:41.836+00
+caf57478-6a74-5736-9477-f1f6e7930bea	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Android OS	mobile	384x854	en-IN	IN	\N	\N	\N	2025-03-13 11:57:51.772+00
+4bed71d0-594e-50dc-81ca-e1cc5b7ac877	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	fxios	iOS	mobile	414x896	en-GB	NL	\N	\N	\N	2025-03-13 12:01:50.831+00
+694e3a45-5597-5bae-8f61-0fc8774fd4aa	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1144x602	en-US	CH	\N	\N	\N	2025-03-13 12:20:56.661+00
+bca2fe34-a979-51df-8016-f0becd08b13c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	edge-chromium	Windows 10	laptop	1366x768	pt-BR	BR	\N	\N	\N	2025-03-13 14:21:28.234+00
+dddf81d1-4a86-52bd-ab8a-47272bb43951	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1680x1050	th	TH	\N	\N	\N	2025-03-13 14:42:51.166+00
+c73c1b62-3f17-5cde-9456-0a9926fa070c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-GB	GB	\N	\N	\N	2025-03-13 14:51:42.494+00
+153c10ea-6a0e-5525-9938-3d882a8e505d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	edge	Windows 10	laptop	800x600	en-US	US	\N	\N	\N	2025-03-13 15:23:22.662+00
+7376fa69-5dee-5994-bc61-8f9e0ede09b1	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	ios	iOS	mobile	414x896	en-US	US	\N	\N	\N	2025-03-13 16:35:38.051+00
+036585e5-58ce-58f7-ab27-b1682fa3fdf8	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	desktop	1920x1080	en-US	IN	\N	\N	\N	2025-03-13 17:37:39.711+00
+81f6b518-d3b0-5187-8c3a-4ecca4d8793c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	desktop	3008x1692	en-US	US	\N	\N	\N	2025-03-13 17:56:50.396+00
+8565f2af-d9c6-5d0a-98b7-caada85bc88d	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Android OS	mobile	379x834	en-CA	US	\N	\N	\N	2025-03-13 18:52:27.42+00
+93283db1-01ca-56f8-8a8a-88296a40c97e	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Windows 10	laptop	1536x864	en-US	BR	\N	\N	\N	2025-03-13 19:49:42.708+00
+1a1c0e64-3372-531f-a5cd-c8a13db5aba9	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1921x954	en-GB	ES	\N	\N	\N	2025-03-13 20:14:55.107+00
+83dba7bb-49c6-5f0d-b780-c99c2d9ab9d0	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	opera	Windows 10	desktop	2048x1152	nl-NL	NL	\N	\N	\N	2025-03-13 21:11:41.934+00
+dd548a09-d94d-595e-97ae-e4ca7c9cb69f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1512x982	en-US	UY	\N	\N	\N	2025-03-13 22:48:08.75+00
+9c0398fb-b29a-5fe3-bd7b-4f21b55be644	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	en-GB	TR	\N	\N	\N	2025-03-14 00:33:49.988+00
+08ecac36-7399-59bf-9e5c-71e5472a8542	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	laptop	800x600	en-US	US	\N	\N	\N	2025-03-14 00:54:59.828+00
+7cc2e1e7-c6a1-5bf3-ad0b-dbee2ba4fd0c	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	laptop	1024x1024	en-US	US	\N	\N	\N	2025-03-14 00:56:20.513+00
+5abeb7b9-fdc9-5189-a42e-a9ee34efa16f	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	fxios	iOS	mobile	414x896	en-GB	NL	\N	\N	\N	2025-03-14 03:12:53.416+00
+3dcdcf87-f183-59e4-ba7b-640eb8449e73	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	pt-BR	BR	\N	\N	\N	2025-03-14 04:39:32.487+00
+f4c3e77b-00ef-5544-850b-26d00407cf37	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Mac OS	laptop	1440x900	en-US	ID	\N	\N	\N	2025-03-14 04:43:32.015+00
+c46b29e3-0360-5f3a-9ffa-e2d16e18c8de	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Windows 10	desktop	1920x1080	ru	RU	\N	\N	\N	2025-03-14 08:21:07.61+00
+65ce8b4c-19a1-599b-af22-7975bdda29d6	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	safari	Mac OS	laptop	1728x1117	en-US	NL	\N	\N	\N	2025-03-14 10:59:09.266+00
+899d3616-cc20-50d1-a265-252a36aa6540	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	firefox	Mac OS	desktop	1920x1080	en-GB	HR	\N	\N	\N	2025-03-14 11:08:38.013+00
+1bacfb3f-c1e6-5ad3-a3b3-a231ac7958fb	fb997c11-6572-43df-bddf-9a64b1f2812d	xetera.dev	chrome	Linux	desktop	1926x999	fr-FR	FR	\N	\N	\N	2025-03-14 12:27:47.812+00
+\.
+
+
+--
+-- Data for Name: session_data; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.session_data (session_data_id, website_id, session_id, data_key, string_value, number_value, date_value, data_type, created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: team; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.team (team_id, name, access_code, created_at, updated_at, deleted_at, logo_url) FROM stdin;
+\.
+
+
+--
+-- Data for Name: team_user; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.team_user (team_user_id, team_id, user_id, role, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public."user" (user_id, username, password, role, created_at, updated_at, deleted_at, display_name, logo_url) FROM stdin;
+41e2b680-648e-4b09-bcd7-3e2b10c06264	admin	$2a$10$q/BTDplluH./w8ylqvxwk.ors.gWmgZQBMCm6khH5BlnIwYAFNNRO	admin	2025-03-04 21:20:14.406429+00	2025-03-04 22:09:44.046+00	\N	\N	\N
+\.
+
+
+--
+-- Data for Name: website; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.website (website_id, name, domain, share_id, reset_at, user_id, created_at, updated_at, deleted_at, created_by, team_id) FROM stdin;
+fb997c11-6572-43df-bddf-9a64b1f2812d	blog	xetera.dev	WUNyi4R2RU1uKK3y	\N	41e2b680-648e-4b09-bcd7-3e2b10c06264	2025-03-04 22:10:24.988+00	2025-03-04 22:45:40.136+00	\N	41e2b680-648e-4b09-bcd7-3e2b10c06264	\N
+\.
+
+
+--
+-- Data for Name: website_event; Type: TABLE DATA; Schema: public; Owner: umami
+--
+
+COPY public.website_event (event_id, website_id, session_id, created_at, url_path, url_query, referrer_path, referrer_query, referrer_domain, page_title, event_type, event_name, visit_id, tag) FROM stdin;
+d999586f-1816-4951-a872-d151ca49b32e	fb997c11-6572-43df-bddf-9a64b1f2812d	0a923817-f2ef-5f53-bf07-74d2c30492ff	2025-03-04 22:17:50.993+00	/	\N	\N	\N		Xetera	1	\N	9fd56576-8803-5c13-a285-52232670486b	\N
+eda1e84a-1216-45e4-af95-acb9ace4ef82	fb997c11-6572-43df-bddf-9a64b1f2812d	0a923817-f2ef-5f53-bf07-74d2c30492ff	2025-03-04 22:18:24.098+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	9fd56576-8803-5c13-a285-52232670486b	\N
+b7b03a53-2623-4161-b17f-4bd640a305e2	fb997c11-6572-43df-bddf-9a64b1f2812d	0a923817-f2ef-5f53-bf07-74d2c30492ff	2025-03-04 22:20:59.527+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	9fd56576-8803-5c13-a285-52232670486b	\N
+ce57f49f-c867-4b30-8047-fbadb0a672f9	fb997c11-6572-43df-bddf-9a64b1f2812d	0a923817-f2ef-5f53-bf07-74d2c30492ff	2025-03-04 22:21:32.853+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	9fd56576-8803-5c13-a285-52232670486b	\N
+a1ebf542-a07a-45c7-8470-ab354da861e8	fb997c11-6572-43df-bddf-9a64b1f2812d	0a923817-f2ef-5f53-bf07-74d2c30492ff	2025-03-04 22:21:43.764+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	9fd56576-8803-5c13-a285-52232670486b	\N
+e56063e6-bbac-4a9b-9663-e06c73fc2768	fb997c11-6572-43df-bddf-9a64b1f2812d	0a923817-f2ef-5f53-bf07-74d2c30492ff	2025-03-04 22:21:56.128+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	9fd56576-8803-5c13-a285-52232670486b	\N
+2781e2c6-100c-4839-aa7e-a24de3151c56	fb997c11-6572-43df-bddf-9a64b1f2812d	0b8efbfd-58e7-5a34-9bc5-a09d708fb23f	2025-03-04 23:54:45.451+00	/	\N	\N	\N		Xetera	1	\N	23d01486-7e53-5087-8ea6-fa9b45ba024f	\N
+5d0df77e-2d05-4fea-8957-f81a33b3338f	fb997c11-6572-43df-bddf-9a64b1f2812d	0b8efbfd-58e7-5a34-9bc5-a09d708fb23f	2025-03-04 23:58:21.257+00	/	\N	\N	\N		Xetera	1	\N	23d01486-7e53-5087-8ea6-fa9b45ba024f	\N
+fb8b1986-62e6-439d-a83d-2ed21241f3ff	fb997c11-6572-43df-bddf-9a64b1f2812d	b6ca4931-f072-5566-a2ee-860f984243e8	2025-03-05 00:23:10.398+00	/article/thoughts-on-go	\N	/		search.brave.com	Golang is not a good language	1	\N	63927c92-bb3b-5507-86c1-394eb95fccc5	\N
+e1f4811b-cb02-4c99-bb3c-0a447d2cbc77	fb997c11-6572-43df-bddf-9a64b1f2812d	4f2d05e3-c1d9-5f61-b6f5-4bf54c8e4644	2025-03-05 01:20:00.425+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	840daffa-ac6e-50f7-a9d1-2308871f5e7e	\N
+856e8d89-324a-42c5-822f-61ae6d5efa02	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-05 02:25:47.277+00	/	\N	\N	\N		Xetera	1	\N	77f0efc3-86d8-56c0-beb0-7df8c25adffc	\N
+5c4849ff-fd67-431f-ac9a-9034aa2c653c	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-05 02:25:49.255+00	/	\N	\N	\N		Xetera	2	media-timeline:poster-click	77f0efc3-86d8-56c0-beb0-7df8c25adffc	\N
+b0886b09-889f-4c49-a3a4-2e6c1756cf7a	fb997c11-6572-43df-bddf-9a64b1f2812d	155040ea-d290-5e40-ae83-2f10c24f0363	2025-03-05 03:45:57.837+00	/	\N	/Xetera		github.com	Xetera	1	\N	2eefa656-b90c-5672-83a5-4a3f8ed4f9c6	\N
+02519e24-562f-47c2-8f9d-43eb5125e813	fb997c11-6572-43df-bddf-9a64b1f2812d	d33fd328-d507-58ee-8981-92d3b37e9e52	2025-03-05 04:03:16.541+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	c332ae25-ae0d-59ef-83c3-dcee08772059	\N
+d2514241-6733-4d41-965c-f0e12bad074d	fb997c11-6572-43df-bddf-9a64b1f2812d	e01a6034-858f-5ead-8097-58b2ff01c6bc	2025-03-05 06:10:20.986+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	2a3d0872-bfec-590d-adaf-3e0297bbd500	\N
+f86dad29-afa0-4964-81fa-4c141e491c8b	fb997c11-6572-43df-bddf-9a64b1f2812d	2107fa4e-7e47-5ddc-9952-d18f850ef841	2025-03-05 07:27:14.98+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	2be2da56-e8bc-5c2c-9538-0801ed0daa94	\N
+064b4a4b-f1aa-4aac-a500-624155a0440b	fb997c11-6572-43df-bddf-9a64b1f2812d	50b43e21-4482-5831-8319-65141bab8b19	2025-03-05 07:57:50.088+00	/	\N	\N	\N		Xetera	1	\N	481bcf4a-c691-572f-bbd4-88f35f80244f	\N
+40d2bd2d-b380-4c7d-adda-c63b06c272d0	fb997c11-6572-43df-bddf-9a64b1f2812d	2107fa4e-7e47-5ddc-9952-d18f850ef841	2025-03-05 09:06:57.748+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	6de1987a-933c-5e8d-b8d4-05f3e27e3bb0	\N
+117e32a4-6da0-489c-89a7-b57d562f19cf	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:09:10.656+00	/	\N	\N	\N		Xetera	1	\N	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+7ff5f851-6dd3-445c-9d9b-7c82913a34f8	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:09:17.285+00	/shorts	\N	\N	\N		Shorts	1	\N	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+68c9d3ff-335a-497a-aaea-c3a6db08f397	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:10:18.249+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+dc150116-f0c7-405c-b04b-a926057f4073	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:12:47.505+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+a7a963d0-95ca-4d2a-9826-32e48c30858a	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:27:41.436+00	/	\N	\N	\N		Xetera	1	\N	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+ac47fa9b-c44a-4175-a98a-3c3039a1ce8b	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:28:56.425+00	/	\N	\N	\N		Xetera	2	social:github	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+b9bb2923-9944-474a-9227-8c8f909dd602	fb997c11-6572-43df-bddf-9a64b1f2812d	bfa47413-2b9b-5459-8356-2169b542238c	2025-03-05 09:51:07.564+00	/article/bot-taxonomy	\N	\N	\N		Bot Taxonomy	1	\N	f02badda-a8b6-5d06-afb5-1340ce12681a	\N
+951de784-b835-4668-8157-40bec5c3e6ca	fb997c11-6572-43df-bddf-9a64b1f2812d	eb0bbaff-cc57-5281-a77f-b72fa396217d	2025-03-05 10:00:12.058+00	/	\N	\N	\N		Xetera	1	\N	90fe90a3-4025-5bb4-89a1-1fa6c4b88731	\N
+cee58e9b-4ad5-4c94-ab67-1ff0d55fe747	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:04:22.843+00	/	\N	\N	\N		Xetera	1	\N	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+e90ec461-76fe-4ba7-8062-d510e027fdc1	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:32.895+00	/	\N	\N	\N		Xetera	2	media-timeline:poster-click	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+6ac6ee04-311a-48e2-9bab-c28edfe9d9d8	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:33.445+00	/	\N	\N	\N		Xetera	2	media-timeline:poster-click	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+5c8a64cb-73e8-4dbc-b119-9acf2e5bea1e	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:33.53+00	/	\N	\N	\N		Xetera	2	media-timeline:poster-click	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+b49dec62-8ab4-4c83-834c-0e378e99b9a7	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:34.401+00	/	\N	\N	\N		Xetera	2	media-timeline:poster-click	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+12adae0b-cd3a-4716-b613-0225125adb4f	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:34.465+00	/	\N	\N	\N		Xetera	2	media-timeline:poster-click	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+411382ac-dbf4-4005-9db2-7fed3075fbee	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:37.522+00	/	\N	\N	\N		Xetera	1	\N	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+2d966760-bc00-47b1-93e1-8b081a2f7901	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:05:46.678+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+b9f20e85-c32a-4d4e-b9bf-a6a16153e00c	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:08:48.845+00	/	\N	\N	\N		Xetera	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+44fe74ad-8a02-4f38-a99d-40488b4d1b97	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:09:00.267+00	/shorts	\N	\N	\N		Shorts	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+b3dcb361-bab2-4b1f-b6ad-7082b7f5978c	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:09:15.377+00	/	\N	\N	\N		Xetera	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+b007477a-1f40-45dc-a07c-31cd973bd0c0	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:10:35.325+00	/shorts	\N	\N	\N		Shorts	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+2b9ed6e9-4c78-4198-88e4-29a82515de1e	fb997c11-6572-43df-bddf-9a64b1f2812d	68afa423-2b99-530c-b198-71e5a23b3d2d	2025-03-05 10:11:26.809+00	/	\N	\N	\N		Xetera	1	\N	942acd8b-5131-5e39-8a20-cd611edbe834	\N
+dea8970a-adef-49bf-924c-81c191d48bf6	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:12:20.417+00	/	\N	\N	\N		Xetera	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+f4bda772-42e8-4421-a618-9b1a767206fc	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-05 10:19:01.045+00	/	\N	\N	\N		Xetera	1	\N	2ef05391-d6dd-568f-a7bd-096363c019e2	\N
+a9f57bb0-f322-45ab-b532-4fd956cd3f78	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-05 10:19:18.984+00	/	\N	\N	\N		Xetera	1	\N	2ef05391-d6dd-568f-a7bd-096363c019e2	\N
+00578936-a82e-415c-8c2d-cc25a75194ba	fb997c11-6572-43df-bddf-9a64b1f2812d	6a46a71d-d4cc-52ab-81c4-db0c9e0eb544	2025-03-05 10:19:40.748+00	/	\N	\N	\N		Xetera	1	\N	f57f3777-e0db-5cc5-84f1-7879e8aeefd3	\N
+af209861-6419-4441-b5a3-7f51dc38676e	fb997c11-6572-43df-bddf-9a64b1f2812d	6a46a71d-d4cc-52ab-81c4-db0c9e0eb544	2025-03-05 10:19:47.495+00	/	\N	\N	\N		Xetera	1	\N	f57f3777-e0db-5cc5-84f1-7879e8aeefd3	\N
+89c2d89c-8612-4987-88ba-0485a444a599	fb997c11-6572-43df-bddf-9a64b1f2812d	dfe6afdb-88db-544e-bc99-d2a0234cfc28	2025-03-05 10:22:13.708+00	/	\N	\N	\N		Xetera	1	\N	0f415d89-bda6-536b-b99d-3011f95c5721	\N
+a694009d-2bb5-479b-9b06-d1ebc2d5a4ad	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:27:22.579+00	/shorts	\N	\N	\N		Shorts	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+05fecc12-ccf9-4f83-a435-ef6fd07c7642	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:27:23.802+00	/	\N	\N	\N		Xetera	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+54f93471-a537-424a-b0ac-10189cbde7ef	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 10:27:45.519+00	/article/learning-for-fun-and-profit	\N	\N	\N		Learning for fun and profit	1	\N	71518cc8-4419-541f-a30e-442bf610a9b4	\N
+9d38e5b9-6ef0-4a13-aa4f-5bb5dbdf0d11	fb997c11-6572-43df-bddf-9a64b1f2812d	1f6fea1e-a433-5f45-933f-11c8be9123c8	2025-03-05 10:33:06.837+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	f385ef7d-e528-5457-a2d5-0c0d9c029c4e	\N
+dcc46c3e-4227-4a40-bbb9-0170d380f95c	fb997c11-6572-43df-bddf-9a64b1f2812d	e2a56cff-68b0-500a-97dc-aa793a487b5c	2025-03-05 10:40:24.912+00	/	\N	\N	\N		Xetera	1	\N	2c2f01d0-15d9-5276-a21f-c7fbc9bdd116	\N
+038d78e6-ed29-436e-aa17-74fdda934d59	fb997c11-6572-43df-bddf-9a64b1f2812d	20a12844-6145-5a72-811f-e63fc0e59932	2025-03-05 12:47:44.598+00	/	\N	\N	\N		Xetera	1	\N	21568d77-2b33-5f47-8714-0bf34c9f4335	\N
+fb8566c4-1d8f-4999-89b9-957bf26a7cd6	fb997c11-6572-43df-bddf-9a64b1f2812d	20a12844-6145-5a72-811f-e63fc0e59932	2025-03-05 12:50:53.229+00	/	\N	\N	\N		Xetera	2	book-timeline:poster-click	21568d77-2b33-5f47-8714-0bf34c9f4335	\N
+3799d99d-ccd2-4b72-8a63-1d5806de73e0	fb997c11-6572-43df-bddf-9a64b1f2812d	20a12844-6145-5a72-811f-e63fc0e59932	2025-03-05 13:14:15.786+00	/	\N	\N	\N		Xetera	1	\N	be1da1f8-f5f9-56e5-a152-581f3d32a92f	\N
+4707d062-1dfe-4dc1-a55c-cabe9da2e911	fb997c11-6572-43df-bddf-9a64b1f2812d	c3989510-5cfd-5ad5-9d42-32a70a846c7c	2025-03-05 13:56:54.748+00	/	\N	\N	\N		Xetera	1	\N	92ac1013-8b0a-55d2-a403-de2e916901af	\N
+b6b575a6-8605-4f40-83b4-c7a7baaffed2	fb997c11-6572-43df-bddf-9a64b1f2812d	9c8dd916-29ad-5e1c-b45c-bd86afc211e5	2025-03-05 15:41:08.422+00	/	\N	\N	\N		Xetera	1	\N	3aff5ffb-048f-507b-8be6-326da0e85f5b	\N
+8693e129-2626-4e12-81fa-5ee0ed5496ec	fb997c11-6572-43df-bddf-9a64b1f2812d	9c8dd916-29ad-5e1c-b45c-bd86afc211e5	2025-03-05 15:41:27.8+00	/	\N	\N	\N		Xetera	1	\N	3aff5ffb-048f-507b-8be6-326da0e85f5b	\N
+54e1b789-ca4e-45ca-af10-25d6ea122cd6	fb997c11-6572-43df-bddf-9a64b1f2812d	c816b927-ba76-58e3-a11a-5ce8ecfe5383	2025-03-05 15:48:58.277+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	f4f1700a-529d-5a62-9039-4dc190b4deec	\N
+3e60d8df-919d-40f4-ac33-c2c931aae609	fb997c11-6572-43df-bddf-9a64b1f2812d	82d5e362-1063-5c86-bb0d-d4666c2b703d	2025-03-05 17:39:22.294+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	85ffd093-e3d8-50b2-9299-c366daa07c2e	\N
+e4765252-60f0-42ab-9eef-4faeaffbfada	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:55:16.98+00	/	\N	\N	\N		Xetera	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+6de6260b-c3dd-45c6-b034-25c437b8ca6c	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:56:57.443+00	/article/learning-for-fun-and-profit	\N	\N	\N		Learning for fun and profit	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+4b5a7f3b-cb6c-4784-9e68-1e62cc5f6680	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:57:39.904+00	/	\N	\N	\N		Xetera	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+b0b0991c-aee1-4e76-8c10-6cdc11ea9e0e	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:57:51.686+00	/	\N	\N	\N		Xetera	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+a8b2df4f-96ba-4802-93c6-b213a562bdec	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:58:12.066+00	/article/building-a-scalable-scraper	\N	\N	\N		Building a scalable scraper	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+65f4ba68-63d4-4eb0-89a2-8fb072e2b732	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:58:21.08+00	/	\N	\N	\N		Xetera	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+15d0dc7a-2528-40cb-89f1-cd5fcad01a97	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 17:58:24.219+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	c368f6dc-c273-5f7e-bc30-dd95746b6204	\N
+8b5059fd-ccda-46d9-86d1-ca2f4537c8aa	fb997c11-6572-43df-bddf-9a64b1f2812d	7ad3c58e-c8a8-5697-8728-3f24601c55fd	2025-03-05 18:21:01.663+00	/	\N	\N	\N		Xetera	1	\N	955ea7c2-3d0c-5f62-bfe5-4806cf23384c	\N
+6e061747-ec4f-41a9-90ed-2da8b4ecafe6	fb997c11-6572-43df-bddf-9a64b1f2812d	32777c64-dac0-57ed-af62-ed5f52bca811	2025-03-05 19:12:20.077+00	/	\N	/Xetera		github.com	Xetera	1	\N	b35697fa-1285-51a6-a574-ee16f93e8f70	\N
+50064942-55e1-44bf-a767-1eab47c2b15c	fb997c11-6572-43df-bddf-9a64b1f2812d	32777c64-dac0-57ed-af62-ed5f52bca811	2025-03-05 19:12:29.82+00	/shorts	\N	\N	\N		Shorts	1	\N	b35697fa-1285-51a6-a574-ee16f93e8f70	\N
+af3c78f0-6520-4604-b4c9-b5333fde09dc	fb997c11-6572-43df-bddf-9a64b1f2812d	32777c64-dac0-57ed-af62-ed5f52bca811	2025-03-05 19:13:12.26+00	/	\N	/Xetera		github.com	Xetera	1	\N	b35697fa-1285-51a6-a574-ee16f93e8f70	\N
+0528028d-c88b-4cee-bb26-4ffc086fdd3f	fb997c11-6572-43df-bddf-9a64b1f2812d	32777c64-dac0-57ed-af62-ed5f52bca811	2025-03-05 19:13:41.434+00	/article/bot-taxonomy	\N	\N	\N		Bot Taxonomy	1	\N	b35697fa-1285-51a6-a574-ee16f93e8f70	\N
+a6ea27c0-75f7-421c-a208-a78612ac1427	fb997c11-6572-43df-bddf-9a64b1f2812d	32777c64-dac0-57ed-af62-ed5f52bca811	2025-03-05 19:13:43.282+00	/article/why-does-school-suck-so-much	\N	\N	\N		Why does school suck so much?	1	\N	b35697fa-1285-51a6-a574-ee16f93e8f70	\N
+27123887-17f8-4e95-91ad-9df141f4b028	fb997c11-6572-43df-bddf-9a64b1f2812d	32777c64-dac0-57ed-af62-ed5f52bca811	2025-03-05 19:13:53.11+00	/article/a-night-out-at-the-theater	\N	\N	\N		A night out at the theater	1	\N	b35697fa-1285-51a6-a574-ee16f93e8f70	\N
+9d46653f-e9aa-41d8-bbf2-e3617175ccd1	fb997c11-6572-43df-bddf-9a64b1f2812d	ae688268-6966-5b9d-a967-de012a07a165	2025-03-05 19:29:53.254+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	426f7c2e-df66-5356-8162-765c0d5f56b5	\N
+03dd3d56-3525-4571-8b49-aa6f5bcfe476	fb997c11-6572-43df-bddf-9a64b1f2812d	1ace5514-36d2-5cc4-a8a2-698ef6b2c8bd	2025-03-05 19:40:59.514+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	609e0b3c-61e5-5d94-aa7c-ec61f91ec481	\N
+587750a6-54b1-48b0-9ff5-d6bd2c48cf7a	fb997c11-6572-43df-bddf-9a64b1f2812d	962b9276-fbe2-5e5a-9977-5263c6d85513	2025-03-05 20:18:06.315+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	e9abea26-4478-51f8-814b-56c4bf68e8f9	\N
+5aec7973-a239-4d58-bfbe-9b494bcb2d1a	fb997c11-6572-43df-bddf-9a64b1f2812d	5a640f17-3f96-507c-800c-896f93420891	2025-03-05 22:31:32.13+00	/	\N	/		github.com	Xetera	1	\N	852bedd5-2f30-5009-8b63-7dab924daa8b	\N
+3156845b-318a-4ca1-b65c-617059bca682	fb997c11-6572-43df-bddf-9a64b1f2812d	5a640f17-3f96-507c-800c-896f93420891	2025-03-05 22:32:15.83+00	/article/learning-for-fun-and-profit	\N	\N	\N		Learning for fun and profit	1	\N	852bedd5-2f30-5009-8b63-7dab924daa8b	\N
+00bf6980-a15f-450c-a757-0f210d95db7e	fb997c11-6572-43df-bddf-9a64b1f2812d	5a640f17-3f96-507c-800c-896f93420891	2025-03-05 22:35:29.006+00	/	\N	/		github.com	Xetera	1	\N	852bedd5-2f30-5009-8b63-7dab924daa8b	\N
+d9eb91c5-9b97-4320-ad5c-d09d97483b9b	fb997c11-6572-43df-bddf-9a64b1f2812d	5a640f17-3f96-507c-800c-896f93420891	2025-03-05 22:35:42.94+00	/	\N	/		github.com	Xetera	2	social:bsky	852bedd5-2f30-5009-8b63-7dab924daa8b	\N
+5881acbd-1625-4cd3-a5db-1b9ecc644f79	fb997c11-6572-43df-bddf-9a64b1f2812d	440e5cf9-b1bf-56b2-b8d3-c5716251363d	2025-03-05 22:39:09.222+00	/	\N	\N	\N		Xetera	1	\N	1d8f76dc-55e2-5643-90d4-8e17c9747c8a	\N
+2e0e38ab-8027-4581-aa10-ef52422574f2	fb997c11-6572-43df-bddf-9a64b1f2812d	440e5cf9-b1bf-56b2-b8d3-c5716251363d	2025-03-05 22:39:15.883+00	/shorts	\N	\N	\N		Shorts	1	\N	1d8f76dc-55e2-5643-90d4-8e17c9747c8a	\N
+85d88c0c-ed9e-4f17-a1bc-3203ef38be39	fb997c11-6572-43df-bddf-9a64b1f2812d	0cb68907-3812-5fb3-af94-61f2c3e4ab34	2025-03-05 23:04:13.601+00	/	\N	\N	\N		Xetera	1	\N	bee2b6f0-c898-50c1-9314-25ff1045d2ba	\N
+3254c9ca-1cea-45f4-bb96-da65ed5873f0	fb997c11-6572-43df-bddf-9a64b1f2812d	0cb68907-3812-5fb3-af94-61f2c3e4ab34	2025-03-05 23:04:23.397+00	/shorts	\N	\N	\N		Shorts	1	\N	bee2b6f0-c898-50c1-9314-25ff1045d2ba	\N
+d52fe8db-a54b-4115-8fcd-ff51b0d62569	fb997c11-6572-43df-bddf-9a64b1f2812d	ef72015b-f271-506b-b6f0-5e80c38e311f	2025-03-06 01:40:35.984+00	/	\N	\N	\N		Xetera	1	\N	530fe642-c47d-5b55-8ddf-5f4272c51d03	\N
+a72210ec-ec73-493d-aaeb-85049f64207f	fb997c11-6572-43df-bddf-9a64b1f2812d	59ba3212-b5fc-532f-9fc2-a016e7ae7503	2025-03-06 02:39:28.755+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	02753222-4619-556a-a981-9ca0cc978177	\N
+5603426c-4bad-457f-94c1-aedfe082be52	fb997c11-6572-43df-bddf-9a64b1f2812d	dcec5eae-13eb-5bc4-aa51-bc4f0bb5aa4e	2025-03-06 03:56:57.57+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	a25ee34e-0b05-5a45-af2e-cea8913e1c91	\N
+e7d2828d-f465-4dd3-81b9-79f2b225b400	fb997c11-6572-43df-bddf-9a64b1f2812d	91ebec83-cc61-59e9-82c9-a3e719066d96	2025-03-06 07:28:41.784+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	bb2c4e4d-c27e-59a8-804a-6678bd5fe9ea	\N
+4163a4ff-0c0b-490d-8073-ff10a141f943	fb997c11-6572-43df-bddf-9a64b1f2812d	50b43e21-4482-5831-8319-65141bab8b19	2025-03-06 08:11:06.58+00	/	\N	\N	\N		Xetera	1	\N	e77ae500-be24-57c5-91a9-f99c66af65d2	\N
+38f61caa-301b-4b7d-81c5-2a38520b41bd	fb997c11-6572-43df-bddf-9a64b1f2812d	50b43e21-4482-5831-8319-65141bab8b19	2025-03-06 08:11:11.723+00	/shorts	\N	\N	\N		Shorts	1	\N	e77ae500-be24-57c5-91a9-f99c66af65d2	\N
+dbf409ac-ecfe-4e13-9359-ccd5bdba6122	fb997c11-6572-43df-bddf-9a64b1f2812d	2107fa4e-7e47-5ddc-9952-d18f850ef841	2025-03-06 08:15:11.428+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	07a39a5a-2904-5f2d-bfd5-ce9cf1a82dae	\N
+05e6ae83-64aa-4ff3-9f52-8cd1ec711e7b	fb997c11-6572-43df-bddf-9a64b1f2812d	22161d35-582a-5a51-9e7b-6ef7a363ecf9	2025-03-06 12:23:05.777+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	9d6d0fc4-8a33-5a0d-93aa-79616966c2de	\N
+0a413d26-44ad-4d61-997e-e7d118756bb9	fb997c11-6572-43df-bddf-9a64b1f2812d	f1186d27-f9d5-5318-847c-41cd948ac8f8	2025-03-06 13:36:12.047+00	/article/typescript-permissions	\N	\N	\N		Building a robust permissions system in TypeScript	1	\N	23b1dde6-d615-5880-975c-fe7d409a7acc	\N
+b966d573-18bf-4bfd-8525-20c1108d91ed	fb997c11-6572-43df-bddf-9a64b1f2812d	bffaf913-7fc8-5dc9-96f1-7b71c43895b7	2025-03-06 16:44:04.481+00	/	\N	\N	\N		Xetera	1	\N	c76e800e-d767-59f1-a87c-a175d7195f74	\N
+0ae1a378-e151-48ee-b2ff-b2e72fee6754	fb997c11-6572-43df-bddf-9a64b1f2812d	a6d33432-47ac-5536-8b41-d1c0ce829fd0	2025-03-06 16:53:19.138+00	/	\N	\N	\N		Xetera	1	\N	3717e3f1-cafe-5751-9ab1-7ebbc1d41740	\N
+1a6c62e0-d3de-40ac-a6e3-1348f0d20f66	fb997c11-6572-43df-bddf-9a64b1f2812d	a6d33432-47ac-5536-8b41-d1c0ce829fd0	2025-03-06 16:53:28.728+00	/shorts	\N	\N	\N		Shorts	1	\N	3717e3f1-cafe-5751-9ab1-7ebbc1d41740	\N
+e76363ee-110a-40e5-85ef-8c5abd901164	fb997c11-6572-43df-bddf-9a64b1f2812d	a6d33432-47ac-5536-8b41-d1c0ce829fd0	2025-03-06 16:54:26.436+00	/	\N	\N	\N		Xetera	1	\N	3717e3f1-cafe-5751-9ab1-7ebbc1d41740	\N
+7eb78698-8881-4e82-908a-2c180624790d	fb997c11-6572-43df-bddf-9a64b1f2812d	a6d33432-47ac-5536-8b41-d1c0ce829fd0	2025-03-06 16:54:55.78+00	/	\N	\N	\N		Xetera	1	\N	3717e3f1-cafe-5751-9ab1-7ebbc1d41740	\N
+2e766ab5-2c1c-41c9-b443-4a00ae2a3af3	fb997c11-6572-43df-bddf-9a64b1f2812d	286f30fd-aad4-51e9-8d31-948d33fc6a36	2025-03-06 19:09:55.84+00	/	\N	/		github.com	Xetera	1	\N	50c256e2-ecb4-5f68-b47c-7f0bb2ba6ffc	\N
+8e19b35b-2c0b-4567-83db-19f3b659f4a9	fb997c11-6572-43df-bddf-9a64b1f2812d	286f30fd-aad4-51e9-8d31-948d33fc6a36	2025-03-06 19:12:53.855+00	/shorts	\N	\N	\N		Shorts	1	\N	50c256e2-ecb4-5f68-b47c-7f0bb2ba6ffc	\N
+c3723252-30e2-4552-b1d9-ce8319ce9a38	fb997c11-6572-43df-bddf-9a64b1f2812d	286f30fd-aad4-51e9-8d31-948d33fc6a36	2025-03-06 19:13:03.214+00	/	\N	\N	\N		Xetera	1	\N	50c256e2-ecb4-5f68-b47c-7f0bb2ba6ffc	\N
+8160f4f2-cd13-4d4b-935f-ded3b30df76b	fb997c11-6572-43df-bddf-9a64b1f2812d	286f30fd-aad4-51e9-8d31-948d33fc6a36	2025-03-06 19:17:40.771+00	/	\N	\N	\N		Xetera	1	\N	50c256e2-ecb4-5f68-b47c-7f0bb2ba6ffc	\N
+83ef9a81-fb9b-4d3a-8ca9-9e057624d573	fb997c11-6572-43df-bddf-9a64b1f2812d	5ad16851-9b5a-560a-9307-8432df8953e0	2025-03-06 19:28:59.484+00	/	\N	\N	\N		Xetera	1	\N	dac58b79-e3ce-5470-8b50-d7a0c9deb13f	\N
+c407c433-9bdb-4342-8af1-fcd006ba8dfc	fb997c11-6572-43df-bddf-9a64b1f2812d	5ad16851-9b5a-560a-9307-8432df8953e0	2025-03-06 19:29:02.769+00	/	\N	\N	\N		Xetera	2	social:github	dac58b79-e3ce-5470-8b50-d7a0c9deb13f	\N
+3b4f2d0e-6fcd-40d6-9b15-fdb0ce24323a	fb997c11-6572-43df-bddf-9a64b1f2812d	5ad16851-9b5a-560a-9307-8432df8953e0	2025-03-06 19:31:08.133+00	/shorts	\N	\N	\N		Shorts	1	\N	dac58b79-e3ce-5470-8b50-d7a0c9deb13f	\N
+04a1470a-3ff1-4e6e-bb86-cb63fd9e4bc0	fb997c11-6572-43df-bddf-9a64b1f2812d	128e41bd-1fe6-5430-8878-5c01446925cd	2025-03-06 20:28:34.002+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	00605428-6196-5fab-98bd-bb3c0efea1bf	\N
+338a5a6f-7196-45b9-9c77-8c6dba4da6b8	fb997c11-6572-43df-bddf-9a64b1f2812d	09eccd8f-6ada-507c-ae3b-c89b5d2add3f	2025-03-06 20:43:21.861+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	ae4f582a-7795-5ed0-8b2d-78dc03296653	\N
+b897221a-f33b-4ffd-aca3-6fdff02d0265	fb997c11-6572-43df-bddf-9a64b1f2812d	5895fca8-05ea-59a3-ba85-274ba55cf608	2025-03-08 01:59:48.696+00	/	\N	/		github.com	Xetera	1	\N	5c024e46-340e-5b82-baf3-5a0380e7310e	\N
+ab599ba5-71f7-421c-8343-457cb53f7ec4	fb997c11-6572-43df-bddf-9a64b1f2812d	b47d0cb1-22cd-58d6-a6f9-5ed0dcfb2d05	2025-03-06 21:28:41.163+00	/article/optimizing-images-with-webp	\N	\N	\N		Optimizing images with WebP in Node.js	1	\N	7774dd18-ca49-5a3c-931b-a7ed9ce5c4de	\N
+3f84b4a3-02bc-4b0b-ac0e-7e2e1cda63a4	fb997c11-6572-43df-bddf-9a64b1f2812d	6b72b384-0313-5d61-aa6f-12551102b4bd	2025-03-07 01:06:08.923+00	/article/building-a-scalable-scraper	\N	/		duckduckgo.com	Building a scalable scraper	1	\N	cdfd7c8d-b1a0-5410-9e61-fc7149da703a	\N
+64c5a4dd-2fe8-4ccc-a4fe-bfe999430255	fb997c11-6572-43df-bddf-9a64b1f2812d	bdd8e6e1-b19d-5b2e-8d59-0b4cdab2d9a9	2025-03-07 01:24:14.645+00	/article/bot-taxonomy	\N	\N	\N		Bot Taxonomy	1	\N	25dd8f76-d42c-5259-905d-b4e45deb9a38	\N
+ddc12d0d-b89a-463d-a19b-db94c5c07de6	fb997c11-6572-43df-bddf-9a64b1f2812d	453e9586-0ea6-5fe4-94b0-2fc9a58f6032	2025-03-07 01:24:25.606+00	/article/optimizing-images-with-webp	\N	\N	\N		Optimizing images with WebP in Node.js	1	\N	3ea9a502-f8bd-5e45-a099-c5a52e5b76e7	\N
+fd7bc284-185e-4867-bb24-f65b943da504	fb997c11-6572-43df-bddf-9a64b1f2812d	997a81bd-7b78-51cd-8a91-a96821e43e07	2025-03-07 05:00:18.026+00	/	\N	\N	\N		Xetera	1	\N	67139e7b-2211-5fc6-bbfb-c9c1705beb35	\N
+378f56bd-ca66-44e2-924b-b1fdf6c46641	fb997c11-6572-43df-bddf-9a64b1f2812d	997a81bd-7b78-51cd-8a91-a96821e43e07	2025-03-07 05:00:54.002+00	/	\N	\N	\N		Xetera	1	\N	67139e7b-2211-5fc6-bbfb-c9c1705beb35	\N
+5ffeaef0-f8ac-4746-a4c0-6e8fb29edc5a	fb997c11-6572-43df-bddf-9a64b1f2812d	08583225-7c5f-596d-923c-ffc70cae36e7	2025-03-07 05:01:00.069+00	/	\N	\N	\N		Xetera	1	\N	cd0d062f-ba7b-59cd-8071-24dd2d3e2920	\N
+1862689d-f25b-48cd-b030-7672cc979825	fb997c11-6572-43df-bddf-9a64b1f2812d	76dd3e67-ebc2-5634-a867-88669d449fdc	2025-03-07 05:01:00.227+00	/	\N	\N	\N		Xetera	1	\N	65be2329-a2f0-590f-9f3c-63eb2c6cad86	\N
+f2caa6e2-ec83-4be0-8afb-f7ddb630ac75	fb997c11-6572-43df-bddf-9a64b1f2812d	997a81bd-7b78-51cd-8a91-a96821e43e07	2025-03-07 05:01:17.292+00	/	\N	\N	\N		Xetera	1	\N	67139e7b-2211-5fc6-bbfb-c9c1705beb35	\N
+d50626fd-3e1d-47d8-b920-25cfed9161c5	fb997c11-6572-43df-bddf-9a64b1f2812d	997a81bd-7b78-51cd-8a91-a96821e43e07	2025-03-07 05:01:24.637+00	/	\N	\N	\N		Xetera	1	\N	67139e7b-2211-5fc6-bbfb-c9c1705beb35	\N
+1a5a6583-5864-4e66-a110-89cdf48a643a	fb997c11-6572-43df-bddf-9a64b1f2812d	e83e1f9c-ffac-5bdb-a8e1-5874a45b10af	2025-03-07 05:01:46.277+00	/	\N	\N	\N		Xetera	1	\N	d7b47c15-87db-5066-8953-ad56645102ad	\N
+9ac10f7e-22a5-4f53-8d2c-dbeffd50997e	fb997c11-6572-43df-bddf-9a64b1f2812d	e83e1f9c-ffac-5bdb-a8e1-5874a45b10af	2025-03-07 05:02:09.805+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	d7b47c15-87db-5066-8953-ad56645102ad	\N
+7f7938c7-0e72-4b17-bab2-f37921c47556	fb997c11-6572-43df-bddf-9a64b1f2812d	375be79c-e5b9-5939-8632-2630f77362e4	2025-03-07 05:05:13.685+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	7002fbd8-9ffc-5174-8244-3434b16eb099	\N
+b40a7432-6444-44cd-83d1-c5a49588bf17	fb997c11-6572-43df-bddf-9a64b1f2812d	d2805869-8a9a-5a5b-969e-6510e9e2a0cd	2025-03-07 05:06:18.11+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	d860f6d8-314a-5e10-a374-0cefcead4a87	\N
+925a546b-d12f-47ad-8783-0da6b45939b1	fb997c11-6572-43df-bddf-9a64b1f2812d	b3615e08-2730-5a0a-8021-cf625e366040	2025-03-07 05:06:58.016+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	fd1d1160-54fb-5940-a8d6-1eeb0787eef8	\N
+f90bd91b-20ab-49e8-bd6e-dd2dd787f5b5	fb997c11-6572-43df-bddf-9a64b1f2812d	0e098366-2f5f-5997-b6fa-c866aafbfd6f	2025-03-07 06:03:54.807+00	/	\N	\N	\N		Xetera	1	\N	a727c52e-7b64-506d-8403-7ab1d3a51f22	\N
+37e1d151-58c4-48f8-8f14-e49d9263a7f4	fb997c11-6572-43df-bddf-9a64b1f2812d	a95224c1-871e-5170-8f6b-8ec8189d78b4	2025-03-07 06:20:35.634+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	bd38b25a-c472-5e8c-9953-005b4f8fbdab	\N
+b31dcae5-4415-46d0-bd8c-373cb6507d16	fb997c11-6572-43df-bddf-9a64b1f2812d	52d872a6-5776-56c9-b809-78c9a9973532	2025-03-07 10:09:34.278+00	/	\N	/		github.com	Xetera	1	\N	b8ff1180-88f3-58f4-befb-70a1e80276e3	\N
+d8e2a9f3-fb5f-4e34-a2c6-e3b233f6ed96	fb997c11-6572-43df-bddf-9a64b1f2812d	52d872a6-5776-56c9-b809-78c9a9973532	2025-03-07 10:09:54.204+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	b8ff1180-88f3-58f4-befb-70a1e80276e3	\N
+6f93962b-aa97-4938-9888-0acc21deead3	fb997c11-6572-43df-bddf-9a64b1f2812d	52d872a6-5776-56c9-b809-78c9a9973532	2025-03-07 10:25:06.789+00	/article/typescript-permissions	\N	\N	\N		Building a robust permissions system in TypeScript	1	\N	b8ff1180-88f3-58f4-befb-70a1e80276e3	\N
+8328dde9-35f1-42dc-8e36-e428caed7d8c	fb997c11-6572-43df-bddf-9a64b1f2812d	cdff224e-0a63-5f1d-ae0f-5dd24af643a3	2025-03-07 11:45:46.515+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	2fc233bd-c486-5ffb-9e56-2e83fabf71e0	\N
+19002347-faca-4f0a-a8db-aeb7823c6a37	fb997c11-6572-43df-bddf-9a64b1f2812d	cdff224e-0a63-5f1d-ae0f-5dd24af643a3	2025-03-07 11:46:32.769+00	/	\N	\N	\N		Xetera	1	\N	2fc233bd-c486-5ffb-9e56-2e83fabf71e0	\N
+ac659286-0aac-4844-910b-aab143b8a754	fb997c11-6572-43df-bddf-9a64b1f2812d	cdff224e-0a63-5f1d-ae0f-5dd24af643a3	2025-03-07 11:46:44.224+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	2fc233bd-c486-5ffb-9e56-2e83fabf71e0	\N
+edd828ed-a8e9-489e-9bdc-a12db1c34102	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 12:03:48.609+00	/article/typescript-permissions	\N	\N	\N		Building a robust permissions system in TypeScript	1	\N	2ca28734-992f-593b-8a9c-88da5baa52ee	\N
+34d27d28-2017-4523-9048-73c290ebb9e4	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 12:48:04.884+00	/article/typescript-permissions	\N	\N	\N		Building a robust permissions system in TypeScript	1	\N	2ca28734-992f-593b-8a9c-88da5baa52ee	\N
+80f387c1-421a-483b-bd9c-01f162adf4d7	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 12:49:29.252+00	/article/misleading-educational-videos	\N	\N	\N		Misleading educational videos	1	\N	2ca28734-992f-593b-8a9c-88da5baa52ee	\N
+25131de7-c4f7-400f-8b90-dd3d0991895e	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 13:05:07.53+00	/article/misleading-educational-videos	\N	\N	\N		Misleading educational videos	1	\N	b6040754-7234-5524-80c4-8efa639a43e0	\N
+1cb6ab20-215b-4252-a37b-bf48ad67dcb1	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 13:08:26.143+00	/	\N	\N	\N		Xetera	1	\N	b6040754-7234-5524-80c4-8efa639a43e0	\N
+71de8daf-1a84-4629-99f1-e506895a4060	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 13:08:31.98+00	/shorts	\N	\N	\N		Shorts	1	\N	b6040754-7234-5524-80c4-8efa639a43e0	\N
+a72aae02-8485-4de0-8d10-72609650a2ae	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 13:10:42.361+00	/	\N	\N	\N		Xetera	1	\N	b6040754-7234-5524-80c4-8efa639a43e0	\N
+5d16075d-df08-4fa0-abce-0a3ea749137f	fb997c11-6572-43df-bddf-9a64b1f2812d	4270c2a8-b582-5fb8-9e5a-e5c218c09875	2025-03-07 13:11:46.373+00	/	\N	\N	\N		Xetera	1	\N	b6040754-7234-5524-80c4-8efa639a43e0	\N
+354c7e2f-078e-4372-9e65-5fe79cca1c59	fb997c11-6572-43df-bddf-9a64b1f2812d	404b92b4-d10f-5f0f-a6a4-79af633ef4b9	2025-03-07 13:30:23.827+00	/article/the-terrible-fate-of-reduce	\N	\N	\N		The terrible fate of reduce	1	\N	a2566aea-66b7-5b70-a132-5781f0000f58	\N
+87f39dd4-ee02-42d2-a94d-73a081a518ca	fb997c11-6572-43df-bddf-9a64b1f2812d	de640221-4a70-5bc0-bad0-0a1065c148b8	2025-03-07 13:33:55.608+00	/article/a-night-out-at-the-theater	\N	\N	\N		A night out at the theater	1	\N	fcc2fba1-a896-5879-86b4-8339022d3426	\N
+c7ddaaa4-f0e2-4974-a218-e39bfc4b1edd	fb997c11-6572-43df-bddf-9a64b1f2812d	1520daab-676b-58be-955f-6f1cea9ded39	2025-03-07 13:48:10.591+00	/article/truthiness-equality	\N	\N	\N		Truthiness is not loose equality	1	\N	c11c53be-6412-54cb-a336-79ae688baedf	\N
+f9e48dd4-9060-4905-8eda-12b788836303	fb997c11-6572-43df-bddf-9a64b1f2812d	dc0d435c-dd22-5a80-ac1f-05f1f6cb1ce5	2025-03-07 14:07:36.131+00	/article/learning-for-fun-and-profit	\N	\N	\N		Learning for fun and profit	1	\N	a3339332-cc1f-52fb-9e31-9355018e5a36	\N
+831f887c-c990-4e51-a0be-6734ba7f7296	fb997c11-6572-43df-bddf-9a64b1f2812d	b02093a3-005e-5189-98ec-43d12c888501	2025-03-07 14:11:35.413+00	/article/blizzards-downfall	\N	\N	\N		Blizzard's Downfall	1	\N	dc1d016e-a4d6-53e6-8ddd-7d5ca06bf138	\N
+e699322a-4046-4c4b-9559-54af4d7acad3	fb997c11-6572-43df-bddf-9a64b1f2812d	8d2fd932-967e-5fa3-ba49-7d07798d0b15	2025-03-07 14:16:40.9+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	b217f760-426b-547c-960b-00027394d6e6	\N
+8666ed28-ffb2-407c-a604-c37cb06c69bb	fb997c11-6572-43df-bddf-9a64b1f2812d	4a082c52-dab6-5788-b7ef-866018cfa47c	2025-03-07 14:18:13.619+00	/article/typescript-permissions	\N	\N	\N		Building a robust permissions system in TypeScript	1	\N	8869d271-e4d4-5361-8c0f-ff53ee57c3d0	\N
+db7c8104-2744-409c-a887-8c64ff7aa745	fb997c11-6572-43df-bddf-9a64b1f2812d	68b70dd5-c347-5a29-92ad-d4b54a84cf5e	2025-03-07 14:33:06.94+00	/article/misleading-educational-videos	\N	\N	\N		Misleading educational videos	1	\N	ef7e2bfe-6437-5afa-a991-4bddd5771b16	\N
+66c0ff59-204d-431c-a2c9-88e05094792e	fb997c11-6572-43df-bddf-9a64b1f2812d	d6854d42-f986-5ee4-861a-9fe7c6e414a6	2025-03-07 15:06:16.694+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	fad8a9db-ff81-5936-be44-c37d92afbac4	\N
+115a1eec-718d-40c6-91f0-cf1ebea22954	fb997c11-6572-43df-bddf-9a64b1f2812d	ace5b963-08c8-5d80-91f0-f8f012fdccac	2025-03-07 17:48:52.12+00	/	\N	\N	\N		Xetera	1	\N	593a3b81-ee99-5def-bb00-7b2c98df3151	\N
+d2f28982-2391-4158-b227-82f3f7c3888d	fb997c11-6572-43df-bddf-9a64b1f2812d	c4b662f0-9fd2-5a2f-a05a-e5f831139dbd	2025-03-07 19:23:47.141+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	36b014c6-2875-55db-8c43-7bc54d71ac0d	\N
+702befd8-e689-4292-84d1-a9b98e39b0d7	fb997c11-6572-43df-bddf-9a64b1f2812d	1352d1cb-53cd-56ee-b9b5-12a5ee494095	2025-03-08 01:22:32.683+00	/	\N	\N	\N		Xetera	1	\N	eb67191b-8de0-58ed-8ee8-5e1548ab00cb	\N
+3782b329-6c5e-4327-b358-2d0dc99e7c1a	fb997c11-6572-43df-bddf-9a64b1f2812d	1352d1cb-53cd-56ee-b9b5-12a5ee494095	2025-03-08 01:22:40.505+00	/shorts	\N	\N	\N		Shorts	1	\N	eb67191b-8de0-58ed-8ee8-5e1548ab00cb	\N
+c51025ac-549f-4247-8447-93f4e23eaf22	fb997c11-6572-43df-bddf-9a64b1f2812d	1352d1cb-53cd-56ee-b9b5-12a5ee494095	2025-03-08 01:22:44.29+00	/shorts	\N	\N	\N		Shorts	1	\N	eb67191b-8de0-58ed-8ee8-5e1548ab00cb	\N
+f64bbac5-c53a-4e01-9c3e-355b61cd3b82	fb997c11-6572-43df-bddf-9a64b1f2812d	1352d1cb-53cd-56ee-b9b5-12a5ee494095	2025-03-08 01:24:12.325+00	/	\N	\N	\N		Xetera	1	\N	eb67191b-8de0-58ed-8ee8-5e1548ab00cb	\N
+7742ac80-9a0c-4068-af7d-ce27768a840a	fb997c11-6572-43df-bddf-9a64b1f2812d	1352d1cb-53cd-56ee-b9b5-12a5ee494095	2025-03-08 01:28:52.364+00	/	\N	\N	\N		Xetera	1	\N	eb67191b-8de0-58ed-8ee8-5e1548ab00cb	\N
+0a435eec-573d-466e-b09d-5f201e5b36d4	fb997c11-6572-43df-bddf-9a64b1f2812d	5895fca8-05ea-59a3-ba85-274ba55cf608	2025-03-08 01:58:14.154+00	/	\N	/		github.com	Xetera	1	\N	5c024e46-340e-5b82-baf3-5a0380e7310e	\N
+1a10f2ab-e842-46d4-8864-111bcbafdaf8	fb997c11-6572-43df-bddf-9a64b1f2812d	5895fca8-05ea-59a3-ba85-274ba55cf608	2025-03-08 01:58:40.525+00	/shorts	\N	\N	\N		Shorts	1	\N	5c024e46-340e-5b82-baf3-5a0380e7310e	\N
+afc2e9f7-9df5-4e02-9812-328995363317	fb997c11-6572-43df-bddf-9a64b1f2812d	5895fca8-05ea-59a3-ba85-274ba55cf608	2025-03-08 01:59:21.127+00	/	\N	/		github.com	Xetera	1	\N	5c024e46-340e-5b82-baf3-5a0380e7310e	\N
+ed0487f9-d7da-4928-83d4-f6e9e95f9fb9	fb997c11-6572-43df-bddf-9a64b1f2812d	668fe595-dd05-5439-81a2-23e52b01e0e7	2025-03-08 04:33:05.33+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	89a36966-c3d4-584e-92e5-8d77464961e8	\N
+efbe4698-3ea2-437d-86de-d1f1df23ea1f	fb997c11-6572-43df-bddf-9a64b1f2812d	127ae6e0-0d1d-51d0-a3cb-7a69d019ea9a	2025-03-08 09:23:30.855+00	/	\N	\N	\N		Xetera	1	\N	78e91279-bde2-56b3-9132-7f6579657c29	\N
+b584760f-055d-4032-8b2c-74e57284a6ff	fb997c11-6572-43df-bddf-9a64b1f2812d	3d97bbfc-5526-5faa-b37c-d331950d7062	2025-03-08 11:07:11.182+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	af78729e-91d5-5351-aa95-96a9eb62eef1	\N
+47bb5330-09d8-4b65-90b0-171990fe45f2	fb997c11-6572-43df-bddf-9a64b1f2812d	e4e64504-f4cc-5d64-b63a-d377b8a4159d	2025-03-08 11:29:04.201+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	1296f2fd-b31c-5d63-bd1a-4db399bcc0fd	\N
+26cee751-ebc1-405d-a623-ccffac192bbe	fb997c11-6572-43df-bddf-9a64b1f2812d	e4e64504-f4cc-5d64-b63a-d377b8a4159d	2025-03-08 11:35:53.025+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	1296f2fd-b31c-5d63-bd1a-4db399bcc0fd	\N
+c3e123d6-2fb0-4484-8ac2-91279c2f4295	fb997c11-6572-43df-bddf-9a64b1f2812d	7b4fad88-e031-5372-b196-17cc53e0de4f	2025-03-08 12:39:20.478+00	/	\N	\N	\N		Xetera	1	\N	bb5a8456-f288-5eac-b73b-fd217f0b2568	\N
+422fed65-69a0-4cb1-9b90-ffcc5d0a8542	fb997c11-6572-43df-bddf-9a64b1f2812d	7b4fad88-e031-5372-b196-17cc53e0de4f	2025-03-08 12:39:25.863+00	/	\N	\N	\N		Xetera	2	social:github	bb5a8456-f288-5eac-b73b-fd217f0b2568	\N
+f9eeceaf-c926-4996-95c3-1c5bcdc7747c	fb997c11-6572-43df-bddf-9a64b1f2812d	7b4fad88-e031-5372-b196-17cc53e0de4f	2025-03-08 12:39:31.009+00	/shorts	\N	\N	\N		Shorts	1	\N	bb5a8456-f288-5eac-b73b-fd217f0b2568	\N
+bc015972-3b96-4b0d-9189-c9039e20e8b8	fb997c11-6572-43df-bddf-9a64b1f2812d	7b4fad88-e031-5372-b196-17cc53e0de4f	2025-03-08 12:39:31.456+00	/	\N	\N	\N		Xetera	1	\N	bb5a8456-f288-5eac-b73b-fd217f0b2568	\N
+d787142e-1635-4c72-9f2b-1f75ef28fb2b	fb997c11-6572-43df-bddf-9a64b1f2812d	7b4fad88-e031-5372-b196-17cc53e0de4f	2025-03-08 12:39:34.09+00	/shorts	\N	\N	\N		Shorts	1	\N	bb5a8456-f288-5eac-b73b-fd217f0b2568	\N
+b91523f1-eccd-41ba-9316-2037e04f3716	fb997c11-6572-43df-bddf-9a64b1f2812d	7b4fad88-e031-5372-b196-17cc53e0de4f	2025-03-08 12:45:28.531+00	/	\N	/		github.com	Xetera	1	\N	bb5a8456-f288-5eac-b73b-fd217f0b2568	\N
+a5b61d06-617e-43fa-915d-69c1ac3109bb	fb997c11-6572-43df-bddf-9a64b1f2812d	d0f92b42-6d84-5e18-a3d7-728bbce3addd	2025-03-08 13:03:17.557+00	/	\N	\N	\N		Xetera	1	\N	7c7f0131-fb8d-533e-98ac-8d6b09ac46e4	\N
+7978fa4a-8c3d-4131-902e-8693653cf4c0	fb997c11-6572-43df-bddf-9a64b1f2812d	d0f92b42-6d84-5e18-a3d7-728bbce3addd	2025-03-08 13:04:07.178+00	/shorts	\N	\N	\N		Shorts	1	\N	7c7f0131-fb8d-533e-98ac-8d6b09ac46e4	\N
+c47b55a5-a3f1-4a9f-9e52-5dfcf1eae6fc	fb997c11-6572-43df-bddf-9a64b1f2812d	d0f92b42-6d84-5e18-a3d7-728bbce3addd	2025-03-08 13:04:28.748+00	/shorts	\N	\N	\N		Shorts	1	\N	7c7f0131-fb8d-533e-98ac-8d6b09ac46e4	\N
+371b61dd-7200-4098-857c-ddd419888660	fb997c11-6572-43df-bddf-9a64b1f2812d	d0f92b42-6d84-5e18-a3d7-728bbce3addd	2025-03-08 13:04:57.537+00	/	\N	\N	\N		Xetera	1	\N	7c7f0131-fb8d-533e-98ac-8d6b09ac46e4	\N
+bf4ce9d2-6621-4dab-ac64-e2e719f89731	fb997c11-6572-43df-bddf-9a64b1f2812d	6b9ebe98-6548-5dab-ab63-91d166bf0c9d	2025-03-08 14:30:55.342+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	ded0c45f-d6f8-51f6-9b0a-73e9fe8bdc98	\N
+32bf7abf-0353-4ccc-afa9-610444afb00c	fb997c11-6572-43df-bddf-9a64b1f2812d	43444120-3725-5b6a-8f29-847f24c1861d	2025-03-08 15:12:07.013+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	3b91ee18-d633-587c-a8a4-e8119f305df8	\N
+b304de29-3720-4e62-95ad-6cde5efadbbe	fb997c11-6572-43df-bddf-9a64b1f2812d	43444120-3725-5b6a-8f29-847f24c1861d	2025-03-08 15:15:48.908+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	3b91ee18-d633-587c-a8a4-e8119f305df8	\N
+a27da8b1-ca5c-42d7-8a28-b946425dddba	fb997c11-6572-43df-bddf-9a64b1f2812d	43444120-3725-5b6a-8f29-847f24c1861d	2025-03-08 15:17:50.095+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	3b91ee18-d633-587c-a8a4-e8119f305df8	\N
+f9640720-fbef-40de-a9a1-c559b32dc766	fb997c11-6572-43df-bddf-9a64b1f2812d	43444120-3725-5b6a-8f29-847f24c1861d	2025-03-08 15:17:57.437+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	3b91ee18-d633-587c-a8a4-e8119f305df8	\N
+15c31d8f-e6b1-4437-9381-98c3efe2e93e	fb997c11-6572-43df-bddf-9a64b1f2812d	0b4bfba4-da4f-5f6f-9a93-83738bad2e31	2025-03-08 15:52:59.412+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	a8be48df-2c03-5f04-887d-df722d42faee	\N
+d0471ad8-2eb3-460d-880d-f1c9622cf94c	fb997c11-6572-43df-bddf-9a64b1f2812d	4f6d685f-4153-5fe7-8b59-d4015d5840b5	2025-03-08 18:03:49.148+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	03afc98e-01ed-5824-9530-1a46620bf20c	\N
+2fd82c5c-740e-4b42-bda6-4fc84b39b8d7	fb997c11-6572-43df-bddf-9a64b1f2812d	3223762d-dd47-5a52-829d-b8aa2a1aa496	2025-03-08 18:23:36.89+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	0ad8525b-f3ed-5366-98ea-9d54503324ea	\N
+31038a98-16a9-4ac2-bb45-9fa984faab4b	fb997c11-6572-43df-bddf-9a64b1f2812d	c5f57993-5f47-5a07-8932-3a725ff4a71d	2025-03-08 19:22:35.628+00	/	\N	/		github.com	Xetera	1	\N	0ccc04dc-743b-516a-b9a1-3abd7e6c99a8	\N
+8336a64a-e343-4165-9497-25dd6a3a4dec	fb997c11-6572-43df-bddf-9a64b1f2812d	c5f57993-5f47-5a07-8932-3a725ff4a71d	2025-03-08 19:22:41.899+00	/shorts	\N	\N	\N		Shorts	1	\N	0ccc04dc-743b-516a-b9a1-3abd7e6c99a8	\N
+0d7e4fb5-7d36-4be0-8f06-76b85938084a	fb997c11-6572-43df-bddf-9a64b1f2812d	c5f57993-5f47-5a07-8932-3a725ff4a71d	2025-03-08 19:24:06.135+00	/	\N	\N	\N		Xetera	1	\N	0ccc04dc-743b-516a-b9a1-3abd7e6c99a8	\N
+be4779c9-bdb3-4558-bcca-e80a0ad6e1df	fb997c11-6572-43df-bddf-9a64b1f2812d	0f7a9646-6dfb-55e2-9f15-a96207c5d1f6	2025-03-09 07:26:56.775+00	/	\N	\N	\N		Xetera	1	\N	ed49583b-f5c6-5bb4-ac67-fc84eeadc0ab	\N
+49ef19b6-027c-4c71-ab8a-17fd51ea610c	fb997c11-6572-43df-bddf-9a64b1f2812d	c35fe1ee-a39d-5eb2-ba85-07188e7842ce	2025-03-09 08:12:10.903+00	/	\N	\N	\N		Xetera	1	\N	f9d84940-bb01-5f88-b5fc-0aeedf15fde1	\N
+fdba2741-5677-437e-b185-518d167bf7ef	fb997c11-6572-43df-bddf-9a64b1f2812d	fec5a631-d99e-5d87-943a-ca67f1d9216b	2025-03-09 11:11:37.813+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	b17b4c1f-512c-5ef1-b9a8-47b177cefbbc	\N
+38cedc13-132e-4c21-b2f2-889f26f1b41a	fb997c11-6572-43df-bddf-9a64b1f2812d	05f0b952-1a38-58b4-b682-c4e83cfa7a97	2025-03-09 12:41:37.909+00	/	\N	\N	\N		Xetera	1	\N	9dd133d1-0d88-55db-9ad0-ebdbc59a25ea	\N
+c56626af-bfdc-4788-a84d-17e4b4be67d5	fb997c11-6572-43df-bddf-9a64b1f2812d	05f0b952-1a38-58b4-b682-c4e83cfa7a97	2025-03-09 12:41:47.363+00	/shorts	\N	\N	\N		Shorts	1	\N	9dd133d1-0d88-55db-9ad0-ebdbc59a25ea	\N
+0e1afa93-4f94-4695-8ad3-1a18de5e378d	fb997c11-6572-43df-bddf-9a64b1f2812d	05f0b952-1a38-58b4-b682-c4e83cfa7a97	2025-03-09 12:41:48.875+00	/	\N	\N	\N		Xetera	1	\N	9dd133d1-0d88-55db-9ad0-ebdbc59a25ea	\N
+533fab41-4ae5-4f69-8e8f-d6585198e96b	fb997c11-6572-43df-bddf-9a64b1f2812d	48018618-a985-5387-acd0-55169ef111ac	2025-03-09 13:07:38.778+00	/	\N	/		t.co	Xetera	1	\N	c78e6e15-71a6-5b45-863c-ff8dfd11f844	\N
+76b17308-fc6f-4381-92e9-8a5ea4e185fb	fb997c11-6572-43df-bddf-9a64b1f2812d	05f0b952-1a38-58b4-b682-c4e83cfa7a97	2025-03-09 13:28:59.48+00	/article/a-night-out-at-the-theater	\N	\N	\N		A night out at the theater	1	\N	7a4c05fd-53ca-54ce-a4f6-f31fb76f2d93	\N
+3000a527-1359-4c98-b4e8-59d2b1a8657c	fb997c11-6572-43df-bddf-9a64b1f2812d	05f0b952-1a38-58b4-b682-c4e83cfa7a97	2025-03-09 13:29:08.619+00	/	\N	\N	\N		Xetera	1	\N	7a4c05fd-53ca-54ce-a4f6-f31fb76f2d93	\N
+7db44bcb-62d3-4558-8e5d-94a092fa32d5	fb997c11-6572-43df-bddf-9a64b1f2812d	08f12d10-3ef7-57b2-ab08-0c853e4793ac	2025-03-09 13:34:05.726+00	/	\N	\N	\N		Xetera	1	\N	aa457a6b-5df8-5365-83eb-e0c105f8e58b	\N
+af022580-23e0-488d-8abe-eb5c69ff03eb	fb997c11-6572-43df-bddf-9a64b1f2812d	08f12d10-3ef7-57b2-ab08-0c853e4793ac	2025-03-09 13:34:11.578+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	aa457a6b-5df8-5365-83eb-e0c105f8e58b	\N
+9b705603-da5f-47ea-974b-d1c4da96da6a	fb997c11-6572-43df-bddf-9a64b1f2812d	c84dfc69-d994-5d8a-bee4-f38fd3ca8073	2025-03-10 13:03:06.512+00	/	\N	\N	\N		Xetera	1	\N	7300ddd8-625b-57e0-a09b-7ad37d46285b	\N
+bdc7ee04-2146-49e1-ad79-d2afd96dcb82	fb997c11-6572-43df-bddf-9a64b1f2812d	c84dfc69-d994-5d8a-bee4-f38fd3ca8073	2025-03-10 13:06:00.985+00	/	\N	\N	\N		Xetera	1	\N	7300ddd8-625b-57e0-a09b-7ad37d46285b	\N
+76ebf5d9-abf9-4487-9f22-c9d7e93d08f4	fb997c11-6572-43df-bddf-9a64b1f2812d	65fda6ca-2a47-5741-a30f-e4619b911e74	2025-03-10 13:18:59.521+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	44287cbc-71ce-5f2b-a8a2-86d1f869a933	\N
+cebf8def-e550-447b-9674-fafbd077b6d3	fb997c11-6572-43df-bddf-9a64b1f2812d	65fda6ca-2a47-5741-a30f-e4619b911e74	2025-03-10 13:19:04.538+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	44287cbc-71ce-5f2b-a8a2-86d1f869a933	\N
+747cf32b-6cc4-42a3-bd80-f43c8099c3e8	fb997c11-6572-43df-bddf-9a64b1f2812d	08f12d10-3ef7-57b2-ab08-0c853e4793ac	2025-03-10 13:43:15.93+00	/	\N	\N	\N		Xetera	1	\N	fac5d5ad-04fb-5662-b01f-725691b9b66d	\N
+99d3a2a4-3909-4e5e-bc6c-058b4b499b5b	fb997c11-6572-43df-bddf-9a64b1f2812d	08f12d10-3ef7-57b2-ab08-0c853e4793ac	2025-03-10 13:43:54.132+00	/shorts	\N	\N	\N		Shorts	1	\N	fac5d5ad-04fb-5662-b01f-725691b9b66d	\N
+313a47d9-c4d8-423d-888f-4ac805bc0227	fb997c11-6572-43df-bddf-9a64b1f2812d	08f12d10-3ef7-57b2-ab08-0c853e4793ac	2025-03-10 13:44:11.28+00	/	\N	\N	\N		Xetera	1	\N	fac5d5ad-04fb-5662-b01f-725691b9b66d	\N
+603e3d29-cfcc-49d2-9869-7972bbf9d5ad	fb997c11-6572-43df-bddf-9a64b1f2812d	3cc79547-5e6f-530c-acd2-6d3e24bb1a3d	2025-03-10 14:37:57.606+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	2f06924e-4d5b-56b5-ab64-5bc4a3921425	\N
+a1e42720-9b66-4066-a93d-7d3ce54352c5	fb997c11-6572-43df-bddf-9a64b1f2812d	ecf30039-3208-5b81-b455-8e8a317bc750	2025-03-10 14:47:16.623+00	/	\N	\N	\N		Xetera	1	\N	b55c1934-2c63-5a03-9d3f-00b64e09cb2f	\N
+374b1535-f327-432f-af4a-36f0086d11d3	fb997c11-6572-43df-bddf-9a64b1f2812d	f06faf80-58dc-55eb-ad7d-c715e680f261	2025-03-10 15:51:17.33+00	/	\N	\N	\N		Xetera	1	\N	ca909235-427e-5946-9e44-2752589d2c5c	\N
+af745c74-c5f8-4f9e-961e-72a33983e0ea	fb997c11-6572-43df-bddf-9a64b1f2812d	f06faf80-58dc-55eb-ad7d-c715e680f261	2025-03-10 15:51:21.293+00	/	\N	\N	\N		Xetera	1	\N	ca909235-427e-5946-9e44-2752589d2c5c	\N
+0a96a52e-4b3d-4b39-8c64-87ba5863849e	fb997c11-6572-43df-bddf-9a64b1f2812d	0222c406-3d50-51c3-a15e-910eee0f4150	2025-03-10 16:42:38.142+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	dbd3793f-af07-5ff7-a414-685632889fdc	\N
+93143834-7989-4d0e-9a17-749db7c2c864	fb997c11-6572-43df-bddf-9a64b1f2812d	5a4a71a8-67e1-5c72-b767-10f42c999c39	2025-03-10 17:17:10.768+00	/	\N	\N	\N		Xetera	1	\N	751d227d-650c-51e2-832b-13433b5b0f82	\N
+5c226ca5-0957-4e93-8d16-277c1d6811ff	fb997c11-6572-43df-bddf-9a64b1f2812d	214f0ed1-0247-5ffc-ada8-7f94701d3988	2025-03-10 17:17:58.735+00	/	\N	\N	\N		Xetera	1	\N	30f94525-cd01-5a01-ba69-30235170b7cf	\N
+30be159a-fabd-4f9c-9afb-070aeee03488	fb997c11-6572-43df-bddf-9a64b1f2812d	5a4a71a8-67e1-5c72-b767-10f42c999c39	2025-03-10 17:18:00.307+00	/article/typescript-permissions	\N	\N	\N		Building a robust permissions system in TypeScript	1	\N	751d227d-650c-51e2-832b-13433b5b0f82	\N
+cb0f63a1-eda5-4d64-a9f4-af5f58287e12	fb997c11-6572-43df-bddf-9a64b1f2812d	214f0ed1-0247-5ffc-ada8-7f94701d3988	2025-03-10 17:18:56.845+00	/shorts	\N	\N	\N		Shorts	1	\N	30f94525-cd01-5a01-ba69-30235170b7cf	\N
+f19ca149-0bb6-4c70-b807-7949cc7cace4	fb997c11-6572-43df-bddf-9a64b1f2812d	214f0ed1-0247-5ffc-ada8-7f94701d3988	2025-03-10 17:19:05.375+00	/	\N	\N	\N		Xetera	1	\N	30f94525-cd01-5a01-ba69-30235170b7cf	\N
+a66526a3-2454-4518-b02e-2e177b7fc4c3	fb997c11-6572-43df-bddf-9a64b1f2812d	214f0ed1-0247-5ffc-ada8-7f94701d3988	2025-03-10 17:22:37.803+00	/	\N	\N	\N		Xetera	2	book-timeline:poster-click	30f94525-cd01-5a01-ba69-30235170b7cf	\N
+cdd56a81-9a82-4e41-8ab5-2ec4abc2949d	fb997c11-6572-43df-bddf-9a64b1f2812d	5a4a71a8-67e1-5c72-b767-10f42c999c39	2025-03-10 17:23:01.488+00	/	\N	\N	\N		Xetera	1	\N	751d227d-650c-51e2-832b-13433b5b0f82	\N
+63b4929f-5496-439a-83c0-927bcc0c79b6	fb997c11-6572-43df-bddf-9a64b1f2812d	c18335fd-441f-57e6-b57d-9cc1e98f55ba	2025-03-10 17:34:53.644+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	902663c8-2a22-5db3-b17b-73f94c489d6d	\N
+76a36029-478e-464a-996e-37ec4cca46b7	fb997c11-6572-43df-bddf-9a64b1f2812d	c18335fd-441f-57e6-b57d-9cc1e98f55ba	2025-03-10 17:35:51.327+00	/	\N	\N	\N		Xetera	1	\N	902663c8-2a22-5db3-b17b-73f94c489d6d	\N
+fdca01bd-56fe-42ea-80e5-18f7d2a0903c	fb997c11-6572-43df-bddf-9a64b1f2812d	4bc4e2f8-bb7b-5563-b7b9-6aad3e465a6c	2025-03-10 18:19:18.675+00	/	\N	\N	\N		Xetera	1	\N	7027507e-cbc7-5d1c-a780-27345ea1906b	\N
+b3956aa4-2c9f-4141-99a6-569968a7c966	fb997c11-6572-43df-bddf-9a64b1f2812d	4bc4e2f8-bb7b-5563-b7b9-6aad3e465a6c	2025-03-10 18:19:39.287+00	/	\N	\N	\N		Xetera	2	social:github	7027507e-cbc7-5d1c-a780-27345ea1906b	\N
+cf83c266-0f10-4fc1-8d65-91d56e010db4	fb997c11-6572-43df-bddf-9a64b1f2812d	4bc4e2f8-bb7b-5563-b7b9-6aad3e465a6c	2025-03-10 18:19:45.985+00	/	\N	\N	\N		Xetera	2	social:bsky	7027507e-cbc7-5d1c-a780-27345ea1906b	\N
+ae485f98-39f8-42ac-b489-9f07c4f9f3da	fb997c11-6572-43df-bddf-9a64b1f2812d	fb7d886e-1936-58bf-9f81-5bce0e8f293f	2025-03-10 18:46:56.968+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	f924720e-0020-53a4-9cd2-c33bceac19ed	\N
+399d5f7b-c651-47d3-8ab4-e38156f6dc96	fb997c11-6572-43df-bddf-9a64b1f2812d	8c45b6c5-a16a-5e58-b334-d387a0cfcbf5	2025-03-10 19:56:37.919+00	/	\N	\N	\N		Xetera	1	\N	75826b1d-a2a3-591f-895a-1524e05c1e78	\N
+66dfd1c2-c598-4c50-b1e4-f5b28b26568d	fb997c11-6572-43df-bddf-9a64b1f2812d	3cc79547-5e6f-530c-acd2-6d3e24bb1a3d	2025-03-10 20:21:01.272+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	b5ef8e32-cf32-5de8-8ef3-1a797e2409d3	\N
+1a5c60c4-693e-4d4a-bf47-3b246944d431	fb997c11-6572-43df-bddf-9a64b1f2812d	59aef117-de69-56ef-b14d-dcf7eb29c6d3	2025-03-10 20:48:24.673+00	/	\N	\N	\N		Xetera	1	\N	4d0363be-655a-5d66-845f-99b86d40ee19	\N
+e8002971-6067-4c59-8295-c2841eab636e	fb997c11-6572-43df-bddf-9a64b1f2812d	59aef117-de69-56ef-b14d-dcf7eb29c6d3	2025-03-10 21:09:28.282+00	/shorts	\N	\N	\N		Shorts	1	\N	1e17b8ae-a11f-53c9-a51a-232b0d15583c	\N
+4d8e95f1-508b-41b6-a543-5c71da699965	fb997c11-6572-43df-bddf-9a64b1f2812d	59aef117-de69-56ef-b14d-dcf7eb29c6d3	2025-03-10 21:09:35.925+00	/	\N	\N	\N		Xetera	1	\N	1e17b8ae-a11f-53c9-a51a-232b0d15583c	\N
+6b862263-469a-4401-a0e5-5ceb6cf49996	fb997c11-6572-43df-bddf-9a64b1f2812d	0222c406-3d50-51c3-a15e-910eee0f4150	2025-03-10 22:26:18.271+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	cf3c6f20-8724-5b34-9f3a-cdae978dfaab	\N
+d15ee4fd-91b7-4195-8825-5f487399faab	fb997c11-6572-43df-bddf-9a64b1f2812d	3a71865e-0cd1-575c-b8ce-c4dccc2bfa49	2025-03-10 23:46:27.653+00	/article/living-in-turkey-and-working-abroad	\N	/		google.com	Living in Turkey and Working at an American Company	1	\N	2eb9c1ed-4878-5833-89e3-3725f9e20f60	\N
+38ce39ab-2051-47a8-a557-b91f03c43416	fb997c11-6572-43df-bddf-9a64b1f2812d	2db83f48-b720-5a49-b71c-6f651d8c2461	2025-03-11 00:09:45.623+00	/	\N	\N	\N		Xetera	1	\N	66a46dfa-0cac-558d-9d41-a78122ec4be5	\N
+90aa788f-1fbd-414a-b3e2-13113da484ea	fb997c11-6572-43df-bddf-9a64b1f2812d	9398ef6e-2c59-51ae-a211-74a838e9b41d	2025-03-11 03:34:17.564+00	/	\N	\N	\N		Xetera	1	\N	5c725404-3985-5c59-8894-e54ec3b3d47e	\N
+ea955f88-ca85-4e97-bd08-7c57d76172d9	fb997c11-6572-43df-bddf-9a64b1f2812d	9398ef6e-2c59-51ae-a211-74a838e9b41d	2025-03-11 03:34:46.573+00	/shorts	\N	\N	\N		Shorts	1	\N	5c725404-3985-5c59-8894-e54ec3b3d47e	\N
+785ea44c-aa5d-4b57-9600-d3c3ef88bee9	fb997c11-6572-43df-bddf-9a64b1f2812d	8afefb7d-487f-5b3b-831a-421ce32eedac	2025-03-11 03:54:01.436+00	/	\N	\N	\N		Xetera	1	\N	0dbc0027-6ac9-5a3d-ab97-2754db5d58bb	\N
+44d0f60b-8c50-4ecc-b215-3e75e47e89a5	fb997c11-6572-43df-bddf-9a64b1f2812d	2cdc08f7-0771-5d39-985a-eccfd537fb09	2025-03-11 03:54:11.701+00	/	\N	\N	\N		Xetera	1	\N	e21c6b5d-b93c-5e88-804b-bed454b1b11d	\N
+8782e900-6a95-4441-a543-e2dab0755fc9	fb997c11-6572-43df-bddf-9a64b1f2812d	5ecb7e56-cabb-5dee-a150-aa3f9c169b39	2025-03-11 05:34:46.778+00	/	\N	\N	\N		Xetera	1	\N	2728d4f7-5cb7-52c3-b212-fc829b7c511c	\N
+aeeea5c3-0d5d-4756-90a4-186324e17454	fb997c11-6572-43df-bddf-9a64b1f2812d	8b93786c-1e74-5856-9b84-420203af8e29	2025-03-11 06:01:25.121+00	/	\N	\N	\N		Xetera	1	\N	1541bf75-222a-53fd-ab86-e7e0244c8554	\N
+0e735023-6423-40ff-aab4-aab01094d627	fb997c11-6572-43df-bddf-9a64b1f2812d	f68e40ef-5ed0-50ec-847f-623067fba613	2025-03-11 06:09:39.858+00	/	\N	\N	\N		Xetera	1	\N	62f0e62f-33b9-5b0b-a7cd-9759dd8a7187	\N
+8838afd7-8b19-4631-b305-8be75684ad1c	fb997c11-6572-43df-bddf-9a64b1f2812d	240b7fc2-e72d-5c71-9019-204637b7202a	2025-03-11 10:07:41.335+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	a9c253a4-ff2d-5197-975a-6bfd9f9d8e8a	\N
+3504f774-3863-476c-96bb-d6e18d46e4bf	fb997c11-6572-43df-bddf-9a64b1f2812d	29f2a4dc-0fed-5888-baed-b7213a5c2fd7	2025-03-11 10:46:35.418+00	/	\N	\N	\N		Xetera	1	\N	3dbbf07c-d291-5768-868b-44d19a99dfe5	\N
+3f94da1d-b783-47fd-bf77-bb513c0efdee	fb997c11-6572-43df-bddf-9a64b1f2812d	240b7fc2-e72d-5c71-9019-204637b7202a	2025-03-11 10:54:27.648+00	/	\N	\N	\N		Xetera	1	\N	a9c253a4-ff2d-5197-975a-6bfd9f9d8e8a	\N
+58949a90-8b5c-46c4-81ed-ecabe777a2c4	fb997c11-6572-43df-bddf-9a64b1f2812d	1c5374af-0ed3-5edf-bc0a-449bf1bb33a9	2025-03-11 11:51:55.917+00	/	\N	\N	\N		Xetera	1	\N	a13165c0-dbd3-5d5f-a634-0dac96f3fd08	\N
+a523a657-fdc8-45f8-984d-0b597ea95a96	fb997c11-6572-43df-bddf-9a64b1f2812d	1c5374af-0ed3-5edf-bc0a-449bf1bb33a9	2025-03-11 11:52:02.057+00	/shorts	\N	\N	\N		Shorts	1	\N	a13165c0-dbd3-5d5f-a634-0dac96f3fd08	\N
+d5439976-b80e-4552-b0fb-2ab1978c14b9	fb997c11-6572-43df-bddf-9a64b1f2812d	1c5374af-0ed3-5edf-bc0a-449bf1bb33a9	2025-03-11 11:52:44.008+00	/	\N	\N	\N		Xetera	1	\N	a13165c0-dbd3-5d5f-a634-0dac96f3fd08	\N
+7f368e50-05a8-480e-8da7-43007b597764	fb997c11-6572-43df-bddf-9a64b1f2812d	62c4aaa2-67eb-5548-8824-c4ba2d21e735	2025-03-11 13:29:33.439+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	fd990fa9-adaa-58bd-b746-d163c9cba514	\N
+b4ebd203-1c5a-4995-b01b-e1c939893aea	fb997c11-6572-43df-bddf-9a64b1f2812d	dbc1cd08-a44c-5321-8af7-898c4b6493e6	2025-03-11 13:35:12.603+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	4bf1c6a8-4df9-5b32-8e30-838d41759a78	\N
+6c1f12fc-d4c0-44ef-a7e6-bb2d3dc1c5d7	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 13:51:45.262+00	/	\N	\N	\N		Xetera	1	\N	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+ec5bac7e-4c43-4abb-824b-6ba47732b030	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 13:57:23.425+00	/article/why-does-school-suck-so-much	\N	\N	\N		Why does school suck so much?	1	\N	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+0fa78d8b-19ec-41c1-85d4-c418dd4d6e50	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 13:58:19.298+00	/	\N	\N	\N		Xetera	1	\N	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+2343c10c-7d21-4809-a888-a5816d744820	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 13:59:14.264+00	/article/india-banned-my-site	\N	\N	\N		India banned my site... I think?	1	\N	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+6bd82d8e-1e4f-4eac-bdba-940434e2b139	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 13:59:54.069+00	/	\N	\N	\N		Xetera	1	\N	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+7ec1e94c-89c0-4aba-9b8d-961f2ea9de95	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 13:59:56.994+00	/	\N	\N	\N		Xetera	2	social:bsky	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+d0453c5c-8e1b-4b45-8e37-bad93551e236	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 14:00:21.953+00	/	\N	\N	\N		Xetera	2	social:bsky	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+8158b77b-8e43-4cce-823c-a6c36bc0cfd1	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 14:01:14.365+00	/	\N	\N	\N		Xetera	2	social:email	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+ba9940eb-12e7-4ac6-a9b1-fe35d33506fe	fb997c11-6572-43df-bddf-9a64b1f2812d	8b25fffe-1169-56e1-836c-e119915a5e8d	2025-03-11 14:01:17.263+00	/	\N	\N	\N		Xetera	2	social:github	62c5b8e4-52dc-52e5-9164-1b18365c3d3f	\N
+af55fb43-607d-4ffb-83b4-18c05e0b2b88	fb997c11-6572-43df-bddf-9a64b1f2812d	68330322-1faa-54a3-ab6b-60c2be8afa75	2025-03-11 15:19:52.088+00	/	\N	\N	\N		Xetera	1	\N	de449f0c-3e78-5a17-a46c-eac031ba6268	\N
+4d642d8e-0f33-42cc-abf7-8bfc713e177b	fb997c11-6572-43df-bddf-9a64b1f2812d	5c4b49aa-ccaf-51b9-910d-67f66684dd5b	2025-03-11 15:21:03.253+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	b8676cac-c266-50b9-8c22-b68e213a66c2	\N
+d6fca468-1b7a-4659-92da-2139744d89b1	fb997c11-6572-43df-bddf-9a64b1f2812d	034b20c0-5116-5a2c-ae75-b2d2ae2ff1df	2025-03-11 16:22:32.058+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	264cba6f-58cf-579b-b124-5c540f3b373d	\N
+277efb5b-ce7d-4c1c-bb55-7062ae3a4f41	fb997c11-6572-43df-bddf-9a64b1f2812d	5cfc2e21-5ca1-58e0-8237-26c715222995	2025-03-11 17:55:10.201+00	/article/optimizing-images-with-webp	\N	/		yandex.ru	Optimizing images with WebP in Node.js	1	\N	991e5ae3-0b3e-54fa-950f-231fc7c671bf	\N
+de26f74f-fe2c-4dcd-9578-9949cb3374b5	fb997c11-6572-43df-bddf-9a64b1f2812d	98733a9e-fce3-5d87-9ad8-9ae136ae2634	2025-03-11 18:18:09.334+00	/article/bot-taxonomy	\N	\N	\N		Bot Taxonomy	1	\N	1d47f807-c3f9-518c-bbde-3e80c3d08f83	\N
+8b351701-a1a2-4709-94ce-7c9ef48305a6	fb997c11-6572-43df-bddf-9a64b1f2812d	4485c9e4-68ea-5026-8555-7d3d057e7107	2025-03-11 18:29:37.622+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	880f652c-86ce-56ad-b58c-70ff4dfa9569	\N
+6d7b5571-5687-485f-aad9-1a524cbf944e	fb997c11-6572-43df-bddf-9a64b1f2812d	4485c9e4-68ea-5026-8555-7d3d057e7107	2025-03-11 18:29:40.764+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	880f652c-86ce-56ad-b58c-70ff4dfa9569	\N
+8a0ce729-1a32-4adb-983b-37e8ce77c2b4	fb997c11-6572-43df-bddf-9a64b1f2812d	98733a9e-fce3-5d87-9ad8-9ae136ae2634	2025-03-11 18:34:47.939+00	/article/bot-taxonomy	\N	\N	\N		Bot Taxonomy	1	\N	1d47f807-c3f9-518c-bbde-3e80c3d08f83	\N
+9cb05a82-6755-44cc-92ae-f25aaadde399	fb997c11-6572-43df-bddf-9a64b1f2812d	41d81167-6cb2-5ece-9766-d921fa3128fd	2025-03-11 21:31:21.08+00	/	\N	\N	\N		Xetera	1	\N	4ee67139-c95f-563a-b442-1e8c0154ad13	\N
+b3d48307-17e4-4a68-a195-b4c0b7aea678	fb997c11-6572-43df-bddf-9a64b1f2812d	37cefeac-f9d9-5c96-af21-b23cc3cb7419	2025-03-11 22:59:26.166+00	/	\N	\N	\N		Xetera	1	\N	33bb023f-17c2-5125-b18b-c279ad57eaa5	\N
+1a7bf203-8372-4ca0-90f4-6d82764c4dbb	fb997c11-6572-43df-bddf-9a64b1f2812d	cb5aaf70-1fd1-5a51-b50f-ea2bf7f76dd9	2025-03-11 23:23:39.779+00	/	\N	\N	\N		Xetera	1	\N	456faa63-6f07-5017-be1c-1ef09998de18	\N
+7d949461-a549-415c-b346-787f68bf6e87	fb997c11-6572-43df-bddf-9a64b1f2812d	0617eef1-d4a4-51b2-8a28-6390ac5b6b2d	2025-03-12 02:45:45.207+00	/	\N	\N	\N		Xetera	1	\N	29dc93ba-fbf6-5c63-8c2a-36ec45e814e2	\N
+67f16a1c-67f7-4c21-9102-5bdd3613b542	fb997c11-6572-43df-bddf-9a64b1f2812d	0617eef1-d4a4-51b2-8a28-6390ac5b6b2d	2025-03-12 02:46:18.4+00	/	\N	\N	\N		Xetera	2	spotify:song-click	29dc93ba-fbf6-5c63-8c2a-36ec45e814e2	\N
+7643266b-0207-4660-b402-e4564a492723	fb997c11-6572-43df-bddf-9a64b1f2812d	0af633eb-8807-516c-bcdd-63503f571fb6	2025-03-12 05:20:38.782+00	/	\N	\N	\N		Xetera	1	\N	2c6af105-a2a4-5967-88d3-74b7730b30ec	\N
+bef005b8-92b6-4c1c-97db-92bc9baefb81	fb997c11-6572-43df-bddf-9a64b1f2812d	83706d28-ba00-59fd-bf61-0f78c32d567d	2025-03-12 06:05:33.05+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	cdaab081-8f3a-50e9-b8d9-f9f753c7b473	\N
+3b8eeac3-35a0-450e-8bdd-47837d1fe554	fb997c11-6572-43df-bddf-9a64b1f2812d	c40ea653-3421-5f7c-a6b1-b8c3a9ac9995	2025-03-12 06:19:57.1+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	de0aa306-3375-5a00-ae0d-15b30384cf5e	\N
+54efd320-b621-4305-9eb4-adb7c69fcf95	fb997c11-6572-43df-bddf-9a64b1f2812d	7880d9c8-d897-535d-94d0-a1b0975351d5	2025-03-12 07:18:19.229+00	/article/typescript-permissions	\N	/		search.brave.com	Building a robust permissions system in TypeScript	1	\N	3700a0b4-024e-554c-b0e9-0173f8606c63	\N
+0a3417f7-9c8a-49ca-a46e-4ac459f1d6e1	fb997c11-6572-43df-bddf-9a64b1f2812d	8e25cbc6-24fe-5476-a412-028c2dee2ef8	2025-03-12 07:42:36.494+00	/	\N	\N	\N		Xetera	1	\N	2f914271-ea5b-5133-bd8d-c93f4cd41002	\N
+296ddbd3-b4ac-46c2-ae03-2d196f1ba4db	fb997c11-6572-43df-bddf-9a64b1f2812d	0cca2be5-38fc-52b4-b466-b1dc88311c20	2025-03-12 07:50:45.163+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	38dd7f38-73f3-54e9-80b9-4ea8adc1fec2	\N
+18fa6128-a501-4a3b-b760-5ed0808f38d7	fb997c11-6572-43df-bddf-9a64b1f2812d	4485c9e4-68ea-5026-8555-7d3d057e7107	2025-03-12 10:27:56.444+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	2bc0bde6-8884-56a4-8f1a-1f0224abe369	\N
+8496b6d7-261f-41a9-be99-cce38a07e674	fb997c11-6572-43df-bddf-9a64b1f2812d	4485c9e4-68ea-5026-8555-7d3d057e7107	2025-03-12 10:32:52.598+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	2bc0bde6-8884-56a4-8f1a-1f0224abe369	\N
+f1f9f7f7-e89f-4b3e-8a8f-b656260b5f77	fb997c11-6572-43df-bddf-9a64b1f2812d	4485c9e4-68ea-5026-8555-7d3d057e7107	2025-03-12 10:33:05.04+00	/article/thoughts-on-go	\N	/		gist.github.com	Golang is not a good language	1	\N	2bc0bde6-8884-56a4-8f1a-1f0224abe369	\N
+4d97d980-f9a4-44e4-88c7-ae140145afa6	fb997c11-6572-43df-bddf-9a64b1f2812d	90354438-c6af-5af8-b2a5-628e7ed110d2	2025-03-12 10:35:36.67+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	785220f8-f7a1-51eb-ac9a-3d99352f4193	\N
+52017985-fe7b-4e58-bf3b-a791900404f8	fb997c11-6572-43df-bddf-9a64b1f2812d	255ba978-c3b5-5b88-a373-d7dec49d5177	2025-03-12 10:55:47.704+00	/	\N	\N	\N		Xetera	1	\N	8cab76c9-d957-5ff5-9efb-dac878066a7f	\N
+e66940c2-7745-458c-a206-9422f2538436	fb997c11-6572-43df-bddf-9a64b1f2812d	27e5bca1-c59a-5a2e-95fe-2dd2e1606ccf	2025-03-12 10:56:22.049+00	/	\N	\N	\N		Xetera	1	\N	df6e05ea-e9f0-51f3-b9e4-baf07803edb3	\N
+95c7a57f-f7c5-44b0-80b8-d1fb4d985201	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-12 10:57:00.406+00	/	\N	\N	\N		Xetera	1	\N	64c2ef61-5a04-58e2-8091-3c6c7db74e4b	\N
+168155e1-330c-422f-8bc3-54d1b823874c	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-12 10:59:56.206+00	/shorts	\N	\N	\N		Shorts	1	\N	64c2ef61-5a04-58e2-8091-3c6c7db74e4b	\N
+2694b9fe-2bbb-4087-8ad0-883ba915994e	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-12 11:00:12.284+00	/	\N	\N	\N		Xetera	1	\N	d98cd037-ecfa-5e94-8b0f-a2ed06965c22	\N
+47eb19c1-c74e-45ab-b271-4c60f5b12e92	fb997c11-6572-43df-bddf-9a64b1f2812d	bac58fe6-7b0f-56b4-9f54-d8922013e627	2025-03-12 11:11:49.522+00	/article/bot-taxonomy	\N	\N	\N		Bot Taxonomy	1	\N	6cc10265-1478-55b1-982d-f5d7323dd173	\N
+38582ca0-7b09-4e09-b49b-1c3918f06dc5	fb997c11-6572-43df-bddf-9a64b1f2812d	3ac7608a-ecd2-5ed2-8efa-e0ec8122070d	2025-03-12 11:50:09.124+00	/	\N	\N	\N		Xetera	1	\N	d98cd037-ecfa-5e94-8b0f-a2ed06965c22	\N
+9c834dd0-f32e-480b-81d1-47dcbefd0d03	fb997c11-6572-43df-bddf-9a64b1f2812d	5189105f-5fd5-530d-9bf9-77d2375ec114	2025-03-12 13:09:54.019+00	/	\N	\N	\N		Xetera	1	\N	63f6c2f6-f7a5-5388-a611-0516e65a8df8	\N
+fb3c0e18-03db-401b-9f20-0a6987987c9d	fb997c11-6572-43df-bddf-9a64b1f2812d	5189105f-5fd5-530d-9bf9-77d2375ec114	2025-03-12 13:09:59.459+00	/shorts	\N	\N	\N		Shorts	1	\N	63f6c2f6-f7a5-5388-a611-0516e65a8df8	\N
+8e5231fd-c59d-4282-a4b6-b9aa7b08cea9	fb997c11-6572-43df-bddf-9a64b1f2812d	baf0c6d7-9896-59bc-9e1c-5cb6c8f33bf3	2025-03-12 13:49:28.311+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	4fc1dc1c-27c6-527f-a76f-86460fab0d66	\N
+ff31149c-5bde-49e3-925b-bb713095bce3	fb997c11-6572-43df-bddf-9a64b1f2812d	11941581-89ac-5471-9743-9628a023933d	2025-03-12 16:25:48.793+00	/	\N	\N	\N		Xetera	1	\N	b0dd6d17-b7b3-5f4f-a86f-c7f3e214ba90	\N
+dbf5857d-feaf-4fd9-ab21-df6d686d66c9	fb997c11-6572-43df-bddf-9a64b1f2812d	11941581-89ac-5471-9743-9628a023933d	2025-03-12 16:30:57.467+00	/	\N	\N	\N		Xetera	2	social:bsky	b0dd6d17-b7b3-5f4f-a86f-c7f3e214ba90	\N
+854f8f54-fa0a-46c1-8575-7825eaccb78a	fb997c11-6572-43df-bddf-9a64b1f2812d	11941581-89ac-5471-9743-9628a023933d	2025-03-12 16:31:05.866+00	/	\N	/		t.co	Xetera	1	\N	b0dd6d17-b7b3-5f4f-a86f-c7f3e214ba90	\N
+a6320a5b-63d5-4d1b-abd3-215161365475	fb997c11-6572-43df-bddf-9a64b1f2812d	da8b7337-2faf-5af9-9274-6ac4e306737b	2025-03-12 16:48:46.376+00	/article/thoughts-on-go	\N	/		search.brave.com	Golang is not a good language	1	\N	b5503806-678c-5859-ae5b-41f519c329fe	\N
+27a3e121-dd2f-43c7-8c6a-6a801932c913	fb997c11-6572-43df-bddf-9a64b1f2812d	2833c459-12d5-5e9b-8703-448fa0188801	2025-03-12 16:56:27.158+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	9cb41475-e382-5378-af9e-1295f27a442c	\N
+400e98f5-818f-4bec-85c9-e44cce4d1faf	fb997c11-6572-43df-bddf-9a64b1f2812d	5c2eeb09-8706-51e4-99a8-1dd42ed04832	2025-03-12 17:21:36.516+00	/	\N	\N	\N		Xetera	1	\N	77616eaf-902c-52a1-bd65-73008354c691	\N
+5a85fab5-1422-42cf-b9eb-8ecf3644dc7d	fb997c11-6572-43df-bddf-9a64b1f2812d	5c2eeb09-8706-51e4-99a8-1dd42ed04832	2025-03-12 17:22:35.64+00	/article/whatsapp-sucks	\N	\N	\N		Whatsapp doesn't deserve your business	1	\N	77616eaf-902c-52a1-bd65-73008354c691	\N
+4ad8beeb-e7df-4bcf-b63d-799504af8f52	fb997c11-6572-43df-bddf-9a64b1f2812d	bac58fe6-7b0f-56b4-9f54-d8922013e627	2025-03-12 17:51:20.21+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	d0c24685-754d-5298-94cd-6e31dfa83e8e	\N
+20a2f7e1-aca7-425b-811a-ba2b6c51dd1c	fb997c11-6572-43df-bddf-9a64b1f2812d	9739ae60-cf8e-5ddf-a2d1-9470ba15e240	2025-03-12 19:38:11.217+00	/	\N	\N	\N		Xetera	1	\N	8d062d6e-2332-5650-a7fd-61ccad16a9f5	\N
+511baf5d-b193-4410-9935-c0aea747e7a2	fb997c11-6572-43df-bddf-9a64b1f2812d	ee7d37f6-37fd-5524-9ebe-25eb556d61da	2025-03-12 22:11:29.46+00	/	\N	\N	\N		Xetera	1	\N	0f1f8376-1873-56bf-8415-6a072cc5a1d6	\N
+1863fc31-23d0-4836-9b04-a3bdbb27458d	fb997c11-6572-43df-bddf-9a64b1f2812d	46d84faf-9470-59af-81ba-41c3361a8f1f	2025-03-12 22:16:48.673+00	/	\N	\N	\N		Xetera	1	\N	4dcfaff6-e6bb-5884-b905-5330b05512ee	\N
+eacdc79d-4628-42f7-b89a-e3e033f415a9	fb997c11-6572-43df-bddf-9a64b1f2812d	9f2275d6-2777-5ab2-aa59-605936be7a5f	2025-03-12 22:27:21.095+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	0a51c8e7-daad-5597-924a-5d995a4e772d	\N
+bde87b71-4816-4229-9d76-b5fd2d970b47	fb997c11-6572-43df-bddf-9a64b1f2812d	eb0340f3-21d6-5992-bc60-1183ef651e09	2025-03-13 00:42:35.047+00	/	\N	/		github.com	Xetera	1	\N	c038d035-eac0-52d2-875e-d3fd2c4f8e1f	\N
+13e798ee-4d65-43da-b87b-96c0da2346d7	fb997c11-6572-43df-bddf-9a64b1f2812d	eb0340f3-21d6-5992-bc60-1183ef651e09	2025-03-13 00:42:48.485+00	/	\N	/		github.com	Xetera	2	book-timeline:poster-click	c038d035-eac0-52d2-875e-d3fd2c4f8e1f	\N
+80ae47e7-4389-49f3-b1e9-6e72fa38953a	fb997c11-6572-43df-bddf-9a64b1f2812d	eb0340f3-21d6-5992-bc60-1183ef651e09	2025-03-13 00:42:50.518+00	/	\N	/		github.com	Xetera	2	media-timeline:poster-click	c038d035-eac0-52d2-875e-d3fd2c4f8e1f	\N
+af30ef65-24d0-4bef-a4ec-3b19c172af39	fb997c11-6572-43df-bddf-9a64b1f2812d	eb0340f3-21d6-5992-bc60-1183ef651e09	2025-03-13 00:42:51.166+00	/	\N	/		github.com	Xetera	2	media-timeline:poster-click	c038d035-eac0-52d2-875e-d3fd2c4f8e1f	\N
+60654846-c78f-4466-a213-24d876da30fc	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:41:51.217+00	/	\N	\N	\N		Xetera	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+2b7d8458-1443-4043-ba4d-f155b7b2efea	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:42:15.953+00	/article/living-in-turkey-and-working-abroad	\N	\N	\N		Living in Turkey and Working at an American Company	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+7e789da7-e1ae-4281-a13c-9b8692bbd3c2	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:42:19.951+00	/article/building-a-scalable-scraper	\N	\N	\N		Building a scalable scraper	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+b145454a-2423-4da9-b677-1ddaebd6b1d3	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:42:20.903+00	/article/building-a-scalable-scraper	\N	\N	\N		Building a scalable scraper	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+55552d45-9372-437e-be94-e19a1f1d6327	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:42:22.295+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+c83017fd-8e33-4556-9751-e3dd846035a7	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:47:53.326+00	/	\N	\N	\N		Xetera	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+f36d3a86-3fc9-4b52-b702-22d64a84856b	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:48:26.39+00	/article/india-banned-my-site	\N	\N	\N		India banned my site... I think?	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+b87b8c95-a73b-418f-874a-ab9b9670e64c	fb997c11-6572-43df-bddf-9a64b1f2812d	3ae25413-1099-5c6f-92a4-423ac3503953	2025-03-13 02:48:29.818+00	/article/misleading-educational-videos	\N	\N	\N		Misleading educational videos	1	\N	d28d0402-23cb-5dbd-9fc2-432ad67994bb	\N
+0ff3a195-1fb1-4a24-b188-094ec4e38695	fb997c11-6572-43df-bddf-9a64b1f2812d	e260397f-3ace-56ec-8066-4160b83a69d8	2025-03-13 03:34:44.377+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	4d9ba270-67fd-5c0d-a9bb-ee630b1f419c	\N
+9daaba9a-3fda-46e5-b332-60909595934c	fb997c11-6572-43df-bddf-9a64b1f2812d	bac58fe6-7b0f-56b4-9f54-d8922013e627	2025-03-13 07:25:25.653+00	/article/india-banned-my-site	\N	\N	\N		India banned my site... I think?	1	\N	ee81136b-adef-5b31-8bea-d4ac5bb0a22d	\N
+584f3d1a-2c8e-4087-b23c-d4308c6b6296	fb997c11-6572-43df-bddf-9a64b1f2812d	16b94c4d-7520-514c-9a19-a1b97ef93005	2025-03-13 08:48:01.712+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	3b2aabe0-e607-52a5-a777-ad34968102e2	\N
+668ab59d-6296-42b1-9306-bb03bf12b5f3	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 08:59:16.525+00	/	\N	/		github.com	Xetera	1	\N	139f2e63-1d99-593a-a362-4cbdcedb3952	\N
+82f96f43-58fb-4860-b4a2-a721160d315e	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:01.059+00	/article/misleading-educational-videos	\N	\N	\N		Misleading educational videos	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+788d85ec-60e6-4bc4-be6e-64a6f81bf440	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:03.122+00	/article/india-banned-my-site	\N	\N	\N		India banned my site... I think?	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+01bd1eed-d22c-469d-84ed-3e0dfe9a8519	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:06.317+00	/article/why-does-school-suck-so-much	\N	\N	\N		Why does school suck so much?	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+6613fd33-ca87-4bc5-b157-0965cf123b26	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:23.256+00	/article/whatsapp-sucks	\N	\N	\N		Whatsapp doesn't deserve your business	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+9d8bb627-4068-4da8-b04a-b709cec5501e	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:26.319+00	/article/learning-for-fun-and-profit	\N	\N	\N		Learning for fun and profit	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+0c8f4312-4163-4416-bfbd-e90e76fa5921	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:29.051+00	/article/tech-memes	\N	\N	\N		Every technology deserves to be memed	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+67828c8a-f221-4402-b623-6a4a8420ea22	fb997c11-6572-43df-bddf-9a64b1f2812d	e60c04c9-6f4d-53e2-8b76-dcab7aba08f8	2025-03-13 09:02:56.684+00	/shorts	\N	\N	\N		Shorts	1	\N	062862a1-4f00-5144-9b93-f237605d6812	\N
+eaa5aeb6-d07c-4398-be11-6954235bedeb	fb997c11-6572-43df-bddf-9a64b1f2812d	8f92a698-cc42-505d-a73b-822dbdf1a3be	2025-03-13 09:52:39.445+00	/article/thoughts-on-go	\N	/		bing.com	Golang is not a good language	1	\N	e337db7b-c046-5258-ae41-1743d50a0756	\N
+3fff066e-d136-4dbb-819e-4435bf981885	fb997c11-6572-43df-bddf-9a64b1f2812d	5968d805-71a5-5651-8668-6b008518515a	2025-03-13 09:52:41.841+00	/	\N	\N	\N		Xetera	1	\N	57018259-0c58-5f88-b3ca-f44c763c2f2e	\N
+d8574325-f58b-48f8-a855-079c2eabae5d	fb997c11-6572-43df-bddf-9a64b1f2812d	bac58fe6-7b0f-56b4-9f54-d8922013e627	2025-03-13 10:31:51.772+00	/article/whatsapp-sucks	\N	\N	\N		Whatsapp doesn't deserve your business	1	\N	f44df6ab-7e02-5e3f-ac61-54c711c474e6	\N
+c452da78-4510-4e89-8d45-5c25261439ce	fb997c11-6572-43df-bddf-9a64b1f2812d	caf57478-6a74-5736-9477-f1f6e7930bea	2025-03-13 11:57:51.78+00	/	\N	\N	\N		Xetera	1	\N	e0de7191-42f2-5217-84b9-cabb9c8f7140	\N
+f67fcb3e-91de-4b3d-aadc-a928b025c7f2	fb997c11-6572-43df-bddf-9a64b1f2812d	caf57478-6a74-5736-9477-f1f6e7930bea	2025-03-13 11:58:16.038+00	/article/india-banned-my-site	\N	\N	\N		India banned my site... I think?	1	\N	e0de7191-42f2-5217-84b9-cabb9c8f7140	\N
+ff3de299-b300-446a-948c-fc05beffb4a3	fb997c11-6572-43df-bddf-9a64b1f2812d	caf57478-6a74-5736-9477-f1f6e7930bea	2025-03-13 12:00:55.595+00	/	\N	\N	\N		Xetera	1	\N	e5afaed7-aca4-52d6-ad96-16ef46c99573	\N
+a592a8d7-01f7-4359-b2b3-89156a14e2ea	fb997c11-6572-43df-bddf-9a64b1f2812d	caf57478-6a74-5736-9477-f1f6e7930bea	2025-03-13 12:01:17.968+00	/	\N	\N	\N		Xetera	2	social:github	e5afaed7-aca4-52d6-ad96-16ef46c99573	\N
+f9c0bcb9-42f3-4d5d-8c47-0a0566083ce4	fb997c11-6572-43df-bddf-9a64b1f2812d	4bed71d0-594e-50dc-81ca-e1cc5b7ac877	2025-03-13 12:01:50.837+00	/	\N	\N	\N		Xetera	1	\N	976933df-6cb0-5cfa-86fc-29b3bcf03392	\N
+c6d9138d-d102-40e4-9b75-ab9e52d09e56	fb997c11-6572-43df-bddf-9a64b1f2812d	4bed71d0-594e-50dc-81ca-e1cc5b7ac877	2025-03-13 12:02:07.521+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	976933df-6cb0-5cfa-86fc-29b3bcf03392	\N
+bb41fb9c-d1a2-456f-ada0-52a391b240b1	fb997c11-6572-43df-bddf-9a64b1f2812d	694e3a45-5597-5bae-8f61-0fc8774fd4aa	2025-03-13 12:20:56.669+00	/article/thoughts-on-go	\N	/		search.brave.com	Golang is not a good language	1	\N	fab5964f-ba64-5634-8b49-0594d2736ba3	\N
+3fca6545-bd78-47ae-bb49-011f97ad0bbb	fb997c11-6572-43df-bddf-9a64b1f2812d	bca2fe34-a979-51df-8016-f0becd08b13c	2025-03-13 14:21:28.242+00	/	\N	\N	\N		Xetera	1	\N	a63976b7-472d-518f-b7db-715d474dda7e	\N
+7f8d2cc9-1696-4fd5-a85a-0f2c6d38abee	fb997c11-6572-43df-bddf-9a64b1f2812d	dddf81d1-4a86-52bd-ab8a-47272bb43951	2025-03-13 14:42:51.182+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	f2f35e04-8d84-50a0-939f-4eadb3b79bb2	\N
+7fd11d7d-ec83-44f6-bd07-868accfc5673	fb997c11-6572-43df-bddf-9a64b1f2812d	dddf81d1-4a86-52bd-ab8a-47272bb43951	2025-03-13 14:51:13.609+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	f2f35e04-8d84-50a0-939f-4eadb3b79bb2	\N
+14523b62-9bd4-4c2f-abf7-c3912b7f65fe	fb997c11-6572-43df-bddf-9a64b1f2812d	c73c1b62-3f17-5cde-9456-0a9926fa070c	2025-03-13 14:51:42.501+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	ebffccc6-686a-544d-b39e-8f7a2291524f	\N
+975f7f86-6c5a-4776-9161-fd07df09f9b7	fb997c11-6572-43df-bddf-9a64b1f2812d	153c10ea-6a0e-5525-9938-3d882a8e505d	2025-03-13 15:23:22.669+00	/	\N	\N	\N		Xetera	1	\N	701f4e55-1baa-58ef-bd2d-d36b17019d5d	\N
+312fcc5c-c1c3-45df-a183-a391bfbbc48e	fb997c11-6572-43df-bddf-9a64b1f2812d	7376fa69-5dee-5994-bc61-8f9e0ede09b1	2025-03-13 16:35:38.058+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	58e2ccb4-a6cb-572c-9adb-fe6f9709f588	\N
+d5022ae5-0feb-4f57-a8c0-83c016333ee4	fb997c11-6572-43df-bddf-9a64b1f2812d	036585e5-58ce-58f7-ab27-b1682fa3fdf8	2025-03-13 17:37:39.719+00	/article/thoughts-on-go	\N	/		google.com	Golang is not a good language	1	\N	5818c05a-f341-54cc-b485-9beab23775bb	\N
+cae9ccfd-7ea7-48f2-ad1b-c77ccf5eb016	fb997c11-6572-43df-bddf-9a64b1f2812d	81f6b518-d3b0-5187-8c3a-4ecca4d8793c	2025-03-13 17:56:50.404+00	/article/optimizing-images-with-webp	\N	/		duckduckgo.com	Optimizing images with WebP in Node.js	1	\N	9ccca528-5903-5a1a-8453-ee42a851a97d	\N
+6fc64b0d-d12b-474b-8f74-3844a1f9dfda	fb997c11-6572-43df-bddf-9a64b1f2812d	8565f2af-d9c6-5d0a-98b7-caada85bc88d	2025-03-13 18:52:27.429+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	e08ea732-3ae7-5066-a3f0-5720eefc97ce	\N
+8343129f-9a45-4fed-bec9-6ab624945808	fb997c11-6572-43df-bddf-9a64b1f2812d	93283db1-01ca-56f8-8a8a-88296a40c97e	2025-03-13 19:49:42.719+00	/	\N	\N	\N		Xetera	1	\N	ed29e273-6a26-59ef-ab0b-a029d3da850a	\N
+d033cd8f-94c5-4737-92d7-0c6ba6bac868	fb997c11-6572-43df-bddf-9a64b1f2812d	1a1c0e64-3372-531f-a5cd-c8a13db5aba9	2025-03-13 20:14:55.114+00	/	\N	/		google.com	Xetera	1	\N	84e80109-d007-53c9-ba40-4fe839c2987a	\N
+ac3d04c6-b935-4ed0-ba30-bc16f4896650	fb997c11-6572-43df-bddf-9a64b1f2812d	1a1c0e64-3372-531f-a5cd-c8a13db5aba9	2025-03-13 20:15:01.485+00	/shorts	\N	\N	\N		Shorts	1	\N	84e80109-d007-53c9-ba40-4fe839c2987a	\N
+cfb5c7f0-38e8-486d-8e4d-e57653df3d4c	fb997c11-6572-43df-bddf-9a64b1f2812d	1a1c0e64-3372-531f-a5cd-c8a13db5aba9	2025-03-13 20:15:03.327+00	/	\N	\N	\N		Xetera	1	\N	84e80109-d007-53c9-ba40-4fe839c2987a	\N
+62b418ca-c076-4b44-a273-83b290eac285	fb997c11-6572-43df-bddf-9a64b1f2812d	1a1c0e64-3372-531f-a5cd-c8a13db5aba9	2025-03-13 20:23:39.665+00	/	\N	\N	\N		Xetera	1	\N	84e80109-d007-53c9-ba40-4fe839c2987a	\N
+25f1923a-ad47-41f8-b8e4-d15dc48f1d65	fb997c11-6572-43df-bddf-9a64b1f2812d	1a1c0e64-3372-531f-a5cd-c8a13db5aba9	2025-03-13 20:31:37.8+00	/shorts	\N	\N	\N		Shorts	1	\N	84e80109-d007-53c9-ba40-4fe839c2987a	\N
+d7bdac94-ad05-4ecf-8d63-d9ee6e50aec4	fb997c11-6572-43df-bddf-9a64b1f2812d	1a1c0e64-3372-531f-a5cd-c8a13db5aba9	2025-03-13 20:31:41.885+00	/	\N	\N	\N		Xetera	1	\N	84e80109-d007-53c9-ba40-4fe839c2987a	\N
+aff95ade-99e0-4400-b86e-e7b60d2332e5	fb997c11-6572-43df-bddf-9a64b1f2812d	83dba7bb-49c6-5f0d-b780-c99c2d9ab9d0	2025-03-13 21:11:41.944+00	/	\N	\N	\N		Xetera	1	\N	7c23b20b-7a38-5cc2-aa63-34f985e2c9f7	\N
+a02f42aa-5e23-4462-a129-0ed435de6307	fb997c11-6572-43df-bddf-9a64b1f2812d	dd548a09-d94d-595e-97ae-e4ca7c9cb69f	2025-03-13 22:48:08.76+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	091407ac-b9c6-5434-9f13-311bb1bfb9f4	\N
+a013a6b0-97d4-427e-a7c4-95f93986f524	fb997c11-6572-43df-bddf-9a64b1f2812d	9c0398fb-b29a-5fe3-bd7b-4f21b55be644	2025-03-14 00:33:49.995+00	/	\N	/		github.com	Xetera	1	\N	044a9576-64d8-56d6-af1a-079799091309	\N
+92c1b708-3fdb-45e1-8d29-1fb87c0b591a	fb997c11-6572-43df-bddf-9a64b1f2812d	08ecac36-7399-59bf-9e5c-71e5472a8542	2025-03-14 00:54:59.836+00	/	\N	\N	\N		Xetera	1	\N	fb9f4ab6-5f44-5de9-9795-87d5c678612e	\N
+4fde49ee-6859-4382-9418-c18b7c7ccbc4	fb997c11-6572-43df-bddf-9a64b1f2812d	7cc2e1e7-c6a1-5bf3-ad0b-dbee2ba4fd0c	2025-03-14 00:56:20.518+00	/	\N	\N	\N		Xetera	1	\N	68093b1e-3647-5a41-86b5-8465af63ed4c	\N
+c831561c-2094-448e-8a8c-0ae24045ab00	fb997c11-6572-43df-bddf-9a64b1f2812d	5abeb7b9-fdc9-5189-a42e-a9ee34efa16f	2025-03-14 03:12:53.424+00	/article/thoughts-on-go	\N	\N	\N		Golang is not a good language	1	\N	89b50921-862c-5a17-ac0e-88ad9b778776	\N
+c1c10b56-16d0-4b51-ac69-0d8c77df87a2	fb997c11-6572-43df-bddf-9a64b1f2812d	3dcdcf87-f183-59e4-ba7b-640eb8449e73	2025-03-14 04:39:32.495+00	/	\N	\N	\N		Xetera	1	\N	02aad6c7-af26-56ed-a430-4c11b3261bbf	\N
+dd62e4f5-7ccb-4533-8dad-d1057834879a	fb997c11-6572-43df-bddf-9a64b1f2812d	3dcdcf87-f183-59e4-ba7b-640eb8449e73	2025-03-14 04:39:40.758+00	/shorts	\N	\N	\N		Shorts	1	\N	02aad6c7-af26-56ed-a430-4c11b3261bbf	\N
+d1b65462-b9f4-4e85-954b-cbed6fade390	fb997c11-6572-43df-bddf-9a64b1f2812d	3dcdcf87-f183-59e4-ba7b-640eb8449e73	2025-03-14 04:39:44.483+00	/	\N	\N	\N		Xetera	1	\N	02aad6c7-af26-56ed-a430-4c11b3261bbf	\N
+d56b637f-0e0a-44c6-bc15-37472d434b10	fb997c11-6572-43df-bddf-9a64b1f2812d	3dcdcf87-f183-59e4-ba7b-640eb8449e73	2025-03-14 04:40:16.084+00	/	\N	\N	\N		Xetera	1	\N	02aad6c7-af26-56ed-a430-4c11b3261bbf	\N
+285a626b-32ce-4727-88ed-882f5de0a007	fb997c11-6572-43df-bddf-9a64b1f2812d	f4c3e77b-00ef-5544-850b-26d00407cf37	2025-03-14 04:43:32.022+00	/article/optimizing-images-with-webp	\N	/		google.com	Optimizing images with WebP in Node.js	1	\N	d2b382c5-4772-5fac-b188-7f4b6ae262ff	\N
+3b489806-d8a6-4552-911e-ebe204ee1fae	fb997c11-6572-43df-bddf-9a64b1f2812d	f4c3e77b-00ef-5544-850b-26d00407cf37	2025-03-14 04:44:50.634+00	/	\N	\N	\N		Xetera	1	\N	d2b382c5-4772-5fac-b188-7f4b6ae262ff	\N
+f5ab1e2b-a256-4a0a-a593-6847151ff53d	fb997c11-6572-43df-bddf-9a64b1f2812d	f4c3e77b-00ef-5544-850b-26d00407cf37	2025-03-14 04:45:11.435+00	/article/learning-for-fun-and-profit	\N	\N	\N		Learning for fun and profit	1	\N	d2b382c5-4772-5fac-b188-7f4b6ae262ff	\N
+00589400-2082-4851-87a6-a7c32c1131e3	fb997c11-6572-43df-bddf-9a64b1f2812d	c46b29e3-0360-5f3a-9ffa-e2d16e18c8de	2025-03-14 08:21:07.625+00	/article/optimizing-images-with-webp	\N	/		yandex.ru	Optimizing images with WebP in Node.js	1	\N	df355173-cd38-5743-894b-8284d3cdd1f1	\N
+0ee24afa-2cca-4fb5-b583-66068788c03b	fb997c11-6572-43df-bddf-9a64b1f2812d	65ce8b4c-19a1-599b-af22-7975bdda29d6	2025-03-14 10:59:09.273+00	/	\N	\N	\N		Xetera	1	\N	94046986-f8ce-52a1-bbce-c75c3a836859	\N
+16a6c07c-2c9f-4539-99db-4c21127e3d95	fb997c11-6572-43df-bddf-9a64b1f2812d	65ce8b4c-19a1-599b-af22-7975bdda29d6	2025-03-14 10:59:27.473+00	/	\N	\N	\N		Xetera	2	social:github	94046986-f8ce-52a1-bbce-c75c3a836859	\N
+2e01c4c8-0359-419f-986f-a1c83f46a738	fb997c11-6572-43df-bddf-9a64b1f2812d	899d3616-cc20-50d1-a265-252a36aa6540	2025-03-14 11:08:38.021+00	/article/typescript-permissions	\N	/		google.com	Building a robust permissions system in TypeScript	1	\N	1f9006cc-527d-5680-b8e1-aa42de9716d9	\N
+277e2ddc-8aa5-4716-981d-7652ade29551	fb997c11-6572-43df-bddf-9a64b1f2812d	1bacfb3f-c1e6-5ad3-a3b3-a231ac7958fb	2025-03-14 12:27:47.82+00	/	\N	/		google.com	Xetera	1	\N	e3381b7c-4bc9-5edf-a961-e0d73a83b367	\N
+21374e3a-0a4f-4a40-80f4-e05f6be2c73d	fb997c11-6572-43df-bddf-9a64b1f2812d	1bacfb3f-c1e6-5ad3-a3b3-a231ac7958fb	2025-03-14 12:30:46.035+00	/shorts	\N	\N	\N		Shorts	1	\N	e3381b7c-4bc9-5edf-a961-e0d73a83b367	\N
+\.
+
+
+--
+-- Name: chunk_column_stats_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_column_stats_id_seq', 1, false);
+
+
+--
+-- Name: chunk_constraint_name; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_constraint_name', 1, false);
+
+
+--
+-- Name: chunk_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.chunk_id_seq', 1, false);
+
+
+--
+-- Name: continuous_agg_migrate_plan_step_step_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.continuous_agg_migrate_plan_step_step_id_seq', 1, false);
+
+
+--
+-- Name: dimension_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.dimension_id_seq', 1, false);
+
+
+--
+-- Name: dimension_slice_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.dimension_slice_id_seq', 1, false);
+
+
+--
+-- Name: hypertable_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_catalog; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_catalog.hypertable_id_seq', 1, false);
+
+
+--
+-- Name: bgw_job_id_seq; Type: SEQUENCE SET; Schema: _timescaledb_config; Owner: postgres
+--
+
+SELECT pg_catalog.setval('_timescaledb_config.bgw_job_id_seq', 1000, false);
+
+
+--
+-- Name: _prisma_migrations _prisma_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public._prisma_migrations
+    ADD CONSTRAINT _prisma_migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: event_data event_data_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.event_data
+    ADD CONSTRAINT event_data_pkey PRIMARY KEY (event_data_id);
+
+
+--
+-- Name: report report_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.report
+    ADD CONSTRAINT report_pkey PRIMARY KEY (report_id);
+
+
+--
+-- Name: session_data session_data_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.session_data
+    ADD CONSTRAINT session_data_pkey PRIMARY KEY (session_data_id);
+
+
+--
+-- Name: session session_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.session
+    ADD CONSTRAINT session_pkey PRIMARY KEY (session_id);
+
+
+--
+-- Name: team team_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.team
+    ADD CONSTRAINT team_pkey PRIMARY KEY (team_id);
+
+
+--
+-- Name: team_user team_user_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.team_user
+    ADD CONSTRAINT team_user_pkey PRIMARY KEY (team_user_id);
+
+
+--
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT user_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: website_event website_event_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.website_event
+    ADD CONSTRAINT website_event_pkey PRIMARY KEY (event_id);
+
+
+--
+-- Name: website website_pkey; Type: CONSTRAINT; Schema: public; Owner: umami
+--
+
+ALTER TABLE ONLY public.website
+    ADD CONSTRAINT website_pkey PRIMARY KEY (website_id);
+
+
+--
+-- Name: event_data_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX event_data_created_at_idx ON public.event_data USING btree (created_at);
+
+
+--
+-- Name: event_data_website_event_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX event_data_website_event_id_idx ON public.event_data USING btree (website_event_id);
+
+
+--
+-- Name: event_data_website_id_created_at_data_key_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX event_data_website_id_created_at_data_key_idx ON public.event_data USING btree (website_id, created_at, data_key);
+
+
+--
+-- Name: event_data_website_id_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX event_data_website_id_created_at_idx ON public.event_data USING btree (website_id, created_at);
+
+
+--
+-- Name: event_data_website_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX event_data_website_id_idx ON public.event_data USING btree (website_id);
+
+
+--
+-- Name: report_name_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX report_name_idx ON public.report USING btree (name);
+
+
+--
+-- Name: report_report_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX report_report_id_key ON public.report USING btree (report_id);
+
+
+--
+-- Name: report_type_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX report_type_idx ON public.report USING btree (type);
+
+
+--
+-- Name: report_user_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX report_user_id_idx ON public.report USING btree (user_id);
+
+
+--
+-- Name: report_website_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX report_website_id_idx ON public.report USING btree (website_id);
+
+
+--
+-- Name: session_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_created_at_idx ON public.session USING btree (created_at);
+
+
+--
+-- Name: session_data_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_data_created_at_idx ON public.session_data USING btree (created_at);
+
+
+--
+-- Name: session_data_session_id_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_data_session_id_created_at_idx ON public.session_data USING btree (session_id, created_at);
+
+
+--
+-- Name: session_data_session_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_data_session_id_idx ON public.session_data USING btree (session_id);
+
+
+--
+-- Name: session_data_website_id_created_at_data_key_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_data_website_id_created_at_data_key_idx ON public.session_data USING btree (website_id, created_at, data_key);
+
+
+--
+-- Name: session_data_website_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_data_website_id_idx ON public.session_data USING btree (website_id);
+
+
+--
+-- Name: session_session_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX session_session_id_key ON public.session USING btree (session_id);
+
+
+--
+-- Name: session_website_id_created_at_browser_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_browser_idx ON public.session USING btree (website_id, created_at, browser);
+
+
+--
+-- Name: session_website_id_created_at_city_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_city_idx ON public.session USING btree (website_id, created_at, city);
+
+
+--
+-- Name: session_website_id_created_at_country_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_country_idx ON public.session USING btree (website_id, created_at, country);
+
+
+--
+-- Name: session_website_id_created_at_device_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_device_idx ON public.session USING btree (website_id, created_at, device);
+
+
+--
+-- Name: session_website_id_created_at_hostname_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_hostname_idx ON public.session USING btree (website_id, created_at, hostname);
+
+
+--
+-- Name: session_website_id_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_idx ON public.session USING btree (website_id, created_at);
+
+
+--
+-- Name: session_website_id_created_at_language_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_language_idx ON public.session USING btree (website_id, created_at, language);
+
+
+--
+-- Name: session_website_id_created_at_os_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_os_idx ON public.session USING btree (website_id, created_at, os);
+
+
+--
+-- Name: session_website_id_created_at_screen_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_screen_idx ON public.session USING btree (website_id, created_at, screen);
+
+
+--
+-- Name: session_website_id_created_at_subdivision1_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_created_at_subdivision1_idx ON public.session USING btree (website_id, created_at, subdivision1);
+
+
+--
+-- Name: session_website_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX session_website_id_idx ON public.session USING btree (website_id);
+
+
+--
+-- Name: team_access_code_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX team_access_code_idx ON public.team USING btree (access_code);
+
+
+--
+-- Name: team_access_code_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX team_access_code_key ON public.team USING btree (access_code);
+
+
+--
+-- Name: team_team_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX team_team_id_key ON public.team USING btree (team_id);
+
+
+--
+-- Name: team_user_team_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX team_user_team_id_idx ON public.team_user USING btree (team_id);
+
+
+--
+-- Name: team_user_team_user_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX team_user_team_user_id_key ON public.team_user USING btree (team_user_id);
+
+
+--
+-- Name: team_user_user_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX team_user_user_id_idx ON public.team_user USING btree (user_id);
+
+
+--
+-- Name: user_user_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX user_user_id_key ON public."user" USING btree (user_id);
+
+
+--
+-- Name: user_username_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX user_username_key ON public."user" USING btree (username);
+
+
+--
+-- Name: website_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_created_at_idx ON public.website USING btree (created_at);
+
+
+--
+-- Name: website_created_by_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_created_by_idx ON public.website USING btree (created_by);
+
+
+--
+-- Name: website_event_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_created_at_idx ON public.website_event USING btree (created_at);
+
+
+--
+-- Name: website_event_session_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_session_id_idx ON public.website_event USING btree (session_id);
+
+
+--
+-- Name: website_event_visit_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_visit_id_idx ON public.website_event USING btree (visit_id);
+
+
+--
+-- Name: website_event_website_id_created_at_event_name_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_event_name_idx ON public.website_event USING btree (website_id, created_at, event_name);
+
+
+--
+-- Name: website_event_website_id_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_idx ON public.website_event USING btree (website_id, created_at);
+
+
+--
+-- Name: website_event_website_id_created_at_page_title_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_page_title_idx ON public.website_event USING btree (website_id, created_at, page_title);
+
+
+--
+-- Name: website_event_website_id_created_at_referrer_domain_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_referrer_domain_idx ON public.website_event USING btree (website_id, created_at, referrer_domain);
+
+
+--
+-- Name: website_event_website_id_created_at_tag_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_tag_idx ON public.website_event USING btree (website_id, created_at, tag);
+
+
+--
+-- Name: website_event_website_id_created_at_url_path_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_url_path_idx ON public.website_event USING btree (website_id, created_at, url_path);
+
+
+--
+-- Name: website_event_website_id_created_at_url_query_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_created_at_url_query_idx ON public.website_event USING btree (website_id, created_at, url_query);
+
+
+--
+-- Name: website_event_website_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_idx ON public.website_event USING btree (website_id);
+
+
+--
+-- Name: website_event_website_id_session_id_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_session_id_created_at_idx ON public.website_event USING btree (website_id, session_id, created_at);
+
+
+--
+-- Name: website_event_website_id_visit_id_created_at_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_event_website_id_visit_id_created_at_idx ON public.website_event USING btree (website_id, visit_id, created_at);
+
+
+--
+-- Name: website_share_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_share_id_idx ON public.website USING btree (share_id);
+
+
+--
+-- Name: website_share_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX website_share_id_key ON public.website USING btree (share_id);
+
+
+--
+-- Name: website_team_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_team_id_idx ON public.website USING btree (team_id);
+
+
+--
+-- Name: website_user_id_idx; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE INDEX website_user_id_idx ON public.website USING btree (user_id);
+
+
+--
+-- Name: website_website_id_key; Type: INDEX; Schema: public; Owner: umami
+--
+
+CREATE UNIQUE INDEX website_website_id_key ON public.website USING btree (website_id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- PostgreSQL database cluster dump complete
+--
+
