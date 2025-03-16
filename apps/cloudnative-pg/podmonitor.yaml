@@ -6,6 +6,6 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: cloudnative-pg
+      cnpg.io/cluster: postgres
   podMetricsEndpoints:
     - port: metrics
