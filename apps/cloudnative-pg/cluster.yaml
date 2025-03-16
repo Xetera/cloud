@@ -59,6 +59,13 @@ spec:
         superuser: false
         passwordSecret:
           name: developer-password
+  resources:
+    requests:
+      cpu: 400m
+      memory: 1024Mi
+    limits:
+      cpu: 800m
+      memory: 1024Mi
   backup:
     retentionPolicy: "7d"
     barmanObjectStore:
