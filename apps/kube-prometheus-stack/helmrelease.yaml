@@ -60,3 +60,29 @@ spec:
               resources:
                 requests:
                   storage: 10Gi
+    alertmanager:
+      enabled: true
+      ingress:
+        enabled: false
+      route:
+        receiver: pushover
+      # route:
+      #   main:
+      #     enabled: true
+      #     group_by: ["namespace"]
+      #     receiver: prod
+      config:
+        receivers:
+          - name: pushover
+            pushover_configs:
+              - user_key: "{{ .Values.pushover-config.user_key }}"
+                api_key: "{{ .Values.pushover-config.api_key }}"
+  valuesFrom:
+    - kind: Secret
+      name: pushover-config
+      valuesKey: user_key
+      targetPath: alertmanager.config.receivers[0].pushover_configs[0].user_key
+    - kind: Secret
+      name: pushover-config
+      valuesKey: api_key
+      targetPath: alertmanager.config.receivers[0].pushover_configs[0].api_key

@@ -6,3 +6,4 @@ resources:
   - ./helmrelease.yaml
   - ./grafana.yaml
   - ./tailscale.yaml
+  - ./secrets.yaml
