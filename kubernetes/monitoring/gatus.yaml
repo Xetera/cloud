@@ -310,7 +310,7 @@ data:
           - "[CONNECTED] == true"
       - name: umami
         group: k8s
-        url: "http://umami.analytics.svc.cluster.local:3000"
+        url: "http://umami.analytics.svc.cluster.local:3000/api/heartbeat"
         interval: 1m
         timeout: 10s
         method: GET
