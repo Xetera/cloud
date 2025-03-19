@@ -1,0 +1,13 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: placewaifu
+  namespace: flux-system
+spec:
+  # controlled by webhooks
+  interval: 60m
+  url: ssh://git@github.com/Xetera/placewaifu
+  ref:
+    branch: main
+  secretRef:
+    name: flux-system

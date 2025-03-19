@@ -1,0 +1,10 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: me
+  namespace: flux-system
+spec:
+  type: github
+  address: https://github.com/xetera/me
+  secretRef:
+    name: github-pat
