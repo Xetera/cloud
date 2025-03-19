@@ -1,0 +1,16 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: me
+  namespace: flux-system
+spec:
+  providerRef:
+    name: me
+  eventSeverity: info
+  eventSources:
+    - kind: GitRepository
+      name: "me"
+      namespace: "flux-system"
+    - kind: Kustomization
+      name: "me"
+      namespace: "flux-system"
