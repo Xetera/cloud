@@ -12,6 +12,10 @@
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
   kubernetes: {
-    fileMatch: ["kubernetes/.+\\.yaml$", "apps/.+\\.yaml$"],
+    fileMatch: [
+      "kubernetes/.+\\.yaml$",
+      "apps/.+\\.yaml$",
+      "cluster/.+\\.yaml$",
+    ],
   },
 }
