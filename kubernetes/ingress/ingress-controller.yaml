@@ -55,10 +55,11 @@ spec:
             # needed to allow forwarding of forwarded headers
             # this is okay because we already whitelist cloudflare ips
             - --entrypoints.websecure.forwardedheaders.insecure=true
-            - --log.level=DEBUG
-            - --tracing=true
-            - --tracing.otlp.http.endpoint=http://alloy.monitoring.svc.cluster.local:4318
-            - --tracing.capturedRequestHeaders[0]=X-Forwarded-For
+            - --log.level=INFO
+            - --accesslog=true
+            # - --tracing=true
+            # - --tracing.otlp.http.endpoint=http://alloy.monitoring.svc.cluster.local:4318
+            # - --tracing.capturedRequestHeaders[0]=X-Forwarded-For
             - --ping=true
             - --ping.entrypoint=web
             - --metrics.prometheus=true
