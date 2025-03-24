@@ -340,6 +340,14 @@ data:
         method: GET
         conditions:
           - "[STATUS] == 200"
+      - name: amnezia
+        group: k8s
+        url: "http://amnezia-wg-easy.vpn.svc.cluster.local:8080"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

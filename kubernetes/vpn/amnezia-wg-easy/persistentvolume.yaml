@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: amnezia-wg-easy-config
+  namespace: vpn
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "local-path"
+  volumeMode: Filesystem
+  local:
+    path: /mnt/data/amnezia-wg-easy
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "kubernetes.io/hostname"
+              operator: In
+              values:
+                - kube-pool-worker-medium-worker1

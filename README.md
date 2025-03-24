@@ -71,6 +71,23 @@ Tailscale operator OAuth credentials
   - `client_id`
   - `client_secret`
 
+#### Wireguard
+
+Wireguard server IP
+
+- `wireguard-server-ip`
+  - `ip`
+
+Wireguard password hash
+
+- `wireguard-password-hash`
+  - `password`
+
+Wireguard config
+
+- `wireguard-config`
+  - `wg0.conf`
+
 #### Ingress
 
 Cloudflare origin certificate for xetera.dev

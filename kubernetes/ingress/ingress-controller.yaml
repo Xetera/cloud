@@ -51,6 +51,7 @@ spec:
             - --entrypoints.websecure.http3=true
             - --entrypoints.websecure.http3.advertisedport=443
             - --entrypoints.metrics.address=:8082
+            - --entrypoints.wireguard.address=:21/udp
             # needed to allow forwarding of forwarded headers
             # this is okay because we already whitelist cloudflare ips
             - --entrypoints.websecure.forwardedheaders.insecure=true
@@ -150,6 +151,10 @@ spec:
       port: 443
       targetPort: 443
       protocol: UDP
+    - name: wireguard
+      port: 21
+      targetPort: 21
+      protocol: UDP
   selector:
     app: traefik
   externalTrafficPolicy: Local
@@ -232,6 +237,12 @@ spec:
     matchLabels:
       app: traefik
   ingress:
+    - fromCIDRSet:
+        - cidr: 0.0.0.0/0
+      toPorts:
+        - ports:
+            - port: "21"
+              protocol: UDP
     - fromCIDRSet:
         - cidr: 103.21.244.0/22
         - cidr: 103.22.200.0/22
@@ -324,6 +335,14 @@ spec:
               protocol: TCP
           rules:
             http: [{}]
+    # Wireguard
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: vpn
+      toPorts:
+        - ports:
+            - port: "21"
+              protocol: UDP
     # allow traffic to projects
     - toEndpoints:
         - matchLabels:

@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amnezia-wg-easy
+  namespace: vpn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amnezia-wg-easy
+  template:
+    metadata:
+      labels:
+        app: amnezia-wg-easy
+    spec:
+      # initContainers:
+      #   - name: gluetun
+      #     image: ghcr.io/qdm12/gluetun:latest
+      #     imagePullPolicy: Always
+      #     restartPolicy: Always
+      #     securityContext:
+      #       capabilities:
+      #         add:
+      #           - NET_ADMIN
+      #     env:
+      #       - name: TZ
+      #         value: "Europe/Berlin"
+      #       - name: VPN_SERVICE_PROVIDER
+      #         value: "protonvpn"
+      #       - name: VPN_TYPE
+      #         value: "wireguard"
+      #       - name: SERVER_COUNTRIES
+      #         value: "Germany"
+      #       - name: FIREWALL_OUTBOUND_SUBNETS
+      #         value: "172.16.0.0/12,192.168.0.0/16,10.0.0.0/8"
+      #       - name: FIREWALL_INPUT_PORTS
+      #         value: "8080,21"
+      #       - name: FIREWALL_DEBUG
+      #         value: "on"
+      #       - name: DOT
+      #         value: "off"
+      #       - name: DNS_KEEP_NAMESERVER
+      #         value: "true"
+      #       # - name: DNS_ADDRESS
+      #       #   value: "10.43.0.10"
+      #       - name: WIREGUARD_PRIVATE_KEY
+      #         valueFrom:
+      #           secretKeyRef:
+      #             name: protonvpn-private-key
+      #             key: key
+
+      containers:
+        - name: amnezia-wg-easy
+          # image: ghcr.io/xetera/amnezia-wg-easy:latest@sha256:0ae4149d37320c82c1fc7b6bf9d3b19812ce27915ed7700073b2421ca9782fe5
+          image: ghcr.io/xetera/amnezia-wg-easy:latest
+          imagePullPolicy: Always
+          # initContainers:
+          #   - name: chown-amnezia
+          #     image: busybox:latest
+          #     command: ["sh", "-c", "chown -R 1099:1099 /etc/amnezia"]
+          #     volumeMounts:
+          #       - name: wireguard-config
+          #         mountPath: /etc/amnezia
+          env:
+            - name: LANG
+              value: "en"
+            - name: ENABLE_PROMETHEUS_METRICS
+              value: "true"
+            - name: WG_DEVICE
+              value: "eth0"
+            # - name: WEBUI_HOST
+            #   value: "127.0.0.1"
+            - name: WG_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: wireguard-server-ip
+                  key: ip
+            - name: PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: wireguard-password-hash
+                  key: password
+            - name: PORT
+              value: "8080"
+            - name: WG_PORT
+              value: "21"
+            - name: WG_PERSISTENT_KEEPALIVE
+              value: "25"
+            - name: UI_TRAFFIC_STATS
+              value: "true"
+            - name: UI_CHART_TYPE
+              value: "1"
+            - name: UI_ENABLE_SORT_CLIENTS
+              value: "true"
+          ports:
+            - containerPort: 21
+              name: wireguard
+              protocol: UDP
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_MODULE
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            # just keeps the auto generated configs
+            - name: wireguard-config
+              mountPath: /etc/amnezia/amneziawg
+            # mounts origin0.conf
+            - name: wireguard-protonvpn-config
+              mountPath: /etc/wireguard
+      volumes:
+        - name: wireguard-config
+          persistentVolumeClaim:
+            claimName: amnezia-wg-easy-config
+        - name: wireguard-protonvpn-config
+          secret:
+            secretName: wireguard-protonvpn-config
+        - name: dev-tunnel
+          hostPath:
+            path: /dev/net/tun

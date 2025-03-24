@@ -1,0 +1,12 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteUDP
+metadata:
+  name: amnezia-wg-easy-udp
+  namespace: vpn
+spec:
+  entryPoints: # [1]
+    - wireguard
+  routes: # [2]
+    - services: # [3]
+        - name: amnezia-wg-easy-udp # [4]
+          port: 21 # [5]

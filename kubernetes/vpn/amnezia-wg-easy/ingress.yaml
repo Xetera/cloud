@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: amnezia-wg-easy-ui
+  namespace: vpn
+spec:
+  defaultBackend:
+    service:
+      name: amnezia-wg-easy
+      port:
+        name: web-ui
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - wg

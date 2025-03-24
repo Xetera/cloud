@@ -58,7 +58,13 @@ spec:
         login: true
         superuser: false
         passwordSecret:
-          name: developer-password
+          name: postgres-user-developer
+      - name: authelia
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: postgres-user-authelia
   resources:
     requests:
       cpu: 400m
