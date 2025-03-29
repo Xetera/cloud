@@ -57,6 +57,12 @@ spec:
             - --entrypoints.websecure.forwardedheaders.insecure=true
             - --log.level=INFO
             - --accesslog=true
+            - --accesslog.format=json
+            - --accesslog.fields.headers.defaultmode=drop
+            - --accesslog.fields.headers.names.User-Agent=keep
+            - --accesslog.fields.headers.names.Content-Type=keep
+            - --accesslog.fields.headers.names.CF-Connecting-IP=keep
+            - --accesslog.fields.headers.names.CF-IPCountry=keep
             # - --tracing=true
             # - --tracing.otlp.http.endpoint=http://alloy.monitoring.svc.cluster.local:4318
             # - --tracing.capturedRequestHeaders[0]=X-Forwarded-For
