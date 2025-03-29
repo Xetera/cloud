@@ -56,8 +56,21 @@ spec:
             # this is okay because we already whitelist cloudflare ips
             - --entrypoints.websecure.forwardedheaders.insecure=true
             - --log.level=INFO
+            # access logs
             - --accesslog=true
             - --accesslog.format=json
+            - --accesslog.fields.defaultmode=drop
+            - --accesslog.fields.names.ServiceName=keep
+            - --accesslog.fields.names.RequestPath=keep
+            - --accesslog.fields.names.RequestHost=keep
+            - --accesslog.fields.names.RequestMethod=keep
+            - --accesslog.fields.names.RequestContentSize=keep
+            - --accesslog.fields.names.TLSVersion=keep
+            - --accesslog.fields.names.TraceId=keep
+            - --accesslog.fields.names.DownstreamContentSize=keep
+            - --accesslog.fields.names.DownstreamStatus=keep
+            - --accesslog.fields.names.OriginStatus=keep
+            - --accesslog.fields.names.Duration=keep
             - --accesslog.fields.headers.defaultmode=drop
             - --accesslog.fields.headers.names.User-Agent=keep
             - --accesslog.fields.headers.names.Content-Type=keep
