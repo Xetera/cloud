@@ -65,6 +65,12 @@ spec:
         superuser: false
         passwordSecret:
           name: postgres-user-authelia
+      - name: askergpt
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: postgres-user-askergpt
   resources:
     requests:
       cpu: 400m

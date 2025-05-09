@@ -1,0 +1,16 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: askergpt
+  namespace: flux-system
+spec:
+  providerRef:
+    name: askergpt
+  eventSeverity: info
+  eventSources:
+    - kind: GitRepository
+      name: "askergpt"
+      namespace: "flux-system"
+    - kind: Kustomization
+      name: "askergpt"
+      namespace: "flux-system"
