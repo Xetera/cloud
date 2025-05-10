@@ -25,6 +25,9 @@ data:
         wal:
           path: /var/tempo/wal
     metrics_generator:
+      storage:
+        remote_write:
+          endpoint: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
       processor:
         span_metrics:
 ---

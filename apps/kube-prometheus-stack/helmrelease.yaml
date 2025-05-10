@@ -48,6 +48,7 @@ spec:
       enabled: true
       prometheusSpec:
         # allows monitoring all pod selectors
+        enableRemoteWriteReceiver: true
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
@@ -60,12 +61,13 @@ spec:
               resources:
                 requests:
                   storage: 10Gi
-    alertmanager:
-      enabled: true
-      ingress:
-        enabled: false
-      route:
-        receiver: pushover
+      # alertmanager:
+      #   enabled: true
+      #   ingress:
+      #     enabled: false
+      #   route:
+      #     enabled: true
+      #     receiver: pushover
       # route:
       #   main:
       #     enabled: true
