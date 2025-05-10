@@ -44,7 +44,7 @@ data:
       tsdb_shipper:
         active_index_directory: /loki/index
         cache_location: /loki/index_cache
-        
+
     pattern_ingester:
       enabled: true
       metric_aggregation:
@@ -96,10 +96,10 @@ spec:
                   key: secret_key
           resources:
             requests:
-              cpu: 1000m
+              cpu: 300m
               memory: 500Mi
             limits:
-              cpu: 1000m
+              cpu: 500m
               memory: 1Gi
           volumeMounts:
             - name: loki-data
@@ -201,7 +201,7 @@ data:
         older_than          = "1h"
         drop_counter_reason = "too old"
       }
-      stage.match { 
+      stage.match {
         selector = "{instance=~\".*\"}"
         stage.json {
           expressions = {
@@ -209,7 +209,7 @@ data:
           }
         }
         stage.labels {
-          values = { 
+          values = {
             level = "level",
           }
         }
@@ -322,7 +322,7 @@ spec:
               cpu: 100m
               memory: 100Mi
             limits:
-              cpu: 1
+              cpu: 500m
               memory: 1Gi
           volumeMounts:
             - name: alloy-config

@@ -25,7 +25,7 @@ data:
         .dark #global {
           background-color: oklch(18.36% 0.017 252.81);
           border-color: rgba(28, 41, 55, 1);
-          
+
         }
 
         #global >  a {
@@ -89,7 +89,7 @@ data:
 
         .dark .status-time-ago {
           color: oklch(62.45% 0.0108 252.86);
-          
+
         }
 
         .endpoint > div:first-of-type {
@@ -98,14 +98,14 @@ data:
 
         .endpoint + div button {
           padding: 8px 30px;
-        
+
           font-size: 0.9rem;
           color: oklch(82.36% 0.017 252.81);
           font-family: var(--sans) !important;
         }
 
         .dark .endpoint + div button {
-          background-color: oklch(20.36% 0.017 252.81);  
+          background-color: oklch(20.36% 0.017 252.81);
             border: 1px solid oklch(25.36% 0.017 252.81);
         }
 
@@ -140,7 +140,7 @@ data:
         .status {
           border-radius: 0 !important;
           padding: 5px 0;
-          font-size: 0.7rem;  
+          font-size: 0.7rem;
         }
 
         .dark .status-success {
@@ -381,7 +381,7 @@ spec:
           resources:
             limits:
               memory: "128Mi"
-              cpu: "256m"
+              cpu: "50m"
           ports:
             - containerPort: 8080
           volumeMounts:
