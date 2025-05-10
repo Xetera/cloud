@@ -221,12 +221,27 @@ data:
       }
     }
 
+    otelcol.processor.filter "traces_filter" {
+      error_mode = "ignore"
+
+      traces {
+        span = [
+          'IsMatch(attributes["url.path"], "^/healthz?$")',
+          'attributes["url.path"] == "/metrics"',
+          'IsMatch(attributes["url.path"], "^/favicon")',
+        ]
+      }
+      output {
+        traces = [otelcol.exporter.otlphttp.tempo.input]
+      }
+    }
+
     otelcol.receiver.otlp "otel" {
       http { }
       grpc { }
 
       output {
-        traces = [otelcol.exporter.otlphttp.tempo.input]
+        traces = [otelcol.processor.filter.traces_filter.input]
         metrics = [otelcol.exporter.prometheus.prometheus_exporter.input]
       }
     }
