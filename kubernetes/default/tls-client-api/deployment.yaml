@@ -22,7 +22,7 @@ spec:
           resources:
             limits:
               memory: "128Mi"
-              cpu: "256m"
+              cpu: "50m"
           ports:
             - containerPort: 8080
               name: proxy
