@@ -24,6 +24,9 @@ data:
           path: /var/tempo/data
         wal:
           path: /var/tempo/wal
+    metrics_generator:
+      processor:
+        span_metrics:
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
