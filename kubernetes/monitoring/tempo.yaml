@@ -9,6 +9,9 @@ data:
       http_listen_port: 3200
 
     distributor:
+      ring:
+        kvstore:
+          store: inmemory
       receivers:
         otlp:
           protocols:
@@ -16,6 +19,13 @@ data:
               endpoint: "0.0.0.0:4318"
             grpc:
               endpoint: "0.0.0.0:4317"
+
+    ingester:
+      lifecycler:
+        ring:
+          replication_factor: 1
+          kvstore:
+            store: inmemory
 
     storage:
       trace:
