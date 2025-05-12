@@ -25,22 +25,26 @@ spec:
       additionalDataSources:
         # data sources
         - name: Loki
+          uid: Loki
           access: proxy
           type: loki
           url: http://loki.monitoring.svc.cluster.local:3100
           editable: false
         - name: Tempo
+          uid: Tempo
           access: proxy
           type: tempo
           url: http://tempo.monitoring.svc.cluster.local:3200
           jsonData:
             tracesToLogsV2:
-              dataSourceUid: "loki"
+              dataSourceUid: "Loki"
             tracesToMetrics:
-              dataSourceUid: "prometheus"
+              dataSourceUid: "Prometheus"
             serviceMap:
-              dataSourceUid: "prometheus"
-          editable: false
+              dataSourceUid: "Prometheus"
+            nodeGraph:
+              enabled: true
+          editable: true
     # prom
     rbac:
       create: false
