@@ -69,9 +69,6 @@ spec:
       app: tempo
   template:
     metadata:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "3200"
       labels:
         app: tempo
     spec:
@@ -95,9 +92,10 @@ spec:
             runAsGroup: 10001
             runAsNonRoot: true
           ports:
-            - containerPort: 3200
-            # no grpc as of yet
-            - containerPort: 4318
+            - name: http
+              containerPort: 3200
+            - name: otlp-http
+              containerPort: 4318
           args:
             - -config.file=/etc/tempo.yaml
           env:
