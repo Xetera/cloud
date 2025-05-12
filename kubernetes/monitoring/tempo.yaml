@@ -36,9 +36,12 @@ data:
           path: /var/tempo/wal
     metrics_generator:
       storage:
+        path: "/tmp/tempo"
         remote_write:
           - url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
             send_exemplars: true
+      traces_storage:
+        path: "/tmp/traces"
     overrides:
       metrics_generator_processors: [service-graphs, span-metrics]
 ---
