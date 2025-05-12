@@ -7,6 +7,5 @@ resources:
   - ./alloy-rbac.yaml
   - ./flux.yaml
   - ./gatus.yaml
-  - ./grafana.yaml
   - ./loki.yaml
   - ./tempo.yaml
