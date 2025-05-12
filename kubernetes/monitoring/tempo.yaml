@@ -27,9 +27,10 @@ data:
     metrics_generator:
       storage:
         remote_write:
-          endpoint: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
-      processor:
-        span_metrics:
+          - url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/write"
+            send_exemplars: true
+    overrides:
+      metrics_generator_processors: [service-graphs, span-metrics]
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -86,7 +87,6 @@ spec:
             - containerPort: 4318
           args:
             - -config.file=/etc/tempo.yaml
-            - -log.level=debug
           env:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
