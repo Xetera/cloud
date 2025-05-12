@@ -86,6 +86,7 @@ spec:
             - containerPort: 4318
           args:
             - -config.file=/etc/tempo.yaml
+            - -log.level=debug
           env:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
