@@ -6,4 +6,4 @@ metadata:
 spec:
   images:
     - major: 17
-      image: ghcr.io/clevyr/cloudnativepg-timescale:17.4
+      image: ghcr.io/clevyr/cloudnativepg-timescale:17.5
