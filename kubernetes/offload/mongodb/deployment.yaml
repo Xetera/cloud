@@ -38,10 +38,26 @@ spec:
             secretKeyRef:
               name: mongodb-credentials
               key: password
+        - name: MONGO_INITDB_DATABASE
+          value: qd
         volumeMounts:
         - name: mongodb-data
           mountPath: /data/db
+        - name: mongodb-config
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+          volumes:
+          - name: mongodb-config
+            configMap:
+              items:
+              - key: mongo.conf
+                path: mongo.conf
+              - key: ensure-users.js
+                path: ensure-users.js
       volumes:
       - name: mongodb-data
         persistentVolumeClaim:
           claimName: mongodb
+      - name: mongodb-config
+        configMap:
+          name: mongodb-config
