@@ -43,7 +43,7 @@ data:
       traces_storage:
         path: "/tmp/traces"
     overrides:
-      metrics_generator_processors: [service-graphs, span-metrics]
+      metrics_generator_processors: [local-blocks, service-graphs, span-metrics]
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
