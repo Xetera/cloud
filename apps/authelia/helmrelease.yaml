@@ -16,6 +16,24 @@ spec:
       interval: 60m
   values:
     configMap:
+      notifier:
+        filesystem:
+          enabled: true
+          filename: /config/notification.txt
+      telemetry:
+        metrics:
+          enabled: true
+          port: 9090
+      session:
+        cookies:
+          - subdomain: auth
+            domain: xetera.dev
+      authentication_backend:
+        file:
+          enabled: true
+          path: /data/authelia/users_database.yml
+          password:
+            algorithm: argon2
       storage:
         postgres:
           enabled: true
