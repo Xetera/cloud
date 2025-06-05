@@ -322,7 +322,7 @@ spec:
       serviceAccountName: alloy
       containers:
         - name: alloy
-          image: grafana/alloy:v1.9.0
+          image: grafana/alloy:v1.9.1
           ports:
             - containerPort: 12345
               name: http
