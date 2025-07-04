@@ -226,9 +226,9 @@ data:
 
       traces {
         span = [
-          'IsMatch(attributes["url.path"], "^/healthz?$")',
-          'attributes["url.path"] == "/metrics"',
-          'IsMatch(attributes["url.path"], "^/favicon")',
+          "IsMatch(attributes[\"url.path\"], \"^/healthz?$\")",
+          "attributes[\"url.path\"] == \"/metrics\"",
+          "IsMatch(attributes[\"url.path\"], \"^/favicon\")",
         ]
       }
       output {
@@ -252,12 +252,6 @@ data:
         metrics = [otelcol.exporter.otlphttp.tempo.input]
       }
     }
-
-    // otelcol.processor.deltatocumulative "LABEL" {
-    //   output {
-    //     metrics = [otelcol.exporter.prometheus.prometheus_exporter.input]
-    //   }
-    // }
 
     otelcol.exporter.prometheus "prometheus_exporter" {
       forward_to = [prometheus.remote_write.prometheus.receiver]
