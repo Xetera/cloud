@@ -1,0 +1,13 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: wedding
+  namespace: flux-system
+spec:
+  interval: 60m
+  url: https://github.com/Xetera/wedding
+  ref:
+    branch: main
+  secretRef:
+    name: github-app
+  provider: github

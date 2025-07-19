@@ -1,0 +1,16 @@
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: wedding
+  namespace: flux-system
+spec:
+  type: github
+  events:
+    - "ping"
+    - "push"
+    - "package"
+  secretRef:
+    name: flux-webhook-token
+  resources:
+    - kind: GitRepository
+      name: wedding

@@ -1,0 +1,16 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: wedding
+  namespace: flux-system
+spec:
+  providerRef:
+    name: wedding
+  eventSeverity: info
+  eventSources:
+    - kind: GitRepository
+      name: "wedding"
+      namespace: "flux-system"
+    - kind: Kustomization
+      name: "wedding"
+      namespace: "flux-system"
