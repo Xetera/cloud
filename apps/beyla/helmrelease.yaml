@@ -8,13 +8,53 @@ spec:
   chart:
     spec:
       chart: beyla
-      version: "1.8.0"
+      version: "1.9.0"
       sourceRef:
         kind: HelmRepository
         name: beyla
         namespace: monitoring
       interval: 60m
-  # values:
+  values:
+    env:
+      BEYLA_KUBE_CLUSTER_NAME: "kuberxetes"
+      BEYLA_LOG_LEVEL: debug
+      BEYLA_TRACE_PRINTER: text
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy.monitoring.svc.cluster.local:4318/v1/traces
+    privileged: true
+    contextPropagation:
+      enabled: true
+    config:
+      data:
+        attributes:
+          select:
+            sql_client_duration:
+              include: ["*"]
+            http_client_request_duration:
+              exclude: ["k8s.pod.*"]
+          kubernetes:
+            enable: true
+        network:
+          enable: true
+        routes:
+          unmatched: heuristic
+        # let's instrument only the docs server
+        discovery:
+          instrument:
+            - k8s_namespace: default
+            - k8s_deployment_name: wedding
+            - k8s_deployment_name: askergpt
+            # - open_ports: 443
+        otel_metrics_export:
+          endpoint: http://alloy.monitoring.svc.cluster.local:4318/v1/metrics
+        otel_traces_export:
+          endpoint: http://alloy.monitoring.svc.cluster.local:4318/v1/traces
+        trace_printer: text
+        ebpf:
+          context_propagation: "all"
+          # traffic_control_backend: tcx
+          disable_blackbox_cp: true
+          track_request_headers: true
   #   beyla:
   #     enabled: true
   #     namespace: monitoring
