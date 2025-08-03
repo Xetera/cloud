@@ -14,7 +14,27 @@ spec:
         name: beyla
         namespace: monitoring
       interval: 60m
-  # values:
+  values:
+    env:
+      BEYLA_LOG_LEVEL: debug
+    config:
+      data:
+        attributes:
+          kubernetes:
+            enable: true
+        routes:
+          unmatched: heuristic
+        # let's instrument only the docs server
+        discovery:
+          instrument:
+            - k8s_deployment_name: wedding
+            - k8s_deployment_name: askergpt
+        trace_printer: text
+        ebpf:
+          enable_context_propagation: true
+          traffic_control_backend: tcx
+          disable_blackbox_cp: true
+          track_request_headers: true
   #   beyla:
   #     enabled: true
   #     namespace: monitoring
