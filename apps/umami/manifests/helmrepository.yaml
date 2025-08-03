@@ -4,5 +4,5 @@ metadata:
   name: umami
   namespace: analytics
 spec:
-  interval: 1m
+  interval: 12h
   url: https://charts.christianhuth.de
