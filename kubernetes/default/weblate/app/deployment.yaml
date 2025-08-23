@@ -20,15 +20,10 @@ spec:
           resources:
             limits:
               memory: "256Mi"
-              cpu: "250m"
+              cpu: "500m"
           ports:
             - containerPort: 8080
               name: http
-          # livenessProbe:
-          #   httpGet:
-          #     path: /healthz/
-          #     port: 8080
-          #   periodSeconds: 10
           env:
             - name: WEBLATE_EMAIL_HOST
               valueFrom:
