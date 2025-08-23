@@ -21,6 +21,13 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "750m"
+          startupProbe:
+            httpGet:
+              path: /healthz/
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
+            initialDelaySeconds: 60
           ports:
             - containerPort: 8080
               name: http
