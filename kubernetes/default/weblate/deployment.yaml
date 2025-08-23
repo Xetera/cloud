@@ -70,3 +70,8 @@ spec:
                 secretKeyRef:
                   name: weblate-config
                   key: POSTGRES_HOST
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: REDIS_HOST
