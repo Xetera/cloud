@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: weblate
+  namespace: cnpg-system
+spec:
+  name: weblate
+  owner: weblate
+  cluster:
+    name: postgres

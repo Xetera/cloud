@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weblate
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weblate
+  template:
+    metadata:
+      labels:
+        app: weblate
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: weblate
+          image: weblate/weblate:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "50m"
+          ports:
+            - containerPort: 8080
+              name: http
+          # livenessProbe:
+          #   httpGet:
+          #     path: /healthz/
+          #     port: 8080
+          #   periodSeconds: 10
+          env:
+            - name: WEBLATE_EMAIL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: WEBLATE_EMAIL_HOST
+            - name: WEBLATE_SITE_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: WEBLATE_SITE_DOMAIN
+            - name: WEBLATE_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: WEBLATE_ADMIN_EMAIL
+            - name: WEBLATE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: WEBLATE_ADMIN_PASSWORD
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: POSTGRES_DATABASE
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: weblate-config
+                  key: POSTGRES_HOST

@@ -77,6 +77,12 @@ spec:
         superuser: false
         passwordSecret:
           name: postgres-user-wedding
+      - name: weblate
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: postgres-user-weblate
   resources:
     requests:
       cpu: 400m
