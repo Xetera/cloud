@@ -13,16 +13,14 @@ spec:
       labels:
         app: weblate
     spec:
-      imagePullSecrets:
-        - name: ghcr-credentials
       containers:
         - name: weblate
           image: weblate/weblate:latest
           imagePullPolicy: Always
           resources:
             limits:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: "256Mi"
+              cpu: "250m"
           ports:
             - containerPort: 8080
               name: http
