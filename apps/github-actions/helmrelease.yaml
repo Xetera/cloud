@@ -16,4 +16,4 @@ spec:
       interval: 24h
   values:
     authSecret:
-      create: true
+      name: github-app
