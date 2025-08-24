@@ -55,7 +55,7 @@ spec:
             # needed to allow forwarding of forwarded headers
             # this is okay because we already whitelist cloudflare ips
             - --entrypoints.websecure.forwardedheaders.insecure=true
-            - --log.level=INFO
+            - --log.level=DEBUG
             # access logs
             - --accesslog=true
             - --accesslog.format=json
