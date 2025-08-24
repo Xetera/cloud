@@ -50,5 +50,6 @@ spec:
         - name: ingress-cloudflare-only@kubernetescrd
   tls:
     options:
-      name: cloudflare-mtls@ingress@kubernetescrd
+      name: cloudflare-mtls@kubernetescrd
+      namespace: ingress
     secretName: cloudflare-origin-xetera-dev

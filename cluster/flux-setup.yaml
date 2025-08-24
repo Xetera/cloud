@@ -73,6 +73,7 @@ spec:
   tls:
     options:
       name: cloudflare-mtls@kubernetescrd
+      namespace: ingress
     secretName: cloudflare-origin-xetera-dev
 ---
 # github webhook token

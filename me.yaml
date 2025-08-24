@@ -74,6 +74,7 @@ spec:
   tls:
     options:
       name: cloudflare-mtls@kubernetescrd
+      namespace: ingress
     secretName: cloudflare-origin-xetera-dev
 ---
 apiVersion: monitoring.coreos.com/v1
