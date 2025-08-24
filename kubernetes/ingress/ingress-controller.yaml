@@ -45,7 +45,6 @@ spec:
             - --providers.kubernetesingress.ingressclass=traefik
             # needed for cloudflare rules
             - --providers.kubernetescrd.allowCrossNamespace=true
-            - --providers.kubernetesCRD.namespaces=[]
             - --entrypoints.web.address=:80
             - --entrypoints.websecure.address=:443
             # just for fun I guess, cloudflare doesn't support http3 between edge and origin yet
