@@ -1,16 +1,16 @@
 apiVersion: notification.toolkit.fluxcd.io/v1beta3
 kind: Alert
 metadata:
-  name: askergpt
+  name: smsai
   namespace: flux-system
 spec:
   providerRef:
-    name: askergpt
+    name: smsai
   eventSeverity: info
   eventSources:
     - kind: GitRepository
-      name: "askergpt"
+      name: "smsai"
       namespace: "flux-system"
     - kind: Kustomization
-      name: "askergpt"
+      name: "smsai"
       namespace: "flux-system"

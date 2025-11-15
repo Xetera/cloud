@@ -1,10 +1,10 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
-  name: askergpt
+  name: smsai
   namespace: actions-runner-system
 spec:
   replicas: 1
   template:
     spec:
-      repository: xetera/askergpt
+      repository: xetera/smsai

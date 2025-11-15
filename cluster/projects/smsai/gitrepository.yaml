@@ -1,11 +1,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: askergpt
+  name: smsai
   namespace: flux-system
 spec:
   interval: 60m
-  url: https://github.com/Xetera/askergpt
+  url: https://github.com/Xetera/smsai
   ref:
     branch: main
   secretRef:

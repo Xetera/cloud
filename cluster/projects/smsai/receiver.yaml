@@ -1,7 +1,7 @@
 apiVersion: notification.toolkit.fluxcd.io/v1
 kind: Receiver
 metadata:
-  name: askergpt
+  name: smsai
   namespace: flux-system
 spec:
   type: github
@@ -13,4 +13,4 @@ spec:
     name: flux-webhook-token
   resources:
     - kind: GitRepository
-      name: askergpt
+      name: smsai
