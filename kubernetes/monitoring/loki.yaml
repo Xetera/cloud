@@ -75,7 +75,7 @@ spec:
     spec:
       containers:
         - name: loki
-          image: grafana/loki:3.5
+          image: grafana/loki:3.6
           args:
             - --config.expand-env=true
             - --config.file=/etc/loki/loki.yaml
