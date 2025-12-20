@@ -31,7 +31,7 @@ spec:
             - containerPort: 3000
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://alloy.monitoring.svc.cluster.local:4318"
+              value: "http://otel-collector.monitoring.svc.cluster.local:4318"
           volumeMounts:
             - name: me-data
               mountPath: /app/data

@@ -292,9 +292,9 @@ data:
         method: GET
         conditions:
           - "[STATUS] == 200"
-      - name: alloy
+      - name: otel-collector
         group: k8s
-        url: "http://alloy.monitoring.svc.cluster.local:12345/-/healthy"
+        url: "http://otel-collector.monitoring.svc.cluster.local:13133"
         interval: 1m
         timeout: 10s
         method: GET

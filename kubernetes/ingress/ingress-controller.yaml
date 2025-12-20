@@ -77,7 +77,7 @@ spec:
             - --accesslog.fields.headers.names.CF-Connecting-IP=keep
             - --accesslog.fields.headers.names.CF-IPCountry=keep
             - --tracing=true
-            - --tracing.otlp.http.endpoint=http://alloy.monitoring.svc.cluster.local:4318
+            - --tracing.otlp.http.endpoint=http://otel-collector.monitoring.svc.cluster.local:4318
             # - --tracing.capturedRequestHeaders[0]=X-Forwarded-For
             - --ping=true
             - --ping.entrypoint=web
@@ -323,7 +323,6 @@ spec:
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: monitoring
-            app: alloy
       toPorts:
         - ports:
             - port: "4318"
