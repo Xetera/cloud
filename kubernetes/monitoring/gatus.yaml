@@ -258,7 +258,7 @@ data:
           - "[STATUS] == 200"
       - name: "plex"
         group: projects
-        url: "https://tv.xetera.dev"
+        url: "https://plex.xetera.dev"
         ui:
           hide-hostname: true
         interval: 5m
