@@ -1,0 +1,65 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: otel-collector
+  namespace: monitoring
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: opentelemetry-collector
+      version: "0.142.0"
+      sourceRef:
+        kind: HelmRepository
+        name: otel-collector
+        namespace: monitoring
+      interval: 24h
+  values:
+    extraEnvs:
+      - name: DASH0_AUTH_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: otel-collector-credentials
+            key: token
+    image:
+      repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+    mode: daemonset
+    config:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: 0.0.0.0:4317
+            http:
+              endpoint: 0.0.0.0:4318
+
+      processors:
+        batch:
+          timeout: 10s
+          send_batch_size: 1024
+
+      exporters:
+        otlp/dash0:
+          endpoint: ingress.eu-west-1.aws.dash0.com:4317
+          headers:
+            Authorization: "Bearer ${DASH0_AUTH_TOKEN}"
+
+      extensions:
+        health_check:
+          endpoint: 0.0.0.0:13133
+
+      service:
+        extensions: [health_check]
+        pipelines:
+          traces:
+            receivers: [otlp]
+            processors: [batch]
+            exporters: [otlp/dash0]
+          metrics:
+            receivers: [otlp]
+            processors: [batch]
+            exporters: [otlp/dash0]
+          logs:
+            receivers: [otlp]
+            processors: [batch]
+            exporters: [otlp/dash0]
