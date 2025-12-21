@@ -16,11 +16,7 @@ spec:
       interval: 24h
   values:
     global:
-      # Cloud provider configuration
-      cloud: "other"
-      # Cluster identification
-      clusterName: "production"
-      deploymentEnvironment: "production"
+      cloud: "hcloud"
 
     # Configure to send to self-hosted SigNoz
     otelCollectorEndpoint: "signoz-otel-collector.monitoring.svc.cluster.local:4317"
@@ -28,16 +24,13 @@ spec:
 
     # Presets - enable comprehensive k8s monitoring
     presets:
-      # Collect logs from all containers
       logsCollection:
         enabled: true
         includeCollectorLogs: false
 
-      # Collect host metrics from nodes
       hostMetrics:
         enabled: true
 
-      # Collect kubelet metrics
       kubeletMetrics:
         enabled: true
 
@@ -48,3 +41,47 @@ spec:
       # Kubernetes attributes processor
       kubernetesAttributes:
         enabled: true
+
+    # Custom configuration for deployment collector (PostgreSQL monitoring)
+    otelDeployment:
+      enabled: true
+      # Environment variables for PostgreSQL credentials
+      additionalEnvs:
+        POSTGRES_USER:
+          valueFrom:
+            secretKeyRef:
+              name: postgres-user-signoz
+              key: username
+        POSTGRES_PASSWORD:
+          valueFrom:
+            secretKeyRef:
+              name: postgres-user-signoz
+              key: password
+      config:
+        receivers:
+          # PostgreSQL receiver
+          postgresql:
+            endpoint: postgres-rw.cnpg-system.svc.cluster.local:5432
+            transport: tcp
+            username: ${env:POSTGRES_USER}
+            password: ${env:POSTGRES_PASSWORD}
+            databases:
+              - postgres
+            collection_interval: 30s
+            tls:
+              insecure: true
+        processors:
+          batch:
+            timeout: 5s
+            send_batch_size: 1024
+        exporters:
+          otlp:
+            endpoint: signoz-otel-collector.monitoring.svc.cluster.local:4317
+            tls:
+              insecure: true
+        service:
+          pipelines:
+            metrics:
+              receivers: [postgresql]
+              processors: [batch]
+              exporters: [otlp]

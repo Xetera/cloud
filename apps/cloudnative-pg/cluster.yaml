@@ -40,6 +40,14 @@ spec:
       storageClassName: hcloud-volumes
   managed:
     roles:
+      - name: signoz
+        comment: "signoz monitoring user"
+        login: true
+        superuser: false
+        inRoles:
+          - pg_monitor
+        passwordSecret:
+          name: postgres-user-signoz
       - name: umami
         comment: "plausible analytics role"
         login: true
