@@ -1,0 +1,37 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: flux-all-events
+  namespace: flux-system
+spec:
+  providerRef:
+    name: discord
+  eventSeverity: info  # Get ALL events (info, error)
+  eventSources:
+    # Sources
+    - kind: GitRepository
+      name: "*"
+      namespace: "*"
+    - kind: HelmRepository
+      name: "*"
+      namespace: "*"
+    - kind: OCIRepository
+      name: "*"
+      namespace: "*"
+    # Deployments
+    - kind: Kustomization
+      name: "*"
+      namespace: "*"
+    - kind: HelmRelease
+      name: "*"
+      namespace: "*"
+    # Image automation
+    - kind: ImageRepository
+      name: "*"
+      namespace: "*"
+    - kind: ImagePolicy
+      name: "*"
+      namespace: "*"
+    - kind: ImageUpdateAutomation
+      name: "*"
+      namespace: "*"
