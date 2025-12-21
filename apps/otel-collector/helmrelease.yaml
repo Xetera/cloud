@@ -25,6 +25,20 @@ spec:
       repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
     mode: deployment
     fullnameOverride: otel-collector
+    clusterRole:
+      create: true
+      rules:
+        - apiGroups: [""]
+          resources: ["nodes", "nodes/metrics", "nodes/stats", "services", "endpoints", "pods"]
+          verbs: ["get", "list", "watch"]
+        - apiGroups: [""]
+          resources: ["configmaps"]
+          verbs: ["get"]
+        - apiGroups: ["discovery.k8s.io"]
+          resources: ["endpointslices"]
+          verbs: ["get", "list", "watch"]
+        - nonResourceURLs: ["/metrics"]
+          verbs: ["get"]
     config:
       receivers:
         otlp:
@@ -36,11 +50,6 @@ spec:
         prometheus:
           config:
             scrape_configs:
-              # Scrape the collector itself
-              - job_name: 'otel-collector'
-                scrape_interval: 30s
-                static_configs:
-                  - targets: ['localhost:8888']
               # Kubernetes service discovery for pods
               - job_name: 'kubernetes-pods'
                 kubernetes_sd_configs:
