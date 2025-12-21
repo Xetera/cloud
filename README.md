@@ -23,6 +23,8 @@ Alertmanager push notification configuration
 - `pushover-config`
   - `user_key`
   - `api_key`
+- `flux-discord-webhook`
+  - `address`
 
 #### Database
 
