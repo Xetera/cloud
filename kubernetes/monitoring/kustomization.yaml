@@ -4,8 +4,5 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - ./secrets.yaml
-  - ./alloy-rbac.yaml
   - ./flux.yaml
   - ./gatus.yaml
-  - ./loki.yaml
-  - ./tempo.yaml
