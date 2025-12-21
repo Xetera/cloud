@@ -74,7 +74,15 @@ data:
           - "[STATUS] == 200"
       - name: otel-collector
         group: k8s
-        url: "http://otel-collector.monitoring.svc.cluster.local:13133"
+        url: "http://signoz-otel-collector.monitoring.svc.cluster.local:13133"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
+      - name: signoz
+        group: k8s
+        url: "http://signoz.monitoring.svc.cluster.local/api/v1/health"
         interval: 1m
         timeout: 10s
         method: GET
