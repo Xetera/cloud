@@ -29,7 +29,7 @@ FROM deps AS builder
 
 RUN GOOS=linux GOARCH=arm64 go build -o out ./cmd/tls-client-api/main.go
 
-FROM debian:13.2-slim
+FROM debian:13.4-slim
 
 WORKDIR /app
 
