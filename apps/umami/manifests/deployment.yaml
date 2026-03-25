@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: umami
+  labels:
+    app: umami
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: umami
+  template:
+    metadata:
+      labels:
+        app: umami
+    spec:
+      serviceAccountName: umami
+      containers:
+        - name: umami
+          image: "ghcr.io/umami-software/umami:postgresql-v2.20.2"
+          imagePullPolicy: Always
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: "umami-postgres-url"
+                  key: "url"
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: "umami-app-secret"
+                  key: app-secret
+            - name: CORS_MAX_AGE
+              value: "86400"
+            - name: DISABLE_BOT_CHECK
+              value: "1"
+            - name: DISABLE_TELEMETRY
+              value: "1"
+            - name: DISABLE_UPDATES
+              value: "1"
+            - name: FORCE_SSL
+              value: "1"
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            - name: LOG_QUERY
+              value: "1"
+            - name: PORT
+              value: "3000"
+            - name: REMOVE_TRAILING_SLASH
+              value: "1"
+            - name: TRACKER_SCRIPT_NAME
+              value: "selfhosted-umami"
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: "/"
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: "/"
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: "/"
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          securityContext:
+            runAsGroup: 65533
+            runAsNonRoot: true
+            runAsUser: 1001

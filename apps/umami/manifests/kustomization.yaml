@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: analytics
 resources:
   - ./secrets.yaml
-  - ./helmrepository.yaml
-  - ./helmrelease.yaml
+  - ./serviceaccount.yaml
+  - ./service.yaml
+  - ./deployment.yaml
   - ./ingress.yaml
