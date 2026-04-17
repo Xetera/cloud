@@ -18,7 +18,7 @@ spec:
       serviceAccountName: umami
       containers:
         - name: umami
-          image: "ghcr.io/umami-software/umami:3.0.3"
+          image: "ghcr.io/umami-software/umami:3.1.0"
           imagePullPolicy: Always
           env:
             - name: DATABASE_URL
