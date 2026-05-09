@@ -9,6 +9,7 @@ spec:
     - "ping"
     - "push"
     - "package"
+    - "workflow_run"
   secretRef:
     name: flux-webhook-token
   resources:
