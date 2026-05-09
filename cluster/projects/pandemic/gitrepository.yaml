@@ -1,0 +1,13 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: pandemic
+  namespace: flux-system
+spec:
+  # controlled by webhooks
+  interval: 60m
+  url: ssh://git@github.com/Xetera/pandemic
+  ref:
+    branch: main
+  secretRef:
+    name: github-app
