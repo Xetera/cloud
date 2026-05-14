@@ -1,0 +1,16 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: pandemic
+  namespace: flux-system
+spec:
+  providerRef:
+    name: pandemic
+  eventSeverity: info
+  eventSources:
+    - kind: GitRepository
+      name: "pandemic"
+      namespace: "flux-system"
+    - kind: Kustomization
+      name: "pandemic"
+      namespace: "flux-system"
