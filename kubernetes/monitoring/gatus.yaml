@@ -28,9 +28,9 @@ data:
         method: GET
         conditions:
           - "[STATUS] == 200"
-      - name: "hantavirus.xetera.com"
+      - name: "hantavirus.xetera.dev"
         group: projects
-        url: "https://hantavirus.xetera.com"
+        url: "https://hantavirus.xetera.dev"
         interval: 30m
         timeout: 10s
         method: GET
