@@ -1,0 +1,73 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: cilium
+      version: "1.19.4"
+      sourceRef:
+        kind: HelmRepository
+        name: cilium
+        namespace: kube-system
+      interval: 60m
+  values:
+    encryption:
+      enabled: false
+    hubble:
+      enabled: true
+      export:
+        static:
+          enabled: true
+          excludeFilters: []
+          fieldMask: []
+          filePath: /dev/stdout
+          includeFilters:
+            - event_type:
+                - sub_type: 181
+                  type: 1
+          name: traffic-blocking
+      metrics:
+        dashboards:
+          enabled: true
+          namespace: monitoring
+        enableOpenMetrics: true
+        enabled:
+          - dns
+          - drop
+          - tcp
+          - flow
+          - port-distribution
+          - icmp
+          - http
+      peerService:
+        clusterDomain: cluster.local
+      relay:
+        enabled: true
+        logOptions:
+          format: json
+      ui:
+        enabled: true
+    ipam:
+      mode: kubernetes
+    ipv4NativeRoutingCIDR: 10.244.0.0/16
+    k8sServiceHost: 127.0.0.1
+    k8sServicePort: 6444
+    kubeProxyReplacement: true
+    operator:
+      prometheus:
+        enabled: true
+      replicas: 1
+      resources:
+        requests:
+          memory: 128Mi
+    resources:
+      requests:
+        memory: 512Mi
+    routingMode: tunnel
+    tunnelProtocol: vxlan
+    standaloneDnsProxy:
+      enabled: false
