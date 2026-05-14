@@ -28,6 +28,14 @@ data:
         method: GET
         conditions:
           - "[STATUS] == 200"
+      - name: "hantavirus.xetera.com"
+        group: projects
+        url: "https://hantavirus.xetera.com"
+        interval: 30m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
       - name: "me.xetera.dev"
         group: projects
         url: "https://me.xetera.dev/health"
@@ -48,46 +56,54 @@ data:
           - "[STATUS] == 401"
 
       # k8s services
-      - name: loki
-        group: k8s
-        url: "http://loki.monitoring.svc.cluster.local:3100/ready"
-        interval: 5m
-        timeout: 10s
-        method: GET
-        conditions:
-          - "[STATUS] == 200"
-      - name: prometheus
-        group: k8s
-        url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/-/healthy"
-        interval: 1m
-        timeout: 10s
-        method: GET
-        conditions:
-          - "[STATUS] == 200"
-      - name: grafana
-        group: k8s
-        url: "http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local/ready"
-        interval: 1m
-        timeout: 10s
-        method: GET
-        conditions:
-          - "[STATUS] == 200"
-      - name: otel-collector
-        group: k8s
-        url: "http://signoz-otel-collector.monitoring.svc.cluster.local:13133"
-        interval: 1m
-        timeout: 10s
-        method: GET
-        conditions:
-          - "[STATUS] == 200"
-      - name: signoz
-        group: k8s
-        url: "http://signoz.monitoring.svc.cluster.local/api/v1/health"
-        interval: 1m
-        timeout: 10s
-        method: GET
-        conditions:
-          - "[STATUS] == 200"
+      # - name: loki
+      #   group: k8s
+      #   url: "http://loki.monitoring.svc.cluster.local:3100/ready"
+      #   interval: 5m
+      #   timeout: 10s
+      #   method: GET
+      #   conditions:
+      #     - "[STATUS] == 200"
+      # - name: prometheus
+      #   group: k8s
+      #   url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/-/healthy"
+      #   interval: 1m
+      #   timeout: 10s
+      #   method: GET
+      #   conditions:
+      #     - "[STATUS] == 200"
+      # - name: grafana
+      #   group: k8s
+      #   url: "http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local/ready"
+      #   interval: 1m
+      #   timeout: 10s
+      #   method: GET
+      #   conditions:
+      #     - "[STATUS] == 200"
+      # - name: otel-collector
+      #   group: k8s
+      #   url: "http://signoz-otel-collector.monitoring.svc.cluster.local:13133"
+      #   interval: 1m
+      #   timeout: 10s
+      #   method: GET
+      #   conditions:
+      #     - "[STATUS] == 200"
+      # - name: tempo
+      #   group: k8s
+      #   url: "http://tempo.monitoring.svc.cluster.local:3200/ready"
+      #   interval: 1m
+      #   timeout: 10s
+      #   method: GET
+      #   conditions:
+      #     - "[STATUS] == 200"
+      # - name: signoz
+      #   group: k8s
+      #   url: "http://signoz.monitoring.svc.cluster.local/api/v1/health"
+      #   interval: 1m
+      #   timeout: 10s
+      #   method: GET
+      #   conditions:
+      #     - "[STATUS] == 200"
       - name: postgres
         group: k8s
         url: "tcp://postgres-r.cnpg-system.svc.cluster.local:5432"
@@ -107,14 +123,6 @@ data:
       - name: traefik
         group: k8s
         url: "http://traefik.ingress.svc.cluster.local/ping"
-        interval: 1m
-        timeout: 10s
-        method: GET
-        conditions:
-          - "[STATUS] == 200"
-      - name: tempo
-        group: k8s
-        url: "http://tempo.monitoring.svc.cluster.local:3200/ready"
         interval: 1m
         timeout: 10s
         method: GET
