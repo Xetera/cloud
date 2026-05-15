@@ -24,3 +24,17 @@ spec:
           memory: 200Mi
         limits:
           memory: 2Gi
+      settings:
+        max_server_memory_usage_to_ram_ratio: 0.5
+        mark_cache_size: 134217728
+        uncompressed_cache_size: 134217728
+        background_schedule_pool_size: 4
+      zookeeper:
+        extraEnvVars:
+          - name: JVMFLAGS
+            value: "-Xms128m -Xmx256m"
+        resources:
+          requests:
+            memory: 128Mi
+          limits:
+            memory: 512Mi
