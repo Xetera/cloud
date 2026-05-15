@@ -64,8 +64,12 @@ spec:
       resources:
         requests:
           memory: 128Mi
+        limits:
+          memory: 256Mi
     resources:
       requests:
+        memory: 512Mi
+      limits:
         memory: 512Mi
     routingMode: tunnel
     tunnelProtocol: vxlan
