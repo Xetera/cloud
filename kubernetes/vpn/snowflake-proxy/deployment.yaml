@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snowflake-proxy
+  namespace: vpn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: snowflake-proxy
+  template:
+    metadata:
+      labels:
+        app: snowflake-proxy
+    spec:
+      containers:
+        - name: snowflake-proxy
+          image: thetorproject/snowflake-proxy:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
