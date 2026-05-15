@@ -12,11 +12,26 @@ spec:
     metadata:
       labels:
         app: snowflake-proxy
+      annotations:
+        signoz.io/scrape: "true"
+        signoz.io/port: "9999"
+        signoz.io/path: "/internal/metrics"
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: snowflake-proxy
           image: thetorproject/snowflake-proxy:latest
           imagePullPolicy: Always
+          args:
+            - -metrics
+            - -metrics-address
+            - "0.0.0.0"
+            - -ephemeral-ports-range
+            - "32768:60999"
+          ports:
+            - name: metrics
+              containerPort: 9999
           resources:
             requests:
               cpu: 50m

@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: k8s-infra
-      version: "0.15.0"
+      version: "0.16.0"
       sourceRef:
         kind: HelmRepository
         name: signoz
@@ -19,7 +19,7 @@ spec:
       cloud: "hcloud"
 
     # Configure to send to self-hosted SigNoz
-    otelCollectorEndpoint: "signoz-otel-collector.monitoring.svc.cluster.local:4317"
+    otelCollectorEndpoint: "http://signoz-otel-collector.monitoring.svc.cluster.local:4318"
     otelInsecure: true
 
     # Presets - enable comprehensive k8s monitoring
@@ -40,6 +40,9 @@ spec:
 
       # Kubernetes attributes processor
       kubernetesAttributes:
+        enabled: true
+
+      prometheus:
         enabled: true
 
     # Custom configuration for deployment collector (PostgreSQL monitoring)
@@ -74,14 +77,9 @@ spec:
           batch:
             timeout: 5s
             send_batch_size: 1024
-        exporters:
-          otlp:
-            endpoint: signoz-otel-collector.monitoring.svc.cluster.local:4317
-            tls:
-              insecure: true
         service:
           pipelines:
             metrics:
               receivers: [postgresql]
               processors: [batch]
-              exporters: [otlp]
+              exporters: [otlphttp]
