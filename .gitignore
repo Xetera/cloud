@@ -11,3 +11,4 @@ kubeconfig
 1password-credentials.json
 .DS_Store
 .direnv
+.devenv
