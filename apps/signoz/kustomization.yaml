@@ -6,3 +6,4 @@ resources:
   - ./helmrelease.yaml
   - ./k8s-infra-helmrelease.yaml
   - ./secrets.yaml
+  - ./ingress.yaml
