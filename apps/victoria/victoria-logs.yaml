@@ -1,0 +1,79 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-logs
+  namespace: monitoring
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: victoria-logs-single
+      version: "0.x"
+      sourceRef:
+        kind: HelmRepository
+        name: victoriametrics
+        namespace: monitoring
+      interval: 24h
+  values:
+    server:
+      persistentVolume:
+        enabled: true
+        size: 20Gi
+        storageClassName: hcloud-volumes
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 512Mi
+      retentionPeriod: "7d"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vector
+  namespace: monitoring
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: vector
+      version: "0.x"
+      sourceRef:
+        kind: HelmRepository
+        name: vector
+        namespace: monitoring
+      interval: 24h
+  values:
+    role: Agent
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+    customConfig:
+      data_dir: /vector-data-dir
+      sources:
+        kubernetes_logs:
+          type: kubernetes_logs
+      transforms:
+        remap_logs:
+          type: remap
+          inputs: [kubernetes_logs]
+          source: |-
+            .stream = del(._stream)
+      sinks:
+        victoria_logs:
+          type: elasticsearch
+          inputs: [remap_logs]
+          endpoints:
+            - http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/elasticsearch
+          mode: bulk
+          bulk:
+            index: kubernetes
+          request:
+            headers:
+              VL-Stream-Fields: stream
+              VL-Msg-Field: message
+              VL-Time-Field: timestamp

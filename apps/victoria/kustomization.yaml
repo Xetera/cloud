@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - ./helmrepository.yaml
-  - ./helmrelease.yaml
-  - ./k8s-infra-helmrelease.yaml
+  - ./victoria-metrics.yaml
+  - ./victoria-logs.yaml
+  - ./grafana.yaml
   - ./secrets.yaml
-  - ./ingress.yaml

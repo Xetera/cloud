@@ -1,0 +1,58 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: grafana
+      version: "8.x"
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: monitoring
+      interval: 24h
+  valuesFrom:
+    - kind: Secret
+      name: grafana-secret
+      valuesKey: admin-password
+      targetPath: adminPassword
+  values:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClassName: hcloud-volumes
+    ingress:
+      enabled: true
+      ingressClassName: tailscale
+      hosts:
+        - grafana
+      tls:
+        - hosts:
+            - grafana
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: VictoriaMetrics
+            type: prometheus
+            url: http://victoria-metrics-victoria-metrics-single-server.monitoring.svc.cluster.local:8428
+            isDefault: true
+            access: proxy
+          - name: VictoriaLogs
+            type: victoriametrics-logs-datasource
+            url: http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428
+            access: proxy
+    plugins:
+      - victoriametrics-logs-datasource
+    grafana.ini:
+      auth.anonymous:
+        enabled: false
