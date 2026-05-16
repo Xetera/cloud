@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: vpn
 resources:
   - ./deployment.yaml
+  - ./scrape.yaml

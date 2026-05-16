@@ -12,10 +12,6 @@ spec:
     metadata:
       labels:
         app: snowflake-proxy
-      annotations:
-        signoz.io/scrape: "true"
-        signoz.io/port: "9999"
-        signoz.io/path: "/internal/metrics"
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
@@ -38,4 +34,4 @@ spec:
               memory: 64Mi
             limits:
               cpu: 200m
-              memory: 200Mi
+              memory: 512Mi

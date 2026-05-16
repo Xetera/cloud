@@ -1,0 +1,12 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: snowflake-proxy
+  namespace: vpn
+spec:
+  selector:
+    matchLabels:
+      app: snowflake-proxy
+  podMetricsEndpoints:
+    - port: metrics
+      path: /internal/metrics

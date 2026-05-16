@@ -1,0 +1,119 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics
+  namespace: monitoring
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: victoria-metrics-k8s-stack
+      version: "0.x"
+      sourceRef:
+        kind: HelmRepository
+        name: victoriametrics
+        namespace: monitoring
+      interval: 24h
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: victoria-metrics-grafana
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/resources
+                value:
+                  requests:
+                    cpu: 50m
+                    memory: 128Mi
+                  limits:
+                    memory: 256Mi
+  values:
+    fullnameOverride: victoria-metrics
+
+    vmsingle:
+      enabled: true
+      spec:
+        retentionPeriod: "3"
+        storage:
+          storageClassName: hcloud-volumes
+          resources:
+            requests:
+              storage: 20Gi
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+    vmcluster:
+      enabled: false
+
+    vmagent:
+      enabled: true
+      spec:
+        resources:
+          requests:
+            cpu: 20m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+
+    vmalert:
+      enabled: false
+
+    alertmanager:
+      enabled: false
+
+    grafana:
+      enabled: true
+      admin:
+        existingSecret: grafana-secret
+        passwordKey: admin-password
+      sidecar:
+        dashboards:
+          enabled: false
+        datasources:
+          enabled: false
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
+      persistence:
+        enabled: true
+        size: 5Gi
+        storageClassName: hcloud-volumes
+      ingress:
+        enabled: true
+        ingressClassName: tailscale
+        hosts:
+          - grafana
+        tls:
+          - hosts:
+              - grafana
+      plugins:
+        - victoriametrics-logs-datasource
+      additionalDataSources:
+        - name: VictoriaLogs
+          type: victoriametrics-logs-datasource
+          url: http://victoria-logs-victoria-logs-single-server.monitoring.svc.cluster.local:9428
+          access: proxy
+      grafana.ini:
+        auth.anonymous:
+          enabled: false
+
+    prometheus-node-exporter:
+      enabled: false
+
+    kube-state-metrics:
+      enabled: true
+
+    defaultDashboardsEnabled: false
+    experimentalDashboardsEnabled: false
+
+    victoria-metrics-operator:
+      enabled: true
