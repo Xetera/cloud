@@ -366,6 +366,13 @@ spec:
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: default
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: forgejo
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
     # to watch kubernetes events
     - toEntities:
         - kube-apiserver

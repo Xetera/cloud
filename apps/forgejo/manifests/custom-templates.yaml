@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forgejo-custom-templates
+  namespace: forgejo
+data:
+  header.tmpl: |
+    <!-- I track analytics on my own website with a selfhosted instance of umami. No data is shared -->
+    <script defer src="https://overtime-contingency.xetera.dev/selfhosted-umami" data-website-id="2ed83b37-3e38-4ac0-b2fb-a82cf712ad63"></script>

@@ -1,0 +1,79 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: forgejo
+      version: "17.1.0"
+      sourceRef:
+        kind: HelmRepository
+        name: forgejo
+        namespace: forgejo
+      interval: 60m
+  values:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: hcloud-volumes
+    gitea:
+      admin:
+        existingSecret: forgejo-admin-credentials
+      config:
+        database:
+          DB_TYPE: postgres
+          HOST: postgres-rw.cnpg-system.svc.cluster.local:5432
+          NAME: forgejo
+          USER: forgejo
+        server:
+          DOMAIN: git.xetera.dev
+          ROOT_URL: https://git.xetera.dev
+          SSH_DOMAIN: repo.xetera.dev
+          SSH_PORT: 2222
+          SSH_LISTEN_PORT: 2222
+          LANDING_PAGE: /xetera
+        service:
+          DISABLE_REGISTRATION: true
+          REQUIRE_SIGNIN_VIEW: false
+        session:
+          PROVIDER: db
+        cache:
+          ADAPTER: memory
+        queue:
+          TYPE: level
+      additionalConfigFromEnvs:
+        - name: GITEA__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-db-credentials
+              key: password
+    service:
+      ssh:
+        type: ClusterIP
+        port: 22
+        targetPort: 2222
+    ingress:
+      enabled: false
+    redis-cluster:
+      enabled: false
+    postgresql:
+      enabled: false
+    postgresql-ha:
+      enabled: false
+    extraVolumes:
+      - name: custom-templates
+        configMap:
+          name: forgejo-custom-templates
+    extraVolumeMounts:
+      - name: custom-templates
+        mountPath: /data/gitea/templates/custom/header.tmpl
+        subPath: header.tmpl
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi

@@ -104,6 +104,14 @@ data:
         method: GET
         conditions:
           - "[STATUS] == 200"
+      - name: forgejo
+        group: k8s
+        url: "http://forgejo-http.forgejo.svc.cluster.local:3000/api/healthz"
+        interval: 1m
+        timeout: 10s
+        method: GET
+        conditions:
+          - "[STATUS] == 200"
       - name: tls-client-api
         group: k8s
         url: "http://tls-client-api.default.svc.cluster.local:8081/health"
