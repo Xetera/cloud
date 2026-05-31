@@ -1,0 +1,16 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: shoal
+  namespace: flux-system
+spec:
+  providerRef:
+    name: shoal
+  eventSeverity: info
+  eventSources:
+    - kind: GitRepository
+      name: "shoal"
+      namespace: "flux-system"
+    - kind: Kustomization
+      name: "shoal"
+      namespace: "flux-system"

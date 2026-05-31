@@ -1,0 +1,14 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: shoal
+  namespace: flux-system
+spec:
+  # controlled by webhooks
+  interval: 60m
+  url: https://github.com/Xetera/shoal
+  ref:
+    branch: main
+  provider: github
+  secretRef:
+    name: github-app
