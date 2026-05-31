@@ -18,11 +18,11 @@ spec:
   imageRepositoryRef:
     name: shoal
   filterTags:
-    pattern: '^v(?P<version>\d+\.\d+\.\d+)$'
-    extract: '$version'
+    pattern: '^(?P<ts>\d+)-[a-f0-9]+$'
+    extract: '$ts'
   policy:
-    semver:
-      range: '>=0.1.0'
+    numerical:
+      order: asc
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
@@ -43,7 +43,7 @@ spec:
         name: fluxcdbot
         email: fluxcdbot@users.noreply.github.com
       messageTemplate: |
-        deploy: {{range .Updated.Images}}{{println .}}{{end}}
+        deploy: {{range .Changed.Changes}}{{println .OldValue "->" .NewValue}}{{end}}
     push:
       branch: main
   update:
