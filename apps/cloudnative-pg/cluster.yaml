@@ -97,6 +97,12 @@ spec:
         superuser: false
         passwordSecret:
           name: postgres-user-forgejo
+      - name: shoal
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: postgres-user-shoal
   resources:
     requests:
       cpu: 250m
