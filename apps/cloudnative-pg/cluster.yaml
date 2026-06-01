@@ -11,7 +11,7 @@ spec:
     apiGroup: postgresql.cnpg.io
     kind: ImageCatalog
     name: postgresql
-    major: 17
+    major: 18
   bootstrap:
     # recovery:
     #   backup:
@@ -27,9 +27,7 @@ spec:
     #       secretAccessKey:
     #         name: postgres-s3-backups
     #         key: secret_key
-    initdb:
-      postInitTemplateSQL:
-        - CREATE EXTENSION timescaledb;
+    initdb: {}
   storage:
     pvcTemplate:
       accessModes:
@@ -130,7 +128,6 @@ spec:
       pg_stat_statements.max: "10000"
       pg_stat_statements.track: all
     shared_preload_libraries:
-      - timescaledb
       - pg_stat_statements
   monitoring:
     enablePodMonitor: true
