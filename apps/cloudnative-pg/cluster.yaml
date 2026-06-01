@@ -11,7 +11,7 @@ spec:
     apiGroup: postgresql.cnpg.io
     kind: ImageCatalog
     name: postgresql
-    major: 17
+    major: 18
   bootstrap:
     # recovery:
     #   backup:
