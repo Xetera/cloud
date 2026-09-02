@@ -1,5 +1,5 @@
 # rqeuired in .tool-versions
-FROM golang:1.26.3-bookworm AS base
+FROM golang:1.27.1-bookworm AS base
 
 ARG hash
 
