@@ -28,3 +28,31 @@ spec:
     options:
       name: ingress-cloudflare-mtls@kubernetescrd
     secretName: cloudflare-origin-xetera-dev
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-origin-analytics
+  namespace: analytics
+type: kubernetes.io/tls
+spec:
+  itemPath: "vaults/k8s-cloud/items/cloudflare-origin:analytics"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: umami-proxied
+  namespace: analytics
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Header(`X-Route`, `analytics`)
+      priority: 5
+      services:
+        - name: umami
+          port: 3000
+      middlewares:
+        - name: ingress-cloudflare-only@kubernetescrd
+  tls:
+    secretName: cloudflare-origin-analytics
