@@ -50,7 +50,7 @@ spec:
             - name: REMOVE_TRAILING_SLASH
               value: "1"
             - name: TRACKER_SCRIPT_NAME
-              value: "selfhosted-umami"
+              value: "selfhosted-umami,pulse.js"
           ports:
             - name: http
               containerPort: 3000

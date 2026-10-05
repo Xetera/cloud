@@ -12,3 +12,4 @@ kubeconfig
 .DS_Store
 .direnv
 .devenv
+.serena
